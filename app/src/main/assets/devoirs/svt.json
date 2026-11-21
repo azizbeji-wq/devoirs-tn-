@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": 2,
+  "matiere": "SVT",
+  "devoirs": [
+    {
+      "id": "bac_scexp_ds2_svt",
+      "titre": "Devoir de Synthèse N°2 — Génétique Humaine & Neurophysiologie",
+      "matiere": "SVT",
+      "niveau": "BAC",
+      "section": "SCIENCES_EXP",
+      "type": "SYNTHESE",
+      "trimestre": "T2",
+      "duree": 180,
+      "bareme": 20,
+      "difficulte": "Bac Type",
+      "etablissement": "Lycée Pilote de Sfax",
+      "sujetEntrainement": false,
+      "langue": "fr",
+      "chapitres": ["Génétique humaine", "Pedigree", "Potentiel d'action", "Synapse"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Transmission d'une maladie héréditaire (Pedigree)",
+          "bareme": "10 pts",
+          "enonce": "Dans un arbre généalogique familial, deux parents phénotypiquement sains (I₁ et I₂) donnent naissance à une fille II₂ atteinte d'une anomalie métabolique rare.\n1. L'allèle responsable de la maladie est-il dominant ou récessif ? Justifier rigoureusement.\n2. Discuter la localisation chromosomique (autosomale ou liée au chromosome X) de ce gène.\n3. Donner les génotypes certains de I₁, I₂ et II₂.",
+          "corrige": "1. Deux parents sains I₁ et I₂ ont un enfant atteint II₂ : l'allèle morbide m était masqué chez les parents, il est donc récessif (noté m) face à l'allèle normal dominant N.\n2. Si le gène était porté par X, la fille atteinte II₂ (X^m//X^m) aurait reçu un X^m de son père I₁. Or I₁ serait alors atteint (X^m//Y), ce qui est contredit par l'énoncé (I₁ est sain). La transmission est donc autosomale récessive.\n3. Génotypes : I₁ (N//m), I₂ (N//m), II₂ (m//m)."
+        },
+        {
+          "numero": 2,
+          "titre": "Transmission synaptique et intégration neuronale",
+          "bareme": "10 pts",
+          "enonce": "On stimule successivement deux afférences A et B reliées à un motoneurone M.\n- Stimulation isolée de A : enregistrement en M d'une dépolarisation de +8 mV (seuil de déclenchement = +15 mV).\n- Stimulation isolée de B : enregistrement en M d'une hyperpolarisation de -5 mV.\n1. Qualifier les synapses A-M et B-M en justifiant.\n2. Expliquer quel phénomène permet à la stimulation rapprochée de A deux fois de suite de déclencher un potentiel d'action en M.",
+          "corrige": "1. A-M est une synapse excitatrice car elle engendre un PPSE (+8 mV, entrée de Na⁺). B-M est une synapse inhibitrice car elle engendre un PPSI (-5 mV, entrée de Cl⁻ ou sortie de K⁺).\n2. Deux stimulations très rapprochées sur A produisent une sommation temporelle des deux PPSE : la dépolarisation cumulée atteint/dépasse le seuil de +15 mV au cône axonique, déclenchant un potentiel d'action propagé."
+        }
+      ]
+    },
+    {
+      "id": "college_8eme_dc2_svt",
+      "titre": "Devoir de Contrôle N°2 — Reproduction & Tectonique des Plaques",
+      "matiere": "SVT",
+      "niveau": "COLLEGE_8",
+      "section": "TRONC_COMMUN",
+      "type": "CONTROLE",
+      "trimestre": "T2",
+      "duree": 60,
+      "bareme": 20,
+      "difficulte": "Fondamental",
+      "etablissement": "Collège Pilote de Nabeul",
+      "sujetEntrainement": false,
+      "langue": "fr",
+      "chapitres": ["Séismes", "Plaques lithosphériques", "Reproduction végétale"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Origine des séismes et failles",
+          "bareme": "10 pts",
+          "enonce": "1. Définir le foyer (hypocentre) et l'épicentre d'un séisme.\n2. Expliquer pourquoi la région méditerranéenne connaît une activité sismique notable.",
+          "corrige": "1. Le foyer est le point en profondeur où se produit la rupture des roches ; l'épicentre est le point à la surface situé à la verticale du foyer où les secousses sont les plus fortes.\n2. La Méditerranée est située à la zone de convergence (rapprochement) entre la plaque africaine et la plaque eurasiatique, générant des contraintes et des failles actives."
+        },
+        {
+          "numero": 2,
+          "titre": "Pollinisation et fécondation chez les plantes à fleurs",
+          "bareme": "10 pts",
+          "enonce": "Remettre dans l'ordre chronologique : formation du fruit, pollinisation, germination du grain de pollen, fécondation, formation de la graine.",
+          "corrige": "Ordre exact : 1) Pollinisation → 2) Germination du grain de pollen → 3) Fécondation → 4) Transformation de l'ovule en graine et de l'ovaire en fruit."
+        }
+      ]
+    },
+    {
+      "id": "train_college_9eme_ds1_svt",
+      "titre": "Devoir de Synthèse N°1 — Digestion Enzymatique, Absorption & Circulation",
+      "matiere": "SVT",
+      "niveau": "COLLEGE_9",
+      "section": "TRONC_COMMUN",
+      "type": "SYNTHESE",
+      "trimestre": "T1",
+      "duree": 90,
+      "bareme": 20,
+      "difficulte": "Standard",
+      "etablissement": "Établissement : non précisé",
+      "sujetEntrainement": true,
+      "langue": "fr",
+      "chapitres": ["Digestion enzymatique", "Villosités intestinales", "Absorption", "Double circulation sanguine"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Expérience in vitro sur la digestion de l'amidon",
+          "bareme": "10 pts",
+          "enonce": "On prépare trois tubes à essai maintenus au bain-marie à 37 °C pendant 20 minutes :\n- Tube A : empois d'amidon + eau distillée.\n- Tube B : empois d'amidon + salive fraîche.\n- Tube C : empois d'amidon + salive préalablement bouillie.\nRésultats des tests :\n- Tube A et Tube C : eau iodée → bleu violacé ; liqueur de Fehling à chaud → bleu.\n- Tube B : eau iodée → jaune brun ; liqueur de Fehling à chaud → précipité rouge brique.\n1. Interpréter les résultats observés dans les tubes A et B.\n2. Nommer l'enzyme responsable de la transformation et le produit formé.\n3. Quelle conclusion tirez-vous de la comparaison entre les tubes B et C ?",
+          "corrige": "1. Tube A (témoin) : l'amidon persiste (test positif à l'eau iodée) et aucun sucre réducteur n'apparaît (Fehling négatif). Tube B : l'amidon a disparu (eau iodée négative) et un sucre réducteur s'est formé (précipité rouge brique avec Fehling).\n2. L'enzyme est l'amylase salivaire ; elle hydrolyse la macromolécule d'amidon en maltose (sucre réducteur).\n3. Dans le tube C, l'ébullition a détruit (dénaturé) l'amylase salivaire, empêchant la digestion de l'amidon : l'activité enzymatique dépend de la température et est optimale à 37 °C."
+        },
+        {
+          "numero": 2,
+          "titre": "Absorption intestinale et double circulation sanguine",
+          "bareme": "10 pts",
+          "enonce": "1. Citer trois caractéristiques structurales de la paroi de l'intestin grêle (villosités intestinales) qui favorisent l'absorption des nutriments.\n2. Schématiser sous forme de trajet fléché la petite circulation (pulmonaire) et la grande circulation (générale) en précisant les cavités cardiaques traversées.",
+          "corrige": "1. Les trois caractéristiques clés :\n   - Une très grande surface d'échange (replis, millions de villosités et microvillosités).\n   - Une paroi extrêmement mince (une seule couche de cellules épithéliales).\n   - Une riche vascularisation (réseau dense de capillaires sanguins et chylifère lymphatique).\n2. Petite circulation (pulmonaire) : Ventricule droit → Artère pulmonaire → Poumons (hématose : enrichissement en O₂) → Veines pulmonaires → Oreillette gauche.\n   Grande circulation (générale) : Ventricule gauche → Artère aorte → Organes (distribution d'O₂ et nutriments) → Veines caves → Oreillette droite."
+        }
+      ]
+    },
+    {
+      "id": "train_lycee_3eme_dc1_svt",
+      "titre": "Devoir de Contrôle N°1 — Cycle Cellulaire, Mitose & Synthèse des Protéines",
+      "matiere": "SVT",
+      "niveau": "LYCEE_3",
+      "section": "SCIENCES_EXP",
+      "type": "CONTROLE",
+      "trimestre": "T1",
+      "duree": 120,
+      "bareme": 20,
+      "difficulte": "Standard",
+      "etablissement": "Établissement : non précisé",
+      "sujetEntrainement": true,
+      "langue": "fr",
+      "chapitres": ["Réplication de l'ADN", "Mitose", "Transcription & Traduction", "Mutations géniques"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Évolution de la quantité d'ADN au cours du cycle cellulaire",
+          "bareme": "10 pts",
+          "enonce": "Une cellule somatique humaine diploïde (2n = 46) possède une quantité d'ADN Q = 6,6 pg (picogrammes) en phase G1 de l'interphase.\n1. Indiquer la quantité d'ADN présente dans cette cellule :\n   a) à la fin de la phase S ;\n   b) en métaphase de mitose ;\n   c) dans chacune des deux cellules filles en fin de télophase.\n2. Expliquer comment la réplication semi-conservative et l'anaphase garantissent la conformité de l'information génétique.",
+          "corrige": "1. a) Fin de phase S : la quantité d'ADN double par réplication, soit 2Q = 13,2 pg.\n   b) Métaphase : les chromosomes sont condensés à deux chromatides sœurs, donc toujours 13,2 pg.\n   c) Fin de télophase : après séparation des chromatides sœurs et division du cytoplasme, chaque cellule fille reçoit Q = 6,6 pg.\n2. La phase S produit deux chromatides sœurs rigoureusement identiques (réplication semi-conservative par complémentarité A-T et C-G) ; en anaphase, le clivage des centromères répartit un lot identique de 46 chromosomes simples à chaque pôle."
+        },
+        {
+          "numero": 2,
+          "titre": "Expression de l'information génétique et effet d'une mutation",
+          "bareme": "10 pts",
+          "enonce": "On donne la séquence d'un fragment du brin transcrit d'un gène (3' → 5') : TAC - GGA - CTT - ACT.\nExtrait du code génétique : AUG = Met ; CCU = Pro ; GAA = Glu ; UGA = Stop ; UAA = Stop.\n1. Déterminer la séquence de l'ARNm (5' → 3') issue de la transcription de ce fragment.\n2. En déduire la séquence polypeptidique obtenue après traduction.\n3. Une mutation ponctuelle remplace le 7ème nucléotide (C) du brin transcrit par un nucléotide A. Identifier le type de mutation et sa conséquence sur la protéine.",
+          "corrige": "1. Par complémentarité (A→U, T→A, C→G, G→C), l'ARNm (5' → 3') est : AUG - CCU - GAA - UGA.\n2. Traduction codon par codon : Met - Pro - Glu (le codon UGA est un codon stop qui met fin à la traduction → tripeptide de 3 acides aminés).\n3. Le 3ème triplet CTT devient ATT sur le brin transcrit, ce qui donne le codon ARNm UAA (codon Stop prématuré). Il s'agit d'une mutation non-sens qui provoque l'arrêt précoce de la traduction et forme une protéine raccourcie (Met - Pro, souvent non fonctionnelle)."
+        }
+      ]
+    }
+  ]
+}

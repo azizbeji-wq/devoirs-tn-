@@ -1,14 +1,104 @@
 <resources>
     <string name="app_name">Devoirs TN</string>
 
-    <!-- Navigation -->
+    <!-- Navigation principale -->
     <string name="nav_matieres">Matières</string>
     <string name="nav_devoirs">Devoirs</string>
     <string name="nav_moyenne">Moyenne</string>
-    <string name="nav_idees">Idées</string>
+    <string name="nav_methodes">Méthodes</string>
     <string name="nav_suivi">Espace</string>
 
-    <!-- Subject Selection Screen -->
+    <!-- Niveaux et cycles tunisiens -->
+    <string name="level_all_label">Tous niveaux</string>
+    <string name="level_all_short">Tous</string>
+    <string name="level_all_cycle">Tous</string>
+    <string name="level_p6_label">6ème Primaire (Concours)</string>
+    <string name="level_p6_short">6ème</string>
+    <string name="level_c7_label">7ème Année de Base</string>
+    <string name="level_c7_short">7ème</string>
+    <string name="level_c8_label">8ème Année de Base</string>
+    <string name="level_c8_short">8ème</string>
+    <string name="level_c9_label">9ème Base &amp; Pilote</string>
+    <string name="level_c9_short">9ème</string>
+    <string name="level_l1_label">1ère Secondaire</string>
+    <string name="level_l1_short">1ère</string>
+    <string name="level_l2_label">2ème Secondaire</string>
+    <string name="level_l2_short">2ème</string>
+    <string name="level_l3_label">3ème Secondaire</string>
+    <string name="level_l3_short">3ème</string>
+    <string name="level_bac_label">Baccalauréat (4ème)</string>
+    <string name="level_bac_short">Bac</string>
+    <string name="level_univ_label">Université &amp; Prépa</string>
+    <string name="level_univ_short">Univ / Prépa</string>
+    <string name="cycle_primaire">Primaire</string>
+    <string name="cycle_college">Collège</string>
+    <string name="cycle_lycee">Lycée</string>
+    <string name="cycle_superieur">Supérieur</string>
+
+    <!-- Sections tunisiennes -->
+    <string name="section_all_label">Toutes sections</string>
+    <string name="section_all_short">Toutes</string>
+    <string name="section_tc_label">Tronc Commun</string>
+    <string name="section_tc_short">Commun</string>
+    <string name="section_maths_label">Mathématiques</string>
+    <string name="section_maths_short">Maths</string>
+    <string name="section_sc_exp_label">Sciences Expérimentales</string>
+    <string name="section_sc_exp_short">Sc. Exp</string>
+    <string name="section_info_label">Sciences de l\'Informatique</string>
+    <string name="section_info_short">Info</string>
+    <string name="section_eco_label">Économie &amp; Gestion</string>
+    <string name="section_eco_short">Éco-Gest</string>
+    <string name="section_tech_label">Sciences Techniques</string>
+    <string name="section_tech_short">Technique</string>
+    <string name="section_lettres_label">Lettres</string>
+    <string name="section_lettres_short">Lettres</string>
+    <string name="section_sup_label">Prépa / Licence</string>
+    <string name="section_sup_short">Supérieur</string>
+
+    <!-- Types d'épreuves et trimestres -->
+    <string name="type_all_label">Tous types</string>
+    <string name="type_all_badge">Tous</string>
+    <string name="type_dc_label">Devoir de Contrôle</string>
+    <string name="type_dc_badge">DC</string>
+    <string name="type_ds_label">Devoir de Synthèse</string>
+    <string name="type_ds_badge">DS</string>
+    <string name="type_exam_label">Sujet Bac / Concours</string>
+    <string name="type_exam_badge">Examen</string>
+
+    <string name="tri_all_label">Tous trimestres</string>
+    <string name="tri_all_short">Tous</string>
+    <string name="tri_t1_label">Trimestre 1</string>
+    <string name="tri_t1_short">T1</string>
+    <string name="tri_t2_label">Trimestre 2</string>
+    <string name="tri_t2_short">T2</string>
+    <string name="tri_t3_label">Trimestre 3</string>
+    <string name="tri_t3_short">T3</string>
+    <string name="tri_nat_label">Session Nationale</string>
+    <string name="tri_nat_short">National</string>
+
+    <!-- Matières (libellés et sous-titres) -->
+    <string name="subj_maths">Mathématiques</string>
+    <string name="subj_maths_sub">Algèbre, Analyse, Géométrie</string>
+    <string name="subj_physique">Physique-Chimie</string>
+    <string name="subj_physique_sub">Circuits RC/RL, Cinétique</string>
+    <string name="subj_arabe">Arabe</string>
+    <string name="subj_arabe_sub">Texte, Langue &amp; Essai (العربية)</string>
+    <string name="subj_svt">SVT</string>
+    <string name="subj_svt_sub">Génétique, Neuro, Géologie</string>
+    <string name="subj_francais">Français</string>
+    <string name="subj_francais_sub">Compréhension, Langue, Essai</string>
+    <string name="subj_anglais">Anglais</string>
+    <string name="subj_anglais_sub">Reading, Grammar &amp; Writing</string>
+    <string name="subj_info">Informatique</string>
+    <string name="subj_info_sub">Python, Algo &amp; Bases SQL</string>
+    <string name="subj_philo">Philosophie</string>
+    <string name="subj_philo_sub">Dissertation &amp; Concepts Bac</string>
+    <string name="subj_eco">Économie &amp; Gestion</string>
+    <string name="subj_eco_sub">PIB, Croissance &amp; Finance</string>
+    <string name="subj_tech">Technologie</string>
+    <string name="subj_tech_sub">GRAFCET &amp; Logique Séquentielle</string>
+
+    <!-- Écran Sélection Matières -->
     <string name="subject_selector_badge">Parcours Tunisien · Filtre Rapide</string>
     <string name="subject_selector_title">Choisis ton niveau et ta matière</string>
     <string name="subject_selector_subtitle">Filtre instantanément les devoirs et révisions par année scolaire (6ème, 7ème, 8ème, 9ème, Bac…) et par discipline.</string>
@@ -19,28 +109,54 @@
     <string name="action_open_library">Voir tout</string>
     <string name="subject_empty_title">Aucun support pour cette combinaison</string>
     <string name="subject_empty_subtitle">Sélectionne « Tous » en année scolaire ou une autre matière pour explorer les devoirs disponibles.</string>
+    <string name="subjects_count_label">%1$d sujets</string>
+    <string name="devoirs_count_short">%1$d devoir(s)</string>
+    <string name="matching_supports_summary">%1$d support(s) · %2$s · %3$s</string>
 
-    <!-- Devoirs Library -->
-    <string name="hero_badge_regime">Régime Tunisien · Programme Officiel</string>
+    <!-- Bibliothèque des Devoirs -->
+    <string name="hero_badge_regime">Sujets d\'entraînement</string>
     <string name="hero_title">Réussis tes devoirs &amp; examens</string>
     <string name="hero_subtitle">Devoirs de contrôle, synthèses, sujets du Bac et corrigés détaillés du Primaire à l\'Université.</string>
-    <string name="search_placeholder">Rechercher un devoir, chapitre, matière…</string>
+    <string name="search_placeholder">Rechercher un devoir…</string>
     <string name="filter_all">Tous</string>
+    <string name="filter_panel_title">Filtres du Programme Tunisien</string>
     <string name="filter_level_label">Cycle &amp; Niveau</string>
     <string name="filter_section_label">Section</string>
     <string name="filter_type_label">Type d\'épreuve</string>
     <string name="filter_trimester_label">Trimestre</string>
     <string name="filter_subject_label">Matière</string>
+    <string name="filter_favorites_chip">Favoris</string>
+    <string name="results_count_of_total">%1$d devoir(s) sur %2$d</string>
+    <plurals name="devoirs_count_plural">
+        <item quantity="one">%1$d devoir</item>
+        <item quantity="other">%1$d devoirs</item>
+    </plurals>
+    <plurals name="results_count_of_total_plural">
+        <item quantity="one">%1$d devoir sur %2$d</item>
+        <item quantity="other">%1$d devoirs sur %2$d</item>
+    </plurals>
+    <string name="library_unofficial_disclaimer">Sujets d\'entraînement, non officiels</string>
+    <string name="action_clear_all">Tout effacer</string>
+    <string name="sort_label">Trier</string>
+    <string name="sort_recent">Plus récents</string>
+    <string name="sort_duration">Durée</string>
+    <string name="sort_difficulty">Difficulté</string>
+    <string name="sort_subject">Matière</string>
+    <string name="card_already_done">Déjà fait</string>
     <string name="empty_devoirs_title">Aucun devoir trouvé</string>
     <string name="empty_devoirs_subtitle">Essaie d\'élargir tes filtres (niveau, section ou trimestre) pour découvrir tous les sujets disponibles.</string>
     <string name="action_reset_filters">Réinitialiser les filtres</string>
+    <string name="card_exercises_points">%1$d exercices · %2$d pts</string>
+    <string name="card_solution_included">Corrigé inclus</string>
+    <string name="search_match_in_exercise">Ex. %1$d · %2$s</string>
 
-    <!-- Devoir Detail -->
+    <!-- Détail d'un Devoir -->
     <string name="back_button_cd">Retour</string>
     <string name="bookmark_cd">Ajouter aux favoris</string>
     <string name="bookmarked_cd">Retirer des favoris</string>
     <string name="mark_completed">Marquer comme fait</string>
     <string name="completed_badge">Devoir maîtrisé</string>
+    <string name="solutions_locked_short">Verrouillés</string>
     <string name="timer_section_title">Chronomètre d\'examen</string>
     <string name="timer_start">Démarrer</string>
     <string name="timer_pause">Pause</string>
@@ -51,39 +167,409 @@
     <string name="toggle_all_solutions_hide">Masquer les corrigés</string>
     <string name="official_header_republic">République Tunisienne · Ministère de l\'Éducation</string>
     <string name="solution_label">Corrigé officiel &amp; méthode</string>
+    <string name="training_subject_badge">Sujet d\'entraînement</string>
+    <string name="meta_duration">Durée</string>
+    <string name="meta_points">Barème</string>
+    <string name="meta_trimester">Trimestre</string>
+    <string name="meta_difficulty">Niveau</string>
+    <string name="meta_points_value">%1$d points</string>
+    <string name="exercise_heading">Exercice %1$d — %2$s</string>
+    <string name="exercise_short_heading">Exercice %1$d</string>
 
-    <!-- Moyenne Calculator -->
+    <!-- Calculateur du Bac Tunisien -->
     <string name="moyenne_title">Calculateur Tunisien</string>
     <string name="moyenne_subtitle">Coefficients officiels et formules (DC + 2×DS) / 3</string>
-    <string name="mode_trimestre">Trimestre (DC + DS)</string>
-    <string name="mode_direct">Note directe / Bac</string>
+    <string name="bac_calc_title">Calculateur du Bac Tunisien</string>
+    <string name="bac_calc_subtitle">Moyenne annuelle (%1$d %%), examen (%2$d %%), Formule Globale (FG) et simulateur inversé</string>
+    <string name="bac_mg_short">MG / 20</string>
+    <string name="bac_exam_short">Examen</string>
+    <string name="bac_annual_short">Annuelle</string>
+    <string name="bac_tab_annual">Annuelle</string>
+    <string name="bac_tab_exam">Examen</string>
+    <string name="bac_tab_fg">FG</string>
+    <string name="bac_tab_sim">Simulateur</string>
+    <string name="bac_complete_both_hint">Saisis tes notes annuelles et d\'examen pour obtenir ta Moyenne Générale.</string>
+    <string name="bac_weights_summary">Part annuelle %1$d %% + Examen %2$d %%</string>
+    <string name="bac_weights_detail">Annuelle : %1$d %% · Examen : %2$d %%</string>
+    <string name="bac_kpi_annual">Annuelle (%1$d%%)</string>
+    <string name="bac_kpi_exam">Examen (%1$d%%)</string>
+    <string name="bac_kpi_fg">Score FG</string>
+    <string name="bac_mention_prefix">Mention : %1$s</string>
+    <string name="bac_mention_tb">Très Bien</string>
+    <string name="bac_mention_b">Bien</string>
+    <string name="bac_mention_ab">Assez Bien</string>
+    <string name="bac_mention_p">Passable</string>
+    <string name="bac_mention_none">Sans mention</string>
+    <string name="bac_session_principale">Admis · Session principale</string>
+    <string name="bac_session_controle">Session de contrôle</string>
+    <string name="bac_session_refuse">Non admis</string>
+    <string name="bac_session_inconnu">Notes incomplètes</string>
+    <string name="bac_action_sample">Exemple</string>
+    <string name="bac_weights_title">Pondération Annuelle / Examen</string>
+    <string name="bac_annual_formula">Moyenne annuelle (T1 + 2×T2 + 2×T3) / 5</string>
+    <string name="bac_exam_header">Notes d\'Examen National — %1$s</string>
+    <string name="bac_active_coeffs">Coefficients actifs : %1$s</string>
+    <string name="bac_coeff_badge">Coeff %1$s</string>
+    <string name="bac_exam_field_label">Examen / 20</string>
+    <string name="bac_fg_title">Formule Globale d\'Orientation (FG)</string>
+    <string name="bac_fg_formula">FG = %1$s × MG + Σ(coeff_FG × Note Examen)</string>
+    <string name="bac_fg_not_entered">Non saisie</string>
+    <string name="bac_fg_empty_hint">Saisis tes notes annuelles et d\'examen pour calculer ton score d\'orientation FG.</string>
+    <string name="bac_fg_editable_title">Coefficients FG modifiables (%1$s)</string>
+    <string name="bac_fg_restore">Rétablir</string>
+    <string name="bac_fg_multiplier_label">Multiplicateur Moyenne Générale (MG)</string>
+    <string name="bac_fg_exam_grade_val">Note examen : %1$s / 20</string>
+    <string name="bac_fg_exam_grade_missing">Note examen non saisie</string>
+    <string name="bac_fg_coeff_short">Coeff</string>
+    <string name="bac_simulator_title">Quelle note à l\'examen pour atteindre mon objectif ?</string>
+    <string name="bac_simulator_desc">Calcule la moyenne minimale requise à l\'examen national (%1$d %%) compte tenu de ta moyenne annuelle (%2$d %%).</string>
+    <string name="bac_sim_preset_10">10 · Admis</string>
+    <string name="bac_sim_preset_12">12 · A. Bien</string>
+    <string name="bac_sim_preset_14">14 · Bien</string>
+    <string name="bac_sim_preset_16">16 · T. Bien</string>
+    <string name="bac_sim_preset_18">18 · Excellence</string>
+    <string name="bac_sim_target_label">Objectif MG / 20</string>
+    <string name="bac_sim_annual_label">Moy. annuelle</string>
+    <string name="bac_sim_annual_prefilled">Annuelle (%1$s)</string>
+    <string name="bac_sim_possible_title">Objectif atteignable !</string>
+    <string name="bac_sim_possible_body">Il te faut au minimum %1$s / 20 à l\'examen du Bac.</string>
+    <string name="bac_sim_max_reachable">Moyenne générale maximale atteignable avec cette annuelle : %1$s / 20.</string>
+    <string name="bac_sim_achieved_body">Cet objectif est déjà couvert par ta part annuelle ! Même 0/20 à l\'examen suffirait (max atteignable : %1$s/20).</string>
+    <string name="bac_sim_impossible_title">Objectif impossible (&gt; 20 à l\'examen)</string>
+    <string name="bac_sim_missing_annual">Remplis tes notes dans l\'onglet « Annuelle » ou saisis directement une moyenne annuelle ci-dessus pour lancer la simulation.</string>
     <string name="label_dc">Devoir Contrôle</string>
     <string name="label_ds">Devoir Synthèse</string>
-    <string name="label_note">Note / 20</string>
+    <string name="label_ds_x2">Devoir Synthèse (×2)</string>
     <string name="action_reset_grades">Réinitialiser</string>
-    <string name="action_simulate_sample">Exemple 15/20</string>
 
-    <!-- Ideas & Methods -->
-    <string name="idees_title">Idées &amp; Méthodes</string>
-    <string name="idees_subtitle">Stratégies de révision tunisiennes et boîte à idées d\'évolution</string>
-    <string name="tab_methods">Fiches Méthodes</string>
-    <string name="tab_app_ideas">Idées de Projet</string>
-    <string name="idea_vote_action">Retenir cette idée</string>
-    <string name="idea_voted_label">Idée retenue</string>
+    <!-- Méthodes de révision -->
+    <string name="methods_title">Méthodes de révision</string>
+    <string name="methods_subtitle">Fiches pratiques pour réussir tes DC, DS et le bac</string>
+    <string name="methods_filter_all">Toutes</string>
+    <string name="methods_filter_favorites">Favoris</string>
+    <string name="methods_filter_examens">Examens</string>
+    <string name="methods_filter_matieres">Matières</string>
+    <string name="methods_filter_organisation">Organisation</string>
+    <string name="methods_filter_ramadan">Ramadan</string>
+    <string name="methods_filter_bac">Bac</string>
+    <string name="methods_tunisian_tip_label">Conseil tunisien</string>
+    <string name="methods_empty_title">Aucune fiche méthode pour ce filtre</string>
+    <string name="debug_roadmap_section_title">[DEBUG] Idées internes (%1$d)</string>
 
-    <!-- Mon Espace -->
+    <!-- Mon Espace & Paramètres -->
     <string name="suivi_title">Mon Espace Révision</string>
-    <string name="suivi_subtitle">Suis tes devoirs favoris et ta progression trimestrielle</string>
+    <string name="suivi_subtitle">Suis tes progrès, tes rappels et tes préférences</string>
     <string name="stat_completed">Faits</string>
     <string name="stat_favorites">Favoris</string>
     <string name="stat_total">Disponibles</string>
+    <string name="section_subject_progress">Progression par matière</string>
     <string name="section_favorites">Mes devoirs favoris</string>
     <string name="section_completed">Devoirs terminés</string>
     <string name="empty_favorites">Aucun devoir en favori pour l\'instant. Appuie sur l\'icône signet d\'un devoir pour le garder sous la main.</string>
     <string name="empty_completed">Termine un devoir et coche « Marquer comme fait » pour suivre ton avancée par matière.</string>
+    <string name="recent_attempts_title">Tentatives en conditions réelles</string>
+    <string name="attempt_meta_duration">%1$s · Durée réelle : %2$s</string>
+    <string name="weak_chapter_meta">%1$s · Moy. %2$s/20 (%3$d éval.) · %4$s</string>
+    <string name="streak_days_value">%1$d j</string>
+    <string name="qcm_short_btn">QCM</string>
 
-    <!-- Content Descriptions -->
+    <!-- Tuteur IA -->
+    <string name="tutor_title">Tuteur IA · Programme TN</string>
+    <string name="tutor_explain_button">Explique-moi cette correction</string>
+    <string name="tutor_hints_chat_button">Indices &amp; Chat</string>
+    <string name="tutor_language_label">Langue de réponse</string>
+    <string name="tutor_progressive_label">Aide progressive (sans révéler la solution avant ta demande)</string>
+    <string name="tutor_hint_1">Indice 1</string>
+    <string name="tutor_hint_2">Indice 2</string>
+    <string name="tutor_full_solution">Solution complète</string>
+    <string name="tutor_explain_chip">Expliquer le corrigé</string>
+    <string name="tutor_welcome_title">Bienvenue · Tuteur IA (%1$s)</string>
+    <string name="tutor_welcome_body">Je t\'aide sur « %1$s » selon le programme officiel tunisien. Commence par « Indice 1 » puis « Indice 2 » avant de demander la solution, ou pose ta question.</string>
+    <string name="tutor_loading">Le tuteur prépare sa réponse…</string>
+    <string name="tutor_sender_prefix">Tuteur · %1$s</string>
+    <string name="tutor_question_placeholder">Pose ta question sur cet exercice…</string>
+    <string name="tutor_send_cd">Envoyer la question</string>
+    <string name="tutor_close_cd">Fermer le tuteur IA</string>
+    <string name="tutor_clear_history">Effacer l\'historique</string>
+    <string name="tutor_retry">Réessayer</string>
+
+    <!-- Mode Examen -->
+    <string name="exam_mode_card_title">Simulation d\'épreuve officielle</string>
+    <string name="exam_mode_card_desc">Décompte %1$s · Corrigés verrouillés · Auto-évaluation notée</string>
+    <string name="exam_mode_past_attempts">Déjà passé %1$d fois · Meilleure note : %2$s</string>
+    <string name="exam_mode_start_btn">Passer en conditions réelles</string>
+    <string name="exam_mode_active_title">Mode Examen en cours</string>
+    <string name="exam_mode_locked_short">Corrigés verrouillés</string>
+    <string name="exam_mode_locked_hint">Corrigé verrouillé pendant l\'épreuve</string>
+    <string name="exam_mode_finish_btn">Terminer et m\'auto-évaluer</string>
+    <string name="exam_mode_cancel_btn">Abandonner</string>
+    <string name="exam_eval_title">Auto-évaluation de ta copie</string>
+    <string name="exam_eval_subtitle">Consulte chaque corrigé ci-dessous puis saisis ta note par exercice.</string>
+    <string name="exam_eval_real_time">Temps réel : %1$s.</string>
+    <string name="exam_eval_estimated_total">Note totale estimée</string>
+    <string name="exam_eval_save_btn">Enregistrer ma tentative</string>
+    <string name="exam_eval_saved_title">Tentative enregistrée !</string>
+    <string name="exam_eval_saved_body">Note obtenue : %1$s / %2$s · Durée réelle : %3$s. Ta courbe de progression et tes chapitres faibles ont été mis à jour dans l\'onglet Espace.</string>
+    <string name="exam_eval_back_btn">Revenir au devoir</string>
+    <string name="action_cancel">Annuler</string>
+    <string name="action_confirm">Valider</string>
+    <string name="action_save">Enregistrer</string>
+    <string name="action_ok">OK</string>
+
+    <!-- Progression, Rappels & QCM Flash -->
+    <string name="space_tab_progression">Progression</string>
+    <string name="space_tab_qcm">QCM Flash</string>
+    <string name="space_tab_rappels">Rappels</string>
+    <string name="space_tab_biblio">Favoris</string>
+    <string name="space_tab_settings">Paramètres</string>
+    <string name="streak_label">Série actuelle</string>
+    <string name="study_time_label">Temps travaillé</string>
+    <string name="avg_grade_label">Moyenne essais</string>
+    <string name="grade_evolution_title">Évolution des notes par matière</string>
+    <string name="grade_evolution_empty">Passe un devoir en conditions réelles pour voir ta courbe de progression apparaître ici.</string>
+    <string name="grade_evolution_attempts">%1$d tentative(s) en %2$s</string>
+    <string name="grade_evolution_latest">Dernière note : %1$s / 20</string>
+    <string name="weak_chapters_title">Chapitres à renforcer</string>
+    <string name="weak_chapters_empty">Aucun chapitre faible détecté pour le moment. Continue tes devoirs et QCM flash !</string>
+    <string name="reminders_title">Mes prochains DC / DS</string>
+    <string name="reminders_add_btn">Ajouter un rappel</string>
+    <string name="reminders_empty">Ajoute les dates de tes prochains contrôles ou synthèses pour recevoir des rappels automatiques à J-7, J-3 et J-1.</string>
+    <string name="reminders_notif_permission_hint">Autorise les notifications pour recevoir tes rappels J-7, J-3 et J-1.</string>
+    <string name="reminders_allow_notif_btn">Autoriser</string>
+    <string name="reminder_past">Passé</string>
+    <string name="reminder_today">Aujourd\'hui</string>
+    <string name="reminder_tomorrow">Demain</string>
+    <string name="reminder_days_left">J-%1$d</string>
+    <string name="reminder_alerts_schedule">Alertes locales : J-7 · J-3 · J-1</string>
+    <string name="reminder_dialog_title">Programmer un rappel DC / DS</string>
+    <string name="reminder_title_hint">Intitulé (ex : DS N°2 Suites &amp; Complexes)</string>
+    <string name="reminder_pick_date">Date de l\'épreuve : %1$s</string>
+    <string name="qcm_section_title">QCM Flash par chapitre (5 questions)</string>
+    <string name="qcm_stats_line">Meilleur : %1$d/%2$d · Dernier : %3$d/%2$d</string>
+    <string name="qcm_sheet_title">QCM Flash · %1$s</string>
+    <string name="qcm_score_final">Score : %1$d / %2$d</string>
+    <string name="qcm_feedback_perfect">Excellent ! Chapitre parfaitement maîtrisé.</string>
+    <string name="qcm_feedback_good">Bon travail ! Révise les points manqués pour viser 5/5.</string>
+    <string name="qcm_feedback_improve">Chapitre à consolider : il a été ajouté à ton suivi de progression.</string>
+    <string name="qcm_result_saved">Résultat enregistré dans ton suivi</string>
+    <string name="qcm_question_counter">Question %1$d / %2$d</string>
+    <string name="qcm_current_score">Score actuel : %1$d</string>
+    <string name="qcm_explanation_prefix">Explication : %1$s</string>
+    <string name="qcm_start_btn">Lancer</string>
+    <string name="qcm_next_btn">Question suivante</string>
+    <string name="qcm_finish_btn">Voir mon score</string>
+    <string name="qcm_close_btn">Fermer</string>
+
+    <!-- Paramètres : Langue, Thème & Politique de confidentialité -->
+    <string name="settings_title">Préférences de l\'application</string>
+    <string name="settings_language_title">Langue de l\'interface</string>
+    <string name="settings_language_subtitle">Le choix de l\'arabe active automatiquement la mise en page de droite à gauche (RTL).</string>
+    <string name="settings_theme_title">Apparence &amp; Thème</string>
+    <string name="settings_theme_subtitle">Choisis un mode clair, sombre ou aligné sur ton téléphone.</string>
+    <string name="theme_mode_system">Système</string>
+    <string name="theme_mode_light">Clair</string>
+    <string name="theme_mode_dark">Sombre</string>
+    <string name="privacy_card_title">Politique de confidentialité</string>
+    <string name="privacy_card_subtitle">Tes notes, favoris et rappels restent sur ton appareil. Consulte nos engagements.</string>
+    <string name="privacy_open_btn">Lire la politique</string>
+    <string name="privacy_dialog_title">Politique de confidentialité — Devoirs TN</string>
+    <string name="privacy_dialog_body">1. Stockage 100 % local : tes favoris, devoirs terminés, notes du calculateur du Bac, résultats de QCM, rappels d\'examens et historique de progression sont enregistrés uniquement sur ton appareil (base Room et préférences locales).\n\n2. Aucun compte ni pistage : l\'application ne demande aucune inscription, ne collecte aucune donnée personnelle nominative et n\'intègre aucun traceur publicitaire.\n\n3. Tuteur IA optionnel : lorsque tu ouvres volontairement le Tuteur IA sur un exercice, seuls l\'énoncé, le corrigé et ta question sont transmis de manière sécurisée au service Gemini via Firebase AI Logic (protégé par App Check) afin de générer l\'explication. Toutes les autres fonctionnalités restent utilisables hors ligne.\n\n4. Contrôle total : tu peux effacer à tout moment l\'historique du tuteur IA, tes rappels ou les données de l\'application depuis les paramètres Android.</string>
+    <string name="app_version_footer">Devoirs TN · Programme officiel tunisien · Open Source (MIT)</string>
+
+    <!-- Descriptions d'accessibilité (TalkBack) -->
     <string name="cd_hero_banner">Illustration d\'un bureau d\'élève tunisien face à la mer</string>
     <string name="cd_ideas_banner">Illustration d\'idées et de méthodes de révision</string>
     <string name="cd_clear_search">Effacer la recherche</string>
+    <string name="cd_toggle_filters">Afficher ou masquer les filtres avancés</string>
+    <string name="cd_delete_reminder">Supprimer ce rappel</string>
+    <string name="cd_close_dialog">Fermer</string>
+    <string name="cd_open_settings">Ouvrir les paramètres de langue et de thème</string>
+    <string name="cd_expand_method">Déplier ou replier cette fiche méthode</string>
+    <string name="cd_delete_subject">Supprimer cette matière</string>
+    <string name="subject_add_btn">Ajouter</string>
+    <string name="subject_add_dialog_title">Ajouter une matière</string>
+    <string name="subject_name_label">Nom de la matière (ex : Histoire-Géo)</string>
+    <string name="subject_subtitle_label">Sous-titre ou chapitres clés (optionnel)</string>
+    <string name="subjects_loading">Chargement des matières…</string>
+
+    <!-- Améliorations Mon Espace : état vide, objectif hebdomadaire, légende graphique & accessibilité -->
+    <string name="stat_start_today">Commence aujourd\'hui !</string>
+    <string name="space_empty_welcome_title">Bienvenue dans ton espace révision !</string>
+    <string name="space_empty_welcome_body">Lance ton premier devoir corrigé ou teste tes réflexes avec un QCM flash de 5 questions pour démarrer ta progression.</string>
+    <string name="space_empty_start_devoir_btn">Commencer un devoir</string>
+    <string name="space_empty_start_qcm_btn">Faire un QCM flash</string>
+    <string name="weekly_goal_title">Objectif de la semaine</string>
+    <string name="weekly_goal_progress">%1$d / %2$d devoirs</string>
+    <string name="weekly_goal_achieved">Objectif atteint ! Bravo pour ta régularité !</string>
+    <string name="weekly_goal_remaining">Plus que %1$d devoir(s) pour atteindre ton objectif</string>
+    <string name="weekly_goal_dialog_title">Modifier l\'objectif de la semaine</string>
+    <string name="weekly_goal_dialog_subtitle">Choisis un rythme réaliste de devoirs à compléter chaque semaine.</string>
+    <string name="weekly_goal_unit">%1$d devoirs / semaine</string>
+    <string name="weekly_goal_preset_chip">%1$d devoirs</string>
+    <string name="grade_legend_score">Note obtenue (/20)</string>
+    <string name="grade_legend_pass_line">Moyenne (10/20)</string>
+
+    <!-- Descriptions d'accessibilité supplémentaires (Mon Espace) -->
+    <string name="cd_grade_chart_icon">Graphique d\'évolution des notes</string>
+    <string name="cd_welcome_trophy">Icône d\'encouragement pour démarrer les révisions</string>
+    <string name="cd_start_devoir_icon">Ouvrir la bibliothèque des devoirs</string>
+    <string name="cd_start_qcm_icon">Lancer un QCM flash</string>
+    <string name="cd_weekly_goal_icon">Icône d\'objectif de la semaine</string>
+    <string name="cd_edit_weekly_goal">Modifier l\'objectif de la semaine</string>
+    <string name="cd_decrease_goal">Diminuer l\'objectif hebdomadaire</string>
+    <string name="cd_increase_goal">Augmenter l\'objectif hebdomadaire</string>
+    <string name="cd_weak_chapters_icon">Chapitres à renforcer</string>
+    <string name="cd_history_icon">Historique des tentatives d\'examen</string>
+    <string name="cd_streak_icon">Icône de série de jours de révision</string>
+    <string name="cd_study_time_icon">Icône de temps travaillé</string>
+    <string name="cd_avg_grade_icon">Icône de moyenne des essais</string>
+    <string name="cd_completed_icon">Icône de devoirs terminés</string>
+    <string name="cd_favorites_icon">Icône de devoirs favoris</string>
+    <string name="cd_total_devoirs_icon">Icône du nombre total de devoirs</string>
+    <string name="cd_tab_progression">Onglet Progression</string>
+    <string name="cd_tab_qcm">Onglet QCM Flash</string>
+    <string name="cd_tab_rappels">Onglet Rappels</string>
+    <string name="cd_tab_favoris">Onglet Favoris</string>
+    <string name="cd_tab_settings">Onglet Paramètres</string>
+
+    <!-- Améliorations Calculateur du Bac -->
+    <string name="bac_mention_pending">—</string>
+    <string name="bac_section_dropdown_label">Section</string>
+    <string name="bac_action_coefficients">Coefficients</string>
+    <string name="bac_disclaimer_note">Barème indicatif — à confirmer avec les textes officiels et ton lycée</string>
+    <string name="bac_config_source_label">Source : %1$s</string>
+    <string name="bac_config_updated_label">Mise à jour : %1$s</string>
+    <string name="label_dc_short">DC</string>
+    <string name="label_ds_short">DS</string>
+    <string name="bac_kpi_annual_short">Ann.</string>
+    <string name="bac_kpi_exam_short">Exam.</string>
+    <string name="bac_kpi_fg_short">FG</string>
+    <string name="cd_bac_section_dropdown">Choisir la section du bac</string>
+    <string name="cd_bac_sample_icon">Remplir avec des notes d\'exemple</string>
+    <string name="cd_bac_reset_icon">Réinitialiser toutes les notes</string>
+    <string name="cd_bac_coefficients_icon">Ouvrir ou fermer les réglages des coefficients</string>
+    <string name="cd_bac_info_icon">Information sur le barème indicatif</string>
+    <string name="cd_bac_sim_ok">Objectif atteignable</string>
+    <string name="cd_bac_sim_error">Objectif impossible</string>
+
+    <!-- Descriptions d'accessibilité Bibliothèque des Devoirs -->
+    <string name="cd_search_icon">Rechercher dans les devoirs</string>
+    <string name="cd_sort_menu">Choisir l\'ordre de tri</string>
+    <string name="cd_remove_filter">Retirer le filtre %1$s</string>
+    <string name="cd_filter_panel_icon">Filtres avancés</string>
+    <string name="cd_favorites_chip_icon">Filtrer par favoris</string>
+    <string name="cd_empty_library_icon">Aucun devoir disponible pour ces critères</string>
+    <string name="cd_card_school_icon">Niveau et section du devoir</string>
+    <string name="cd_card_duration_icon">Durée du devoir</string>
+    <string name="cd_card_difficulty_icon">Niveau de difficulté</string>
+    <string name="cd_card_search_match_icon">Extrait correspondant à la recherche</string>
+
+    <!-- Lecteur PDF & Détail devoir PDF -->
+    <string name="pdf_open_subject_btn">Voir le sujet</string>
+    <string name="pdf_open_corrige_btn">Voir le corrigé</string>
+    <string name="pdf_corrige_unavailable">Corrigé non disponible</string>
+    <string name="pdf_corrige_locked_timer">Corrigé verrouillé tant que le chronomètre est actif</string>
+    <string name="pdf_corrige_locked_exam">Corrigé verrouillé pendant le mode examen</string>
+    <string name="pdf_corrige_confirm_title">Consulter le corrigé ?</string>
+    <string name="pdf_corrige_confirm_body">Essaie d\'abord de résoudre le sujet par toi-même avant d\'ouvrir le corrigé. Souhaites-tu quand même afficher le corrigé PDF ?</string>
+    <string name="pdf_corrige_confirm_yes">Afficher le corrigé</string>
+    <string name="pdf_badge_subject">Sujet PDF</string>
+    <string name="pdf_badge_corrige">Corrigé PDF</string>
+    <string name="pdf_subject_only_badge">Sujet seul</string>
+    <string name="pdf_size_label">%1$s Mo</string>
+    <string name="pdf_meta_size">Taille PDF</string>
+    <string name="pdf_page_indicator">Page %1$d / %2$d</string>
+    <string name="pdf_loading">Ouverture du document PDF…</string>
+    <string name="pdf_page_loading">Rendu de la page %1$d…</string>
+    <string name="pdf_error_missing_title">Fichier PDF introuvable</string>
+    <string name="pdf_error_missing_body">Le fichier « %1$s » est absent des ressources de l\'application. Vérifie le chemin dans catalogue.json ou ajoute le PDF dans assets/pdf/.</string>
+    <string name="pdf_error_corrupted_title">Document PDF corrompu ou illisible</string>
+    <string name="pdf_error_corrupted_body">Impossible de décoder ce PDF. Le fichier est peut-être endommagé ou protégé par mot de passe.</string>
+    <string name="pdf_error_oom_title">Mémoire insuffisante</string>
+    <string name="pdf_error_oom_body">La mémoire disponible sur l\'appareil ne suffit pas pour afficher cette page. Ferme d\'autres applications puis réessaie.</string>
+    <string name="pdf_error_generic_title">Erreur d\'ouverture du PDF</string>
+    <string name="pdf_error_generic_body">Une erreur inattendue est survenue lors du chargement du document.</string>
+    <string name="pdf_retry_btn">Réessayer</string>
+    <string name="pdf_zoom_reset">100%</string>
+    <string name="pdf_floating_exam_label">Mode Examen</string>
+    <string name="pdf_floating_finish_btn">Terminer</string>
+    <string name="pdf_actions_section_title">Documents du devoir (PDF)</string>
+    <string name="pdf_actions_section_subtitle">Ouvre le sujet en plein écran avec zoom et chronomètre flottant, puis consulte le corrigé après ton entraînement.</string>
+    <string name="cd_pdf_zoom_in">Agrandir le PDF</string>
+    <string name="cd_pdf_zoom_out">Réduire le PDF</string>
+    <string name="cd_pdf_zoom_reset">Réinitialiser le zoom</string>
+    <string name="cd_pdf_page_image">Page %1$d du document PDF</string>
+    <string name="cd_pdf_error_icon">Erreur lors du chargement du PDF</string>
+    <string name="cd_pdf_subject_icon">Ouvrir le sujet PDF</string>
+    <string name="cd_pdf_corrige_icon">Ouvrir le corrigé PDF</string>
+    <string name="cd_floating_timer_icon">Chronomètre flottant</string>
+
+    <!-- Téléchargements hors ligne, Packs & Écran Stockage -->
+    <string name="status_available_offline">Disponible hors ligne</string>
+    <string name="status_to_download">À télécharger</string>
+    <string name="status_downloading_pct">Téléchargement %1$d%%</string>
+    <string name="status_queued_wifi">En attente du Wi-Fi</string>
+    <string name="status_paused_resumable">Interrompu · Reprendre</string>
+    <string name="status_download_failed">Échec du téléchargement</string>
+    <string name="action_download">Télécharger</string>
+    <string name="action_resume_download">Reprendre</string>
+    <string name="action_retry_download">Réessayer</string>
+    <string name="action_cancel_download">Annuler</string>
+    <string name="action_delete_download">Supprimer</string>
+    <string name="action_delete_pack">Supprimer le pack</string>
+    <string name="action_delete_all_downloads">Tout supprimer</string>
+    <string name="action_refresh_catalogue">Actualiser le catalogue</string>
+    <string name="download_required_before_open">Télécharge ce devoir pour consulter le sujet et le corrigé hors ligne.</string>
+    <string name="download_update_available">Nouvelle version disponible (v%1$d)</string>
+    <string name="download_pack_9eme_t1_cta">Télécharger tout le trimestre 1 — 9ème année</string>
+    <string name="download_pack_title">%1$s — %2$s</string>
+    <string name="download_pack_progress_summary">%1$d / %2$d devoirs hors ligne · %3$s Mo</string>
+    <string name="download_pack_complete">Pack complet hors ligne</string>
+    <string name="space_tab_storage">Stockage</string>
+    <string name="cd_tab_storage">Gérer le stockage et les téléchargements hors ligne</string>
+    <string name="storage_screen_title">Stockage &amp; Hors ligne</string>
+    <string name="storage_screen_subtitle">Gère les PDF téléchargés dans l\'espace privé de l\'application.</string>
+    <string name="storage_used_label">Espace utilisé</string>
+    <string name="storage_offline_count">%1$d devoir(s) disponible(s) hors ligne</string>
+    <string name="storage_catalogue_status_online">Catalogue en ligne v%1$d synchronisé</string>
+    <string name="storage_catalogue_status_offline">Mode hors ligne · dernier catalogue en cache (v%1$d)</string>
+    <string name="storage_wifi_section_title">Préférences réseau</string>
+    <string name="storage_allow_mobile_label">Autoriser les données mobiles</string>
+    <string name="storage_allow_mobile_subtitle">Par défaut, les téléchargements s\'effectuent uniquement en Wi-Fi. Au-delà de 20 Mo en données mobiles, un avertissement s\'affiche.</string>
+    <string name="storage_packs_section_title">Packs par trimestre</string>
+    <string name="storage_downloaded_section_title">Devoirs téléchargés</string>
+    <string name="storage_empty_title">Aucun PDF téléchargé</string>
+    <string name="storage_empty_body">Télécharge un devoir ou le pack Trimestre 1 — 9ème année pour réviser sans connexion Internet.</string>
+    <string name="storage_delete_all_confirm_title">Vider le stockage PDF ?</string>
+    <string name="storage_delete_all_confirm_body">Tous les PDF téléchargés seront supprimés du téléphone. Tes favoris, notes et progression resteront intacts.</string>
+    <string name="mobile_warning_title">Téléchargement volumineux (&gt; 20 Mo)</string>
+    <string name="mobile_warning_body">« %1$s » pèse environ %2$s Mo et tu es actuellement en données mobiles. Veux-tu poursuivre le téléchargement sur le réseau mobile ?</string>
+    <string name="mobile_warning_confirm">Télécharger en 4G/5G</string>
+    <string name="wifi_only_dialog_title">Wi-Fi requis par défaut</string>
+    <string name="wifi_only_dialog_body">Tu utilises actuellement les données mobiles pour « %1$s » (%2$s Mo). Tu peux attendre le Wi-Fi automatiquement ou autoriser les données mobiles.</string>
+    <string name="wifi_only_wait_btn">Attendre le Wi-Fi</string>
+    <string name="wifi_only_allow_mobile_btn">Autoriser données mobiles</string>
+    <string name="download_notif_channel_name">Téléchargements de devoirs PDF</string>
+    <string name="download_notif_channel_desc">Progression et état des téléchargements de sujets et corrigés PDF.</string>
+    <string name="download_notif_in_progress_title">Téléchargement Devoirs TN</string>
+    <string name="download_notif_done_title">Devoir disponible hors ligne</string>
+    <string name="download_notif_error_title">Échec du téléchargement</string>
+    <string name="download_err_invalid_url">Adresse PDF invalide dans le catalogue.</string>
+    <string name="download_err_integrity">Vérification d\'intégrité échouée (fichier incomplet ou altéré).</string>
+    <string name="download_err_network">Erreur réseau pendant le téléchargement. Tu peux reprendre plus tard.</string>
+    <string name="cd_download_status_icon">État de disponibilité hors ligne</string>
+    <string name="cd_download_action_icon">Télécharger ce devoir en PDF</string>
+    <string name="cd_cancel_download_icon">Annuler le téléchargement en cours</string>
+    <string name="cd_delete_storage_icon">Supprimer du stockage local</string>
+    <string name="cd_storage_shortcut">Ouvrir la gestion du stockage hors ligne</string>
+    <string name="cd_refresh_catalogue">Actualiser le catalogue en ligne</string>
+
+    <!-- Recherche plein texte OCR & Explication de page PDF (Gemini) -->
+    <string name="pdf_explain_page_btn">Explique cette page</string>
+    <string name="cd_pdf_explain_page">Demander au tuteur IA d\'expliquer la page PDF courante</string>
+    <string name="tutor_pdf_page_label">Page %1$d</string>
+    <string name="tutor_history_current">Page courante</string>
+    <string name="tutor_history_all_devoir">Historique du devoir</string>
+    <string name="tutor_history_all_count">Tout le devoir (%1$d)</string>
+    <string name="tutor_view_saved_history_btn">Historique des explications (%1$d)</string>
 </resources>

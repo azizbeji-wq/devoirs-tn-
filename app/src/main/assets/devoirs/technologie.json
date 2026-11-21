@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": 2,
+  "matiere": "Technologie",
+  "devoirs": [
+    {
+      "id": "bac_tech_dc2_technique",
+      "titre": "Devoir de Contrôle N°2 — GRAFCET & Circuits Logiques Séquentiels",
+      "matiere": "Technologie",
+      "niveau": "BAC",
+      "section": "TECHNIQUE",
+      "type": "CONTROLE",
+      "trimestre": "T2",
+      "duree": 120,
+      "bareme": 20,
+      "difficulte": "Standard",
+      "etablissement": "Lycée Technique de Nabeul",
+      "sujetEntrainement": false,
+      "langue": "fr",
+      "chapitres": ["GRAFCET", "Bascule JK", "Tableau de Karnaugh", "Vérin double effet"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Simplification par tableau de Karnaugh",
+          "bareme": "8 pts",
+          "enonce": "Un système d'alarme possède 3 capteurs a, b, c. La sortie S = 1 lorsque exactement deux capteurs ou tous les trois sont à 1.\n1. Dresser la table de vérité de S.\n2. Simplifier S à l'aide d'un tableau de Karnaugh.\n3. Donner le logigramme minimal à l'aide de portes ET / OU.",
+          "corrige": "1. Les mintermes donnant S = 1 sont : (0,1,1), (1,0,1), (1,1,0) et (1,1,1).\n2. Regroupements par paires dans Karnaugh : S = a·b + b·c + a·c.\n3. Logigramme : 3 portes ET à 2 entrées (ab, bc, ac) reliées à une porte OU à 3 entrées."
+        },
+        {
+          "numero": 2,
+          "titre": "GRAFCET d'un poste de perçage automatisé",
+          "bareme": "12 pts",
+          "enonce": "En appuyant sur départ cycle (dcy) avec pièce présente (p), un vérin V1 serre la pièce jusqu'au capteur s1, puis la broche descend (V2+) jusqu'à b1, remonte (V2-) jusqu'à b0, et V1 desserre jusqu'à s0.\n1. Identifier les capteurs et actionneurs.\n2. Écrire les équations d'activation et de désactivation des étapes X1 et X2.",
+          "corrige": "1. Capteurs : dcy, p, s0, s1, b0, b1. Actionneurs : distributeurs bistables commandant V1+, V1-, V2+, V2-.\n2. Étape 0 (attente) → T0 = dcy·p → Étape 1 (V1+) → T1 = s1 → Étape 2 (V2+) → T2 = b1 → Étape 3 (V2-) → T3 = b0 → Étape 4 (V1-) → T4 = s0 → Étape 0.\nActivation X1 = X0·dcy·p ; Désactivation X1 = X2.\nActivation X2 = X1·s1 ; Désactivation X2 = X3."
+        }
+      ]
+    }
+  ]
+}

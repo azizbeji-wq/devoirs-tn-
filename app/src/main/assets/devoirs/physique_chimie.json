@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": 2,
+  "matiere": "Physique-Chimie",
+  "devoirs": [
+    {
+      "id": "bac_scexp_dc1_physique",
+      "titre": "Devoir de Contrôle N°1 — Dipôle RC & Cinétique Chimique",
+      "matiere": "Physique-Chimie",
+      "niveau": "BAC",
+      "section": "SCIENCES_EXP",
+      "type": "CONTROLE",
+      "trimestre": "T1",
+      "duree": 120,
+      "bareme": 20,
+      "difficulte": "Standard",
+      "etablissement": "Lycée Pilote de l'Ariana",
+      "sujetEntrainement": false,
+      "langue": "fr",
+      "chapitres": ["Dipôle RC", "Constante de temps τ", "Cinétique chimique", "Vitesse volumique"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Charge d'un condensateur à travers un résistor",
+          "bareme": "11 pts",
+          "enonce": "On réalise un circuit série comportant un générateur idéal de tension E = 12 V, un conducteur ohmique de résistance R = 1,0 kΩ et un condensateur initialement déchargé de capacité C = 47 μF.\n1. Établir l'équation différentielle vérifiée par la tension u_C(t) aux bornes du condensateur.\n2. Vérifier que u_C(t) = E(1 - e^(-t/τ)) est solution et exprimer τ en fonction de R et C.\n3. Calculer τ, l'intensité initiale I₀ et l'énergie maximale E_max emmagasinée par le condensateur.",
+          "corrige": "1. Loi des mailles : u_R + u_C = E ⇒ R·i + u_C = E. Or i = C·(du_C/dt), donc RC·(du_C/dt) + u_C = E.\n2. En dérivant u_C(t) : du_C/dt = (E/τ)e^(-t/τ). En reportant dans l'équation différentielle, on obtient (RC/τ - 1)·E·e^(-t/τ) = 0, d'où τ = R·C.\n3. τ = 1000 × 47×10⁻⁶ = 47 ms.\nI₀ = E / R = 12 / 1000 = 12 mA.\nE_max = ½ C E² = 0,5 × 47×10⁻⁶ × 144 = 3,38 mJ."
+        },
+        {
+          "numero": 2,
+          "titre": "Suivi cinétique de l'oxydation des ions iodure",
+          "bareme": "9 pts",
+          "enonce": "À t = 0, on mélange V₁ = 50 mL d'une solution de peroxodisulfate S₂O₈²⁻ (C₁ = 0,10 mol·L⁻¹) avec V₂ = 50 mL d'une solution d'iodure de potassium I⁻ (C₂ = 0,40 mol·L⁻¹).\nÉquation bilan : S₂O₈²⁻ + 2 I⁻ → 2 SO₄²⁻ + I₂.\n1. Dresser le tableau d'avancement et identifier le réactif limitant.\n2. Déterminer la concentration finale maximale [I₂]_max.\n3. Comment évolue la vitesse volumique de réaction au cours du temps ? Justifier.",
+          "corrige": "1. n₀(S₂O₈²⁻) = 5,0×10⁻³ mol ; n₀(I⁻) = 2,0×10⁻² mol.\nComparaison : 5,0×10⁻³ / 1 < 2,0×10⁻² / 2 (1,0×10⁻²). Donc S₂O₈²⁻ est le réactif limitant et x_max = 5,0×10⁻³ mol.\n2. Volume total V_T = 100 mL = 0,10 L. [I₂]_max = x_max / V_T = 5,0×10⁻² mol·L⁻¹.\n3. La vitesse volumique diminue au cours du temps car les concentrations des réactifs (facteur cinétique) diminuent progressivement jusqu'à s'annuler à l'état final."
+        }
+      ]
+    },
+    {
+      "id": "lycee_2eme_ds2_physique",
+      "titre": "Devoir de Synthèse N°2 — Loi d'Ohm, Puissance & Solutions Aqueuses",
+      "matiere": "Physique-Chimie",
+      "niveau": "LYCEE_2",
+      "section": "SCIENCES_EXP",
+      "type": "SYNTHESE",
+      "trimestre": "T2",
+      "duree": 120,
+      "bareme": 20,
+      "difficulte": "Standard",
+      "etablissement": "Lycée Pilote de Bizerte",
+      "sujetEntrainement": false,
+      "langue": "fr",
+      "chapitres": ["Générateur (E, r)", "Point de fonctionnement", "Concentration molaire", "Dilution"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Association générateur et conducteur ohmique",
+          "bareme": "11 pts",
+          "enonce": "Un générateur de f.e.m E = 9 V et de résistance interne r = 2 Ω alimente un résistor R = 16 Ω.\n1. Calculer l'intensité I du courant dans le circuit.\n2. Calculer la tension U aux bornes du résistor et le rendement η du générateur.",
+          "corrige": "1. Loi de Pouillet : I = E / (R + r) = 9 / (16 + 2) = 0,5 A.\n2. U = R·I = 16 × 0,5 = 8 V.\nRendement : η = U / E = 8 / 9 ≈ 88,9 %."
+        },
+        {
+          "numero": 2,
+          "titre": "Préparation d'une solution par dilution",
+          "bareme": "9 pts",
+          "enonce": "On dispose d'une solution mère S₀ de sulfate de cuivre de concentration C₀ = 0,50 mol·L⁻¹. On souhaite préparer V₁ = 250 mL d'une solution fille S₁ de concentration C₁ = 0,05 mol·L⁻¹.\n1. Calculer le volume V₀ de solution mère à prélever.\n2. Citer la verrerie précise nécessaire pour cette dilution.",
+          "corrige": "1. Conservation de la matière : C₀·V₀ = C₁·V₁ ⇒ V₀ = (0,05 × 250) / 0,50 = 25 mL.\n2. Verrerie : pipette jaugée de 25 mL avec propipette, fiole jaugée de 250 mL, pissette d'eau distillée et bécher."
+        }
+      ]
+    },
+    {
+      "id": "train_college_8eme_dc1_physique",
+      "titre": "Devoir de Contrôle N°1 — Masse Volumique & Lois des Circuits Électriques",
+      "matiere": "Physique-Chimie",
+      "niveau": "COLLEGE_8",
+      "section": "TRONC_COMMUN",
+      "type": "CONTROLE",
+      "trimestre": "T1",
+      "duree": 60,
+      "bareme": 20,
+      "difficulte": "Fondamental",
+      "etablissement": "Établissement : non précisé",
+      "sujetEntrainement": true,
+      "langue": "fr",
+      "chapitres": ["Masse volumique", "Identification d'un métal", "Loi des mailles", "Loi des nœuds"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Chimie — Mesure de la masse volumique d'un métal",
+          "bareme": "10 pts",
+          "enonce": "Un cylindre métallique plein a une masse m = 216 g. On le plonge entièrement dans une éprouvette graduée contenant V₁ = 100 mL d'eau ; le niveau d'eau monte à V₂ = 180 mL.\n1. Calculer le volume V du cylindre en mL puis en cm³.\n2. Calculer sa masse volumique ρ en g/cm³ puis en kg/m³.\n3. Identifier le métal à l'aide du tableau : Aluminium = 2,7 g/cm³ ; Fer = 7,8 g/cm³ ; Cuivre = 8,9 g/cm³.",
+          "corrige": "1. V = V₂ - V₁ = 180 - 100 = 80 mL = 80 cm³ (car 1 mL = 1 cm³).\n2. ρ = m / V = 216 / 80 = 2,7 g/cm³.\n   En unités SI : ρ = 2,7 × 1000 = 2700 kg/m³.\n3. La masse volumique trouvée correspond exactement à celle de l'aluminium (2,7 g/cm³)."
+        },
+        {
+          "numero": 2,
+          "titre": "Physique — Tensions et intensités dans un circuit mixte",
+          "bareme": "10 pts",
+          "enonce": "Un générateur impose une tension U_G = 12 V aux bornes d'une lampe L₁ montée en série avec deux lampes L₂ et L₃ associées en dérivation.\nOn mesure U_{L1} = 4,5 V, l'intensité dans la branche principale I = 0,60 A et l'intensité dans L₂ : I₂ = 0,25 A.\n1. Calculer les tensions U_{L2} et U_{L3} aux bornes de L₂ et L₃.\n2. Calculer l'intensité I₃ traversant la lampe L₃.",
+          "corrige": "1. D'après la loi des mailles (additivité des tensions en série) : U_G = U_{L1} + U_{L2}, donc U_{L2} = 12 - 4,5 = 7,5 V.\n   Comme L₂ et L₃ sont montées en dérivation (parallèle), elles ont la même tension à leurs bornes : U_{L3} = U_{L2} = 7,5 V.\n2. D'après la loi des nœuds : I = I₂ + I₃ ⇒ I₃ = 0,60 - 0,25 = 0,35 A."
+        }
+      ]
+    },
+    {
+      "id": "train_lycee_1ere_ds1_physique",
+      "titre": "Devoir de Synthèse N°1 — Structure Atomique, Mole & Équilibre d'un Solide",
+      "matiere": "Physique-Chimie",
+      "niveau": "LYCEE_1",
+      "section": "TRONC_COMMUN",
+      "type": "SYNTHESE",
+      "trimestre": "T1",
+      "duree": 120,
+      "bareme": 20,
+      "difficulte": "Standard",
+      "etablissement": "Établissement : non précisé",
+      "sujetEntrainement": true,
+      "langue": "fr",
+      "chapitres": ["Atome & couches électroniques", "Quantité de matière", "Concentration molaire", "Équilibre d'un solide (Hooke)"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Chimie — Atome de magnésium et solution de chlorure de sodium",
+          "bareme": "10 pts",
+          "enonce": "1. L'atome de magnésium Mg possède Z = 12 protons et un nombre de masse A = 24.\n   a) Donner le nombre de neutrons et d'électrons de cet atome.\n   b) Écrire sa structure électronique (couches K, L, M) et préciser la formule de l'ion stable qu'il forme.\n2. On dissout m = 5,85 g de chlorure de sodium NaCl (M = 58,5 g·mol⁻¹) dans l'eau distillée pour préparer V = 200 mL de solution.\n   Calculer la quantité de matière n de NaCl dissoute et la concentration molaire C de la solution.",
+          "corrige": "1. a) Nombre de neutrons N = A - Z = 24 - 12 = 12. L'atome est électriquement neutre, donc 12 électrons.\n   b) Structure électronique : (K)² (L)⁸ (M)². Pour respecter la règle de l'octet, il perd ses 2 électrons de valence et forme l'ion Mg²⁺.\n2. n = m / M = 5,85 / 58,5 = 0,10 mol.\n   Conversion : V = 200 mL = 0,200 L.\n   Concentration molaire : C = n / V = 0,10 / 0,200 = 0,50 mol·L⁻¹."
+        },
+        {
+          "numero": 2,
+          "titre": "Physique — Équilibre d'un solide suspendu à un ressort",
+          "bareme": "10 pts",
+          "enonce": "Un solide S de masse m = 400 g est suspendu à l'extrémité d'un ressort vertical à spires non jointives de constante de raideur k = 50 N·m⁻¹ et de longueur à vide ℓ₀ = 20 cm. On prend g = 10 N·kg⁻¹.\n1. Faire le bilan des forces exercées sur le solide S et calculer la valeur de son poids P.\n2. Écrire la condition d'équilibre du solide et calculer l'allongement Δℓ puis la longueur finale ℓ du ressort.",
+          "corrige": "1. S est soumis à deux forces : son poids P (vertical, dirigé vers le bas) et la tension T du ressort (verticale, dirigée vers le haut).\n   m = 400 g = 0,400 kg ⇒ P = m · g = 0,400 × 10 = 4,0 N.\n2. À l'équilibre : P + T = 0 (en vecteurs), donc en norme T = P = 4,0 N.\n   D'après la loi de Hooke : T = k · Δℓ ⇒ Δℓ = T / k = 4,0 / 50 = 0,08 m = 8 cm.\n   Longueur finale : ℓ = ℓ₀ + Δℓ = 20 + 8 = 28 cm."
+        }
+      ]
+    },
+    {
+      "id": "train_bac_maths_ds2_physique",
+      "titre": "Devoir de Synthèse N°2 — Dipôle RL & Dosage Acido-Basique",
+      "matiere": "Physique-Chimie",
+      "niveau": "BAC",
+      "section": "MATHS",
+      "type": "SYNTHESE",
+      "trimestre": "T2",
+      "duree": 180,
+      "bareme": 20,
+      "difficulte": "Bac Type",
+      "etablissement": "Établissement : non précisé",
+      "sujetEntrainement": true,
+      "langue": "fr",
+      "chapitres": ["Dipôle RL", "Constante de temps τ = L/R_tot", "Énergie magnétique", "Dosage acide faible / base forte"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Physique — Établissement du courant dans un dipôle RL",
+          "bareme": "11 pts",
+          "enonce": "On associe en série un générateur idéal de tension E = 12 V, un conducteur ohmique de résistance R = 40 Ω et une bobine d'inductance L = 0,20 H et de résistance interne r = 10 Ω.\n1. À t = 0, on ferme l'interrupteur. Établir l'équation différentielle vérifiée par l'intensité i(t).\n2. Exprimer puis calculer la constante de temps τ du dipôle et l'intensité I_p en régime permanent.\n3. Calculer l'énergie magnétique E_m emmagasinée par la bobine en régime permanent.",
+          "corrige": "1. Loi des mailles : u_R + u_b = E ⇒ R·i + r·i + L·(di/dt) = E ⇒ L·(di/dt) + (R + r)·i = E.\n2. Résistance totale : R_tot = R + r = 40 + 10 = 50 Ω.\n   Constante de temps : τ = L / (R + r) = 0,20 / 50 = 0,004 s = 4,0 ms.\n   En régime permanent, di/dt = 0 ⇒ I_p = E / (R + r) = 12 / 50 = 0,24 A.\n3. Énergie magnétique : E_m = ½ · L · I_p² = 0,5 × 0,20 × (0,24)² = 0,10 × 0,0576 = 5,76×10⁻³ J = 5,76 mJ."
+        },
+        {
+          "numero": 2,
+          "titre": "Chimie — Dosage pH-métrique d'un acide faible",
+          "bareme": "9 pts",
+          "enonce": "On dose V_a = 20,0 mL d'une solution d'acide éthanoïque CH₃COOH (pK_a = 4,8) de concentration C_a par une solution d'hydroxyde de sodium (Na⁺ + OH⁻) de concentration C_b = 0,10 mol·L⁻¹. L'équivalence est atteinte pour V_{bE} = 15,0 mL.\n1. Écrire l'équation de la réaction de dosage et calculer C_a.\n2. Quelle est la valeur du pH pour V_b = 7,5 mL ? Justifier.\n3. Préciser la nature de la solution à l'équivalence et choisir l'indicateur coloré convenable entre l'hélianthine [3,1 ; 4,4] et la phénolphtaléine [8,2 ; 10,0].",
+          "corrige": "1. Équation (totale) : CH₃COOH + OH⁻ → CH₃COO⁻ + H₂O.\n   À l'équivalence : C_a · V_a = C_b · V_{bE} ⇒ C_a = (0,10 × 15,0) / 20,0 = 0,075 mol·L⁻¹.\n2. V_b = 7,5 mL = V_{bE} / 2 correspond à la demi-équivalence : la moitié de l'acide a été transformée en sa base conjuguée, donc [CH₃COOH] = [CH₃COO⁻] et pH = pK_a + log(1) = 4,8.\n3. À l'équivalence, l'espèce majoritaire est la base faible CH₃COO⁻ : la solution est basique (pH_E > 7). On choisit donc la phénolphtaléine dont la zone de virage [8,2 ; 10,0] encadre le pH à l'équivalence."
+        }
+      ]
+    }
+  ]
+}

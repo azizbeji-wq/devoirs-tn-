@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": 2,
+  "matiere": "Français",
+  "devoirs": [
+    {
+      "id": "college_9eme_ds1_francais",
+      "titre": "Devoir de Synthèse N°1 — Compréhension, Langue & Essai",
+      "matiere": "Français",
+      "niveau": "COLLEGE_9",
+      "section": "TRONC_COMMUN",
+      "type": "SYNTHESE",
+      "trimestre": "T1",
+      "duree": 120,
+      "bareme": 20,
+      "difficulte": "Standard",
+      "etablissement": "Collège Pilote de Monastir",
+      "sujetEntrainement": false,
+      "langue": "fr",
+      "chapitres": ["Compréhension", "Subordonnée relative", "Voix passive", "Production écrite"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Langue : Syntaxe et conjugaison",
+          "bareme": "8 pts",
+          "enonce": "1. Transformer à la voix passive : « Les élèves préparent activement l'exposition scientifique. »\n2. Relier les deux phrases par un pronom relatif convenable : « C'est un roman passionnant. Je t'ai parlé de ce roman hier. »\n3. Mettre le verbe entre parenthèses au mode et temps convenables : « Bien qu'il (être) fatigué, il a terminé son devoir. »",
+          "corrige": "1. « L'exposition scientifique est préparée activement par les élèves. »\n2. « C'est un roman passionnant dont je t'ai parlé hier. »\n3. « Bien qu'il soit fatigué, il a terminé son devoir. » (Subjonctif présent après « bien que »)."
+        },
+        {
+          "numero": 2,
+          "titre": "Essai argumentatif (15–20 lignes)",
+          "bareme": "12 pts",
+          "enonce": "Sujet : « Pensez-vous que les écrans et smartphones aident les collégiens à mieux réussir leurs études ou les distraient-ils ? »\nRédigez un paragraphe argumenté illustré par deux exemples précis.",
+          "corrige": "Grille de réussite (Barème tunisien) :\n- Compréhension du sujet et position claire (3 pts).\n- Deux arguments distincts (ex: accès aux devoirs corrigés / dictionnaires vs perte de concentration et sommeil) avec connecteurs logiques : D'une part, En outre, Cependant, En conclusion (5 pts).\n- Correction de la langue, orthographe et ponctuation (4 pts)."
+        }
+      ]
+    },
+    {
+      "id": "train_lycee_1ere_dc1_francais",
+      "titre": "Devoir de Contrôle N°1 — Temps du Récit, Discours Indirect & Récit Descriptif",
+      "matiere": "Français",
+      "niveau": "LYCEE_1",
+      "section": "TRONC_COMMUN",
+      "type": "CONTROLE",
+      "trimestre": "T1",
+      "duree": 120,
+      "bareme": 20,
+      "difficulte": "Standard",
+      "etablissement": "Établissement : non précisé",
+      "sujetEntrainement": true,
+      "langue": "fr",
+      "chapitres": ["Imparfait & Passé simple", "Discours rapporté", "Figures de style", "Récit & Description"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Langue : Valeurs des temps, discours indirect et figure de style",
+          "bareme": "10 pts",
+          "enonce": "1. Justifier l'emploi de l'imparfait et du passé simple dans la phrase suivante :\n   « Le vent soufflait fort sur la médina quand soudain une lourde porte claqua. »\n2. Transposer au discours indirect en commençant par « Le professeur annonça que… » :\n   Le professeur annonça : « Demain, vous présenterez vos exposés ici. »\n3. Identifier la figure de style employée dans : « La mer murmurait ses secrets au rivage endormi. » et expliquer son effet.",
+          "corrige": "1. « soufflait » (imparfait) exprime une action d'arrière-plan, descriptive et qui dure ; « claqua » (passé simple) exprime un événement soudain, bref et de premier plan qui interrompt le décor.\n2. « Le professeur annonça que le lendemain, ils présenteraient leurs exposés là. »\n   (Concordance des temps avec un verbe introducteur au passé : futur simple → conditionnel présent ; changement des repères spatio-temporels : demain → le lendemain, ici → là ; pronom : vous → ils.)\n3. Il s'agit d'une personnification : des comportements humains (« murmurer », « endormi ») sont attribués à des éléments naturels (la mer, le rivage) pour créer une atmosphère poétique et vivante."
+        },
+        {
+          "numero": 2,
+          "titre": "Production écrite — Récit enrichi d'un passage descriptif",
+          "bareme": "10 pts",
+          "enonce": "Sujet : À l'occasion de votre rentrée en 1ère année secondaire, vous découvrez votre nouveau lycée. Racontez cette matinée marquante en intégrant une courte description de la cour et l'expression de vos sentiments (15 à 20 lignes).",
+          "corrige": "Critères de correction (programme tunisien 1ère secondaire) :\n- Respect de la structure narrative : situation initiale, élément déclencheur (sonnerie/appel des classes), péripéties, situation finale (3 pts).\n- Insertion cohérente d'une description organisée (repères spatiaux, adjectifs qualificatifs, sensations visuelles et sonores) et lexique des émotions : appréhension, curiosité, enthousiasme (3 pts).\n- Maîtrise des temps du récit (imparfait / passé simple), syntaxe correcte et orthographe soignée (4 pts)."
+        }
+      ]
+    }
+  ]
+}

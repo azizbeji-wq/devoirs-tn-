@@ -1,0 +1,131 @@
+{
+  "_comment": "Configuration du Baccalauréat Tunisien (coefficients, pondérations et formule globale FG) — à valider avec les textes officiels du ministère de l'Éducation et du Guide de l'Orientation Universitaire.",
+  "schemaVersion": 1,
+  "source": "Ministère de l'Éducation (Tunisie) & Guide de l'Orientation Universitaire",
+  "dateMiseAJour": "2025-09-01",
+  "weights": {
+    "annualPercent": 25.0,
+    "examPercent": 75.0,
+    "dcWeight": 1.0,
+    "dsWeight": 2.0,
+    "trimester1Weight": 1.0,
+    "trimester2Weight": 2.0,
+    "trimester3Weight": 2.0
+  },
+  "fgGeneralMultiplier": 4.0,
+  "mentions": {
+    "passable": 10.0,
+    "assezBien": 12.0,
+    "bien": 14.0,
+    "tresBien": 16.0
+  },
+  "sessions": {
+    "principaleMin": 10.0,
+    "controleMin": 7.0
+  },
+  "sections": [
+    {
+      "id": "bac_maths",
+      "title": "Bac Mathématiques",
+      "shortTitle": "Maths",
+      "description": "Maths & Physique coeff 4 · Formule globale orientée sciences & ingénierie",
+      "subjects": [
+        { "id": "maths", "name": "Mathématiques", "annualCoeff": 4.0, "examCoeff": 4.0, "fgCoeff": 2.0 },
+        { "id": "physique", "name": "Physique-Chimie", "annualCoeff": 4.0, "examCoeff": 4.0, "fgCoeff": 1.5 },
+        { "id": "svt", "name": "SVT", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.5 },
+        { "id": "info", "name": "Informatique", "annualCoeff": 1.5, "examCoeff": 1.5, "fgCoeff": 0.5 },
+        { "id": "arabe", "name": "Arabe", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.0 },
+        { "id": "francais", "name": "Français", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 1.0 },
+        { "id": "anglais", "name": "Anglais", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 1.0 },
+        { "id": "philo", "name": "Philosophie", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.0 },
+        { "id": "sport", "name": "Éducation Physique", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.0 },
+        { "id": "option", "name": "Matière Optionnelle", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.0 }
+      ]
+    },
+    {
+      "id": "bac_scexp",
+      "title": "Bac Sciences Expérimentales",
+      "shortTitle": "Sc. Exp",
+      "description": "SVT & Physique coeff 4 · Maths coeff 3 · Orientation médecine & sciences",
+      "subjects": [
+        { "id": "svt", "name": "SVT", "annualCoeff": 4.0, "examCoeff": 4.0, "fgCoeff": 1.5 },
+        { "id": "physique", "name": "Physique-Chimie", "annualCoeff": 4.0, "examCoeff": 4.0, "fgCoeff": 1.5 },
+        { "id": "maths", "name": "Mathématiques", "annualCoeff": 3.0, "examCoeff": 3.0, "fgCoeff": 1.0 },
+        { "id": "info", "name": "Informatique", "annualCoeff": 1.5, "examCoeff": 1.5, "fgCoeff": 0.5 },
+        { "id": "arabe", "name": "Arabe", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.0 },
+        { "id": "francais", "name": "Français", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 1.0 },
+        { "id": "anglais", "name": "Anglais", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 1.0 },
+        { "id": "philo", "name": "Philosophie", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.0 },
+        { "id": "sport", "name": "Éducation Physique", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.0 },
+        { "id": "option", "name": "Matière Optionnelle", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.0 }
+      ]
+    },
+    {
+      "id": "bac_info",
+      "title": "Bac Sciences de l'Informatique",
+      "shortTitle": "Info",
+      "description": "Algo, STI & Maths coeff 3 · Physique coeff 2",
+      "subjects": [
+        { "id": "algo", "name": "Algorithme & Prog.", "annualCoeff": 3.0, "examCoeff": 3.0, "fgCoeff": 1.5 },
+        { "id": "sti", "name": "Systèmes & Tech. Info (STI)", "annualCoeff": 3.0, "examCoeff": 3.0, "fgCoeff": 1.0 },
+        { "id": "maths", "name": "Mathématiques", "annualCoeff": 3.0, "examCoeff": 3.0, "fgCoeff": 1.5 },
+        { "id": "physique", "name": "Physique", "annualCoeff": 2.0, "examCoeff": 2.0, "fgCoeff": 0.5 },
+        { "id": "arabe", "name": "Arabe", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.0 },
+        { "id": "francais", "name": "Français", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 1.0 },
+        { "id": "anglais", "name": "Anglais", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 1.0 },
+        { "id": "philo", "name": "Philosophie", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.0 },
+        { "id": "sport", "name": "Éducation Physique", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.0 }
+      ]
+    },
+    {
+      "id": "bac_eco",
+      "title": "Bac Économie & Gestion",
+      "shortTitle": "Éco-Gest",
+      "description": "Économie & Gestion coeff 3 · Maths coeff 2,5 · Histoire-Géo coeff 2",
+      "subjects": [
+        { "id": "eco", "name": "Économie", "annualCoeff": 3.0, "examCoeff": 3.0, "fgCoeff": 1.5 },
+        { "id": "gestion", "name": "Gestion", "annualCoeff": 3.0, "examCoeff": 3.0, "fgCoeff": 1.5 },
+        { "id": "maths", "name": "Mathématiques", "annualCoeff": 2.5, "examCoeff": 2.5, "fgCoeff": 1.0 },
+        { "id": "histgeo", "name": "Histoire-Géographie", "annualCoeff": 2.0, "examCoeff": 2.0, "fgCoeff": 0.5 },
+        { "id": "info", "name": "Informatique", "annualCoeff": 1.5, "examCoeff": 1.5, "fgCoeff": 0.5 },
+        { "id": "arabe", "name": "Arabe", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.0 },
+        { "id": "francais", "name": "Français", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 1.0 },
+        { "id": "anglais", "name": "Anglais", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 1.0 },
+        { "id": "philo", "name": "Philosophie", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.0 },
+        { "id": "sport", "name": "Éducation Physique", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.0 }
+      ]
+    },
+    {
+      "id": "bac_tech",
+      "title": "Bac Sciences Techniques",
+      "shortTitle": "Technique",
+      "description": "Technologie coeff 4 · Maths & Physique coeff 3",
+      "subjects": [
+        { "id": "tech", "name": "Technologie", "annualCoeff": 4.0, "examCoeff": 4.0, "fgCoeff": 1.5 },
+        { "id": "maths", "name": "Mathématiques", "annualCoeff": 3.0, "examCoeff": 3.0, "fgCoeff": 1.5 },
+        { "id": "physique", "name": "Physique-Chimie", "annualCoeff": 3.0, "examCoeff": 3.0, "fgCoeff": 1.5 },
+        { "id": "info", "name": "Informatique", "annualCoeff": 1.5, "examCoeff": 1.5, "fgCoeff": 0.5 },
+        { "id": "arabe", "name": "Arabe", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.0 },
+        { "id": "francais", "name": "Français", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 1.0 },
+        { "id": "anglais", "name": "Anglais", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 1.0 },
+        { "id": "philo", "name": "Philosophie", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.0 },
+        { "id": "sport", "name": "Éducation Physique", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.0 }
+      ]
+    },
+    {
+      "id": "bac_lettres",
+      "title": "Bac Lettres",
+      "shortTitle": "Lettres",
+      "description": "Arabe & Philosophie coeff 4 · Histoire-Géo coeff 3",
+      "subjects": [
+        { "id": "arabe", "name": "Arabe", "annualCoeff": 4.0, "examCoeff": 4.0, "fgCoeff": 1.5 },
+        { "id": "philo", "name": "Philosophie", "annualCoeff": 4.0, "examCoeff": 4.0, "fgCoeff": 1.5 },
+        { "id": "histgeo", "name": "Histoire-Géographie", "annualCoeff": 3.0, "examCoeff": 3.0, "fgCoeff": 1.0 },
+        { "id": "francais", "name": "Français", "annualCoeff": 2.0, "examCoeff": 2.0, "fgCoeff": 1.0 },
+        { "id": "anglais", "name": "Anglais", "annualCoeff": 2.0, "examCoeff": 2.0, "fgCoeff": 1.0 },
+        { "id": "info", "name": "Informatique", "annualCoeff": 1.5, "examCoeff": 1.5, "fgCoeff": 0.5 },
+        { "id": "sport", "name": "Éducation Physique", "annualCoeff": 1.0, "examCoeff": 1.0, "fgCoeff": 0.0 }
+      ]
+    }
+  ]
+}

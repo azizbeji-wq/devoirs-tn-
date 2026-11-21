@@ -3,12 +3,16 @@ package com.example.data.local
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.data.model.CycleLevel
-import com.example.data.model.DevoirExercise
 import com.example.data.model.DevoirItem
 import com.example.data.model.DevoirType
 import com.example.data.model.Trimester
 import com.example.data.model.TunisianSection
 
+/**
+ * Entité Room stockant les métadonnées d'un devoir PDF hébergé en ligne,
+ * ses empreintes d'intégrité (taille / SHA-256), ses chemins privés téléchargés hors ligne
+ * ainsi que la progression locale de l'élève (`isFavorite`, `isCompleted`).
+ */
 @Entity(tableName = "devoirs")
 data class DevoirEntity(
     @PrimaryKey val id: String,
@@ -19,11 +23,21 @@ data class DevoirEntity(
     val typeId: String,
     val trimesterId: String,
     val durationMinutes: Int,
-    val totalPoints: Int,
     val difficulty: String,
-    val sourceSchool: String,
     val chapterTagsSerialized: String,
-    val exercisesSerialized: String,
+    val source: String,
+    val version: Int = 1,
+    val sizeMb: Double = 0.0,
+    val sujetUrl: String,
+    val corrigeUrl: String? = null,
+    val sujetSizeBytes: Long = 0L,
+    val corrigeSizeBytes: Long = 0L,
+    val sujetSha256: String? = null,
+    val corrigeSha256: String? = null,
+    val localSujetPath: String? = null,
+    val localCorrigePath: String? = null,
+    val downloadedBytes: Long = 0L,
+    val downloadedVersion: Int = 0,
     val isFavorite: Boolean = false,
     val isCompleted: Boolean = false
 )
@@ -34,41 +48,14 @@ data class StarredIdeaEntity(
     val starredAt: Long = System.currentTimeMillis()
 )
 
+/** Utilitaire d'encodage/décodage des tags de chapitres stockés dans Room. */
 object ExerciseCodec {
-    private const val EXERCISE_SEP = "<<<EX>>>"
-    private const val FIELD_SEP = "<<<FLD>>>"
     private const val TAG_SEP = "|||"
 
     fun encodeTags(tags: List<String>): String = tags.joinToString(TAG_SEP)
 
     fun decodeTags(raw: String): List<String> =
         if (raw.isBlank()) emptyList() else raw.split(TAG_SEP)
-
-    fun encodeExercises(exercises: List<DevoirExercise>): String =
-        exercises.joinToString(EXERCISE_SEP) { ex ->
-            listOf(
-                ex.number.toString(),
-                ex.title,
-                ex.points,
-                ex.statement,
-                ex.solution
-            ).joinToString(FIELD_SEP)
-        }
-
-    fun decodeExercises(raw: String): List<DevoirExercise> {
-        if (raw.isBlank()) return emptyList()
-        return raw.split(EXERCISE_SEP).mapNotNull { chunk ->
-            val parts = chunk.split(FIELD_SEP)
-            if (parts.size < 5) return@mapNotNull null
-            DevoirExercise(
-                number = parts[0].toIntOrNull() ?: 1,
-                title = parts[1],
-                points = parts[2],
-                statement = parts[3],
-                solution = parts[4]
-            )
-        }
-    }
 }
 
 fun DevoirEntity.toDomain(): DevoirItem = DevoirItem(
@@ -80,11 +67,21 @@ fun DevoirEntity.toDomain(): DevoirItem = DevoirItem(
     type = DevoirType.fromId(typeId),
     trimester = Trimester.fromId(trimesterId),
     durationMinutes = durationMinutes,
-    totalPoints = totalPoints,
     difficulty = difficulty,
-    sourceSchool = sourceSchool,
     chapterTags = ExerciseCodec.decodeTags(chapterTagsSerialized),
-    exercises = ExerciseCodec.decodeExercises(exercisesSerialized),
+    source = source,
+    version = version,
+    sizeMb = sizeMb,
+    sujetUrl = sujetUrl,
+    corrigeUrl = corrigeUrl,
+    sujetSizeBytes = sujetSizeBytes,
+    corrigeSizeBytes = corrigeSizeBytes,
+    sujetSha256 = sujetSha256,
+    corrigeSha256 = corrigeSha256,
+    localSujetPath = localSujetPath,
+    localCorrigePath = localCorrigePath,
+    downloadedBytes = downloadedBytes,
+    downloadedVersion = downloadedVersion,
     isFavorite = isFavorite,
     isCompleted = isCompleted
 )
@@ -98,11 +95,21 @@ fun DevoirItem.toEntity(): DevoirEntity = DevoirEntity(
     typeId = type.id,
     trimesterId = trimester.id,
     durationMinutes = durationMinutes,
-    totalPoints = totalPoints,
     difficulty = difficulty,
-    sourceSchool = sourceSchool,
     chapterTagsSerialized = ExerciseCodec.encodeTags(chapterTags),
-    exercisesSerialized = ExerciseCodec.encodeExercises(exercises),
+    source = source,
+    version = version,
+    sizeMb = sizeMb,
+    sujetUrl = sujetUrl,
+    corrigeUrl = corrigeUrl,
+    sujetSizeBytes = sujetSizeBytes,
+    corrigeSizeBytes = corrigeSizeBytes,
+    sujetSha256 = sujetSha256,
+    corrigeSha256 = corrigeSha256,
+    localSujetPath = localSujetPath,
+    localCorrigePath = localCorrigePath,
+    downloadedBytes = downloadedBytes,
+    downloadedVersion = downloadedVersion,
     isFavorite = isFavorite,
     isCompleted = isCompleted
 )

@@ -7,11 +7,25 @@ import com.example.data.model.AppFeatureIdea
 import com.example.data.model.CycleLevel
 import com.example.data.model.DevoirItem
 import com.example.data.model.DevoirType
-import com.example.data.model.SectionCoefficientPreset
 import com.example.data.model.StudyMethodGuide
 import com.example.data.model.Trimester
 import com.example.data.model.TunisianSection
+import com.example.data.local.CatalogueOrigin
+import com.example.data.repository.CatalogueSyncStatus
 import com.example.data.repository.DevoirRepository
+import com.example.domain.bac.AnnualCalculationResult
+import com.example.domain.bac.BacCalculator
+import com.example.domain.bac.BacConfig
+import com.example.domain.bac.BacMention
+import com.example.domain.bac.BacSectionConfig
+import com.example.domain.bac.BacSession
+import com.example.domain.bac.ExamCalculationResult
+import com.example.domain.bac.FormuleGlobaleResult
+import com.example.domain.bac.ReverseSimulationResult
+import com.example.domain.bac.SubjectAnnualInputs
+import com.example.domain.bac.TrimesterGradeInput
+import com.example.domain.bac.TrimesterKey
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +33,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -31,6 +48,14 @@ enum class MainTab(val id: String) {
     SUIVI("suivi")
 }
 
+/** Options de tri disponibles dans la bibliothèque des devoirs. */
+enum class DevoirSortOption(val id: String) {
+    RECENT("recent"),
+    DURATION("duration"),
+    DIFFICULTY("difficulty"),
+    SUBJECT("subject")
+}
+
 data class DevoirFilterState(
     val searchQuery: String = "",
     val selectedLevel: CycleLevel = CycleLevel.ALL,
@@ -38,7 +63,8 @@ data class DevoirFilterState(
     val selectedType: DevoirType = DevoirType.ALL,
     val selectedTrimester: Trimester = Trimester.ALL,
     val selectedSubject: String = "Toutes",
-    val favoritesOnly: Boolean = false
+    val favoritesOnly: Boolean = false,
+    val sortOption: DevoirSortOption = DevoirSortOption.RECENT
 )
 
 data class ExamTimerState(
@@ -48,109 +74,99 @@ data class ExamTimerState(
     val isRunning: Boolean = false
 )
 
-data class SubjectGradeInput(
-    val dcText: String = "",
-    val dsText: String = "",
-    val directText: String = ""
-)
+enum class BacCalcTab(val label: String) {
+    ANNUELLE("Annuelle"),
+    EXAMEN("Examen"),
+    FG("Formule FG"),
+    SIMULATEUR("Simulateur")
+}
 
 data class MoyenneUiState(
-    val presets: List<SectionCoefficientPreset> = emptyList(),
-    val selectedPresetId: String = "bac_maths",
-    val isTrimesterMode: Boolean = true,
-    val gradeInputs: Map<String, SubjectGradeInput> = emptyMap()
+    val config: BacConfig = BacConfig(),
+    val selectedSectionId: String = "bac_maths",
+    val selectedCalcTab: BacCalcTab = BacCalcTab.ANNUELLE,
+    val selectedTrimester: TrimesterKey = TrimesterKey.T1,
+    val annualPercent: Double = 25.0,
+    val examPercent: Double = 75.0,
+    val annualInputs: Map<String, SubjectAnnualInputs> = emptyMap(),
+    val examGradeTexts: Map<String, String> = emptyMap(),
+    val customFgCoeffTexts: Map<String, String> = emptyMap(),
+    val fgGeneralMultiplierText: String = "4",
+    val simulatorTargetText: String = "14",
+    val simulatorCustomAnnualText: String = ""
 ) {
-    val selectedPreset: SectionCoefficientPreset?
-        get() = presets.find { it.id == selectedPresetId } ?: presets.firstOrNull()
+    val sections: List<BacSectionConfig>
+        get() = config.sections
 
-    fun subjectAverage(subjectId: String): Double? {
-        val input = gradeInputs[subjectId] ?: return null
-        return if (isTrimesterMode) {
-            val dc = parseGrade(input.dcText)
-            val ds = parseGrade(input.dsText)
-            when {
-                dc != null && ds != null -> (dc + 2.0 * ds) / 3.0
-                ds != null -> ds
-                dc != null -> dc
-                else -> null
-            }
+    val selectedSection: BacSectionConfig?
+        get() = config.sections.find { it.id == selectedSectionId } ?: config.sections.firstOrNull()
+
+    val effectiveWeights
+        get() = config.weights.copy(
+            annualPercent = annualPercent,
+            examPercent = examPercent
+        )
+
+    val annualResult: AnnualCalculationResult
+        get() {
+            val section = selectedSection ?: return AnnualCalculationResult(emptyMap(), emptyMap(), null)
+            return BacCalculator.computeAnnualAverage(section, annualInputs, effectiveWeights)
+        }
+
+    val examResult: ExamCalculationResult
+        get() {
+            val section = selectedSection ?: return ExamCalculationResult(null, 0.0, 0.0)
+            return BacCalculator.computeExamAverage(section, examGradeTexts)
+        }
+
+    val generalAverage: Double?
+        get() = BacCalculator.computeGeneralAverage(
+            annualAverage = annualResult.annualAverage,
+            examAverage = examResult.examAverage,
+            annualPercent = annualPercent,
+            examPercent = examPercent
+        )
+
+    val mention: BacMention
+        get() = BacCalculator.determineMention(generalAverage, config.mentions)
+
+    val session: BacSession
+        get() = BacCalculator.determineSession(generalAverage, config.sessions)
+
+    val parsedCustomFgCoeffs: Map<String, Double>
+        get() = customFgCoeffTexts.mapNotNull { (id, text) ->
+            BacCalculator.parseCoefficient(text)?.let { id to it }
+        }.toMap()
+
+    val effectiveFgMultiplier: Double
+        get() = BacCalculator.parseCoefficient(fgGeneralMultiplierText) ?: config.fgGeneralMultiplier
+
+    val fgResult: FormuleGlobaleResult
+        get() {
+            val section = selectedSection ?: return FormuleGlobaleResult(null, 0.0, 0.0, emptyList())
+            return BacCalculator.computeFormuleGlobale(
+                generalAverage = generalAverage,
+                section = section,
+                examGradeTexts = examGradeTexts,
+                customFgCoeffs = parsedCustomFgCoeffs,
+                fgGeneralMultiplier = effectiveFgMultiplier
+            )
+        }
+
+    val simulatorEffectiveAnnual: Double?
+        get() = if (simulatorCustomAnnualText.isNotBlank()) {
+            BacCalculator.parseGrade(simulatorCustomAnnualText)
         } else {
-            parseGrade(input.directText)
-        }
-    }
-
-    val computedAverage: Double?
-        get() {
-            val preset = selectedPreset ?: return null
-            var weightedSum = 0.0
-            var totalCoeff = 0.0
-            for (subject in preset.subjects) {
-                val avg = subjectAverage(subject.id)
-                if (avg != null) {
-                    weightedSum += avg * subject.coefficient
-                    totalCoeff += subject.coefficient
-                }
-            }
-            return if (totalCoeff > 0.0) weightedSum / totalCoeff else null
+            annualResult.annualAverage
         }
 
-    val totalWeightedPoints: Double
-        get() {
-            val preset = selectedPreset ?: return 0.0
-            return preset.subjects.sumOf { subject ->
-                val avg = subjectAverage(subject.id) ?: 0.0
-                avg * subject.coefficient
-            }
-        }
-
-    val activeCoeffSum: Double
-        get() {
-            val preset = selectedPreset ?: return 0.0
-            return preset.subjects.sumOf { subject ->
-                if (subjectAverage(subject.id) != null) subject.coefficient else 0.0
-            }
-        }
-
-    val mentionLabel: String
-        get() {
-            val avg = computedAverage ?: return "Saisis tes notes"
-            return when {
-                avg >= 16.0 -> "Mention Très Bien"
-                avg >= 14.0 -> "Mention Bien"
-                avg >= 12.0 -> "Mention Assez Bien"
-                avg >= 10.0 -> "Admis · Passable"
-                avg >= 7.0 -> "Session de Contrôle"
-                else -> "Efforts à renforcer"
-            }
-        }
-
-    val nextTargetHint: String
-        get() {
-            val avg = computedAverage ?: return "Entre au moins une note pour estimer ta moyenne tunisienne."
-            val nextThreshold = when {
-                avg < 10.0 -> 10.0 to "l'admission (10/20)"
-                avg < 12.0 -> 12.0 to "Assez Bien (12/20)"
-                avg < 14.0 -> 14.0 to "Bien (14/20)"
-                avg < 16.0 -> 16.0 to "Très Bien (16/20)"
-                else -> null
-            }
-            return if (nextThreshold == null) {
-                "Excellent niveau ! Tu vises les meilleures orientations universitaires."
-            } else {
-                val diff = nextThreshold.first - avg
-                val pointsNeeded = diff * activeCoeffSum
-                "Il te manque +%.2f pts de moyenne (≈ +%.1f pts pondérés) pour %s."
-                    .format(diff, pointsNeeded, nextThreshold.second)
-            }
-        }
-
-    companion object {
-        fun parseGrade(raw: String): Double? {
-            val cleaned = raw.trim().replace(',', '.')
-            val value = cleaned.toDoubleOrNull() ?: return null
-            return value.coerceIn(0.0, 20.0)
-        }
-    }
+    val reverseSimulation: ReverseSimulationResult
+        get() = BacCalculator.simulateRequiredExamAverage(
+            targetGeneralAverage = BacCalculator.parseGrade(simulatorTargetText),
+            annualAverage = simulatorEffectiveAnnual,
+            annualPercent = annualPercent,
+            examPercent = examPercent
+        )
 }
 
 data class SubjectProgressStat(
@@ -160,7 +176,8 @@ data class SubjectProgressStat(
 )
 
 class DevoirsViewModel(
-    private val repository: DevoirRepository
+    private val repository: DevoirRepository,
+    private val bacConfig: BacConfig
 ) : ViewModel() {
 
     private val _selectedTab = MutableStateFlow(MainTab.MATIERES)
@@ -180,11 +197,17 @@ class DevoirsViewModel(
 
     private val _moyenneState = MutableStateFlow(
         MoyenneUiState(
-            presets = repository.getCoefficientPresets(),
-            selectedPresetId = repository.getCoefficientPresets().firstOrNull()?.id ?: "bac_maths"
+            config = bacConfig,
+            selectedSectionId = bacConfig.sections.firstOrNull()?.id ?: "bac_maths",
+            annualPercent = bacConfig.weights.annualPercent,
+            examPercent = bacConfig.weights.examPercent,
+            fgGeneralMultiplierText = formatCoeffInput(bacConfig.fgGeneralMultiplier)
         )
     )
     val moyenneState: StateFlow<MoyenneUiState> = _moyenneState.asStateFlow()
+
+    private val _catalogueSyncStatus = MutableStateFlow(CatalogueSyncStatus(isSyncing = true))
+    val catalogueSyncStatus: StateFlow<CatalogueSyncStatus> = _catalogueSyncStatus.asStateFlow()
 
     val studyMethodGuides: List<StudyMethodGuide> = repository.getStudyMethodGuides()
     val appFeatureIdeas: List<AppFeatureIdea> = repository.getAppFeatureIdeas()
@@ -213,31 +236,63 @@ class DevoirsViewModel(
             initialValue = listOf("Toutes")
         )
 
+    /** Flux Room FTS4 des identifiants correspondant à la requête active. */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val ftsMatchedIds: StateFlow<Set<String>> = _filterState
+        .map { it.searchQuery }
+        .distinctUntilChanged()
+        .flatMapLatest { query -> repository.searchFtsDevoirIds(query) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptySet()
+        )
+
+    /** Contenu OCR indexé par `devoirId` pour le filtrage et les extraits surlignés. */
+    private val indexedPdfContentMap: StateFlow<Map<String, String>> = repository.indexedPdfContentMap
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyMap()
+        )
+
+    // Filtrage réactif délégué au moteur pur DevoirSearchEngine (titres, chapitres et contenu OCR FTS4)
     val filteredDevoirs: StateFlow<List<DevoirItem>> = combine(
         allDevoirs,
-        _filterState
-    ) { devoirs, filter ->
-        devoirs.filter { item ->
-            val matchesQuery = filter.searchQuery.isBlank() ||
-                item.title.contains(filter.searchQuery, ignoreCase = true) ||
-                item.subject.contains(filter.searchQuery, ignoreCase = true) ||
-                item.sourceSchool.contains(filter.searchQuery, ignoreCase = true) ||
-                item.chapterTags.any { it.contains(filter.searchQuery, ignoreCase = true) }
-
-            val matchesLevel = filter.selectedLevel == CycleLevel.ALL || item.level == filter.selectedLevel
-            val matchesSection = filter.selectedSection == TunisianSection.ALL || item.section == filter.selectedSection
-            val matchesType = filter.selectedType == DevoirType.ALL || item.type == filter.selectedType
-            val matchesTrimester = filter.selectedTrimester == Trimester.ALL || item.trimester == filter.selectedTrimester
-            val matchesSubject = filter.selectedSubject == "Toutes" || item.subject == filter.selectedSubject
-            val matchesFavorite = !filter.favoritesOnly || item.isFavorite
-
-            matchesQuery && matchesLevel && matchesSection && matchesType &&
-                matchesTrimester && matchesSubject && matchesFavorite
-        }
+        _filterState,
+        indexedPdfContentMap,
+        ftsMatchedIds
+    ) { devoirs, filter, contentMap, matchedFtsIds ->
+        com.example.domain.search.DevoirSearchEngine.filterDevoirs(
+            devoirs = devoirs,
+            filter = filter,
+            indexedContentByDevoirId = contentMap,
+            ftsMatchedIds = matchedFtsIds
+        )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
+    )
+
+    /** Extraits PDF pertinents par `devoirId` lorsque la recherche correspond au contenu OCR. */
+    val searchSnippetsByDevoirId: StateFlow<Map<String, String>> = combine(
+        _filterState,
+        indexedPdfContentMap
+    ) { filter, contentMap ->
+        val query = filter.searchQuery.trim()
+        if (query.isEmpty() || contentMap.isEmpty()) {
+            emptyMap()
+        } else {
+            contentMap.mapNotNull { (id, text) ->
+                com.example.domain.search.DevoirSearchEngine.extractMatchingSnippet(text, query)
+                    ?.let { snippet -> id to snippet }
+            }.toMap()
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyMap()
     )
 
     val selectedDevoir: StateFlow<DevoirItem?> = combine(
@@ -272,8 +327,24 @@ class DevoirsViewModel(
     private var timerJob: Job? = null
 
     init {
+        refreshCatalogue()
+    }
+
+    /** Synchronise le catalogue distant (avec bascule transparente sur le cache local si hors ligne). */
+    fun refreshCatalogue(onSynced: ((version: Int, syncedAtMillis: Long) -> Unit)? = null) {
         viewModelScope.launch {
-            repository.ensureSeedDataLoaded()
+            _catalogueSyncStatus.update { it.copy(isSyncing = true) }
+            val result = repository.syncCatalogue()
+            _catalogueSyncStatus.value = CatalogueSyncStatus(
+                isSyncing = false,
+                catalogueVersion = result.catalogueVersion,
+                origin = result.origin,
+                syncedAtMillis = result.syncedAtMillis,
+                isOfflineFallback = result.origin != CatalogueOrigin.REMOTE
+            )
+            if (result.catalogueVersion > 0) {
+                onSynced?.invoke(result.catalogueVersion, result.syncedAtMillis)
+            }
         }
     }
 
@@ -284,6 +355,11 @@ class DevoirsViewModel(
     fun openDevoir(devoir: DevoirItem) {
         _selectedDevoirId.value = devoir.id
         _revealedExercises.value = emptySet()
+        if (devoir.isAvailableOffline) {
+            viewModelScope.launch {
+                repository.ensureDevoirIndexed(devoir)
+            }
+        }
         if (_timerState.value.devoirId != devoir.id) {
             timerJob?.cancel()
             val secs = devoir.durationMinutes * 60
@@ -373,8 +449,12 @@ class DevoirsViewModel(
         _filterState.update { it.copy(favoritesOnly = !it.favoritesOnly) }
     }
 
+    fun selectSortOption(option: DevoirSortOption) {
+        _filterState.update { it.copy(sortOption = option) }
+    }
+
     fun resetFilters() {
-        _filterState.value = DevoirFilterState()
+        _filterState.update { DevoirFilterState(sortOption = it.sortOption) }
     }
 
     // Persistence mutations
@@ -396,49 +476,137 @@ class DevoirsViewModel(
         }
     }
 
-    // Moyenne Calculator actions
-    fun selectCoefficientPreset(presetId: String) {
-        _moyenneState.update { it.copy(selectedPresetId = presetId, gradeInputs = emptyMap()) }
-    }
-
-    fun setTrimesterMode(trimesterMode: Boolean) {
-        _moyenneState.update { it.copy(isTrimesterMode = trimesterMode) }
-    }
-
-    fun updateSubjectGrade(
-        subjectId: String,
-        dc: String? = null,
-        ds: String? = null,
-        direct: String? = null
-    ) {
+    // Tunisian Bac Calculator actions
+    fun selectBacSection(sectionId: String) {
         _moyenneState.update { state ->
-            val current = state.gradeInputs[subjectId] ?: SubjectGradeInput()
-            val updated = current.copy(
-                dcText = dc?.filter { it.isDigit() || it == '.' || it == ',' }?.take(5) ?: current.dcText,
-                dsText = ds?.filter { it.isDigit() || it == '.' || it == ',' }?.take(5) ?: current.dsText,
-                directText = direct?.filter { it.isDigit() || it == '.' || it == ',' }?.take(5) ?: current.directText
+            state.copy(
+                selectedSectionId = sectionId,
+                annualInputs = emptyMap(),
+                examGradeTexts = emptyMap(),
+                customFgCoeffTexts = emptyMap()
             )
-            state.copy(gradeInputs = state.gradeInputs + (subjectId to updated))
         }
     }
 
-    fun resetGrades() {
-        _moyenneState.update { it.copy(gradeInputs = emptyMap()) }
+    fun selectBacCalcTab(tab: BacCalcTab) {
+        _moyenneState.update { it.copy(selectedCalcTab = tab) }
     }
 
-    fun fillSampleGrades() {
-        val preset = _moyenneState.value.selectedPreset ?: return
-        val sampleMap = preset.subjects.mapIndexed { idx, subj ->
-            val dc = (13.5 + (idx % 4) * 1.25).coerceAtMost(19.0)
-            val ds = (14.0 + ((idx + 1) % 4) * 1.1).coerceAtMost(19.5)
-            val direct = ((dc + 2.0 * ds) / 3.0)
-            subj.id to SubjectGradeInput(
-                dcText = "%.1f".format(dc).replace(',', '.'),
-                dsText = "%.1f".format(ds).replace(',', '.'),
-                directText = "%.1f".format(direct).replace(',', '.')
+    fun selectBacTrimester(trimester: TrimesterKey) {
+        _moyenneState.update { it.copy(selectedTrimester = trimester) }
+    }
+
+    fun updateAnnualPercent(newAnnualPercent: Double) {
+        val clamped = newAnnualPercent.coerceIn(0.0, 100.0)
+        _moyenneState.update { state ->
+            state.copy(
+                annualPercent = clamped,
+                examPercent = (100.0 - clamped).coerceIn(0.0, 100.0)
             )
-        }.toMap()
-        _moyenneState.update { it.copy(gradeInputs = sampleMap) }
+        }
+    }
+
+    fun resetWeightsToDefault() {
+        _moyenneState.update { state ->
+            state.copy(
+                annualPercent = state.config.weights.annualPercent,
+                examPercent = state.config.weights.examPercent
+            )
+        }
+    }
+
+    fun updateAnnualGrade(
+        subjectId: String,
+        trimester: TrimesterKey,
+        dc: String? = null,
+        ds: String? = null
+    ) {
+        _moyenneState.update { state ->
+            val subjectInputs = state.annualInputs[subjectId] ?: SubjectAnnualInputs()
+            val currentTri = subjectInputs.forTrimester(trimester)
+            val updatedTri = currentTri.copy(
+                dcText = dc?.take(6) ?: currentTri.dcText,
+                dsText = ds?.take(6) ?: currentTri.dsText
+            )
+            state.copy(
+                annualInputs = state.annualInputs + (subjectId to subjectInputs.updateTrimester(trimester, updatedTri))
+            )
+        }
+    }
+
+    fun updateExamGrade(subjectId: String, value: String) {
+        _moyenneState.update { state ->
+            state.copy(examGradeTexts = state.examGradeTexts + (subjectId to value.take(6)))
+        }
+    }
+
+    fun updateCustomFgCoeff(subjectId: String, value: String) {
+        _moyenneState.update { state ->
+            state.copy(customFgCoeffTexts = state.customFgCoeffTexts + (subjectId to value.take(5)))
+        }
+    }
+
+    fun updateFgGeneralMultiplier(value: String) {
+        _moyenneState.update { it.copy(fgGeneralMultiplierText = value.take(5)) }
+    }
+
+    fun resetFgCoeffs() {
+        _moyenneState.update { state ->
+            state.copy(
+                customFgCoeffTexts = emptyMap(),
+                fgGeneralMultiplierText = formatCoeffInput(state.config.fgGeneralMultiplier)
+            )
+        }
+    }
+
+    fun updateSimulatorTarget(value: String) {
+        _moyenneState.update { it.copy(simulatorTargetText = value.take(6)) }
+    }
+
+    fun updateSimulatorCustomAnnual(value: String) {
+        _moyenneState.update { it.copy(simulatorCustomAnnualText = value.take(6)) }
+    }
+
+    fun resetBacGrades() {
+        _moyenneState.update { state ->
+            state.copy(
+                annualInputs = emptyMap(),
+                examGradeTexts = emptyMap(),
+                simulatorCustomAnnualText = ""
+            )
+        }
+    }
+
+    fun fillBacSampleGrades() {
+        val section = _moyenneState.value.selectedSection ?: return
+        val annualMap = mutableMapOf<String, SubjectAnnualInputs>()
+        val examMap = mutableMapOf<String, String>()
+
+        section.subjects.forEachIndexed { idx, subject ->
+            val base = (12.5 + (idx % 5) * 1.15).coerceAtMost(18.5)
+            val t1Dc = (base - 0.5).coerceIn(8.0, 19.5)
+            val t1Ds = (base + 0.25).coerceIn(8.0, 19.5)
+            val t2Dc = (base + 0.2).coerceIn(8.0, 19.5)
+            val t2Ds = (base + 0.75).coerceIn(8.0, 19.5)
+            val t3Dc = (base + 0.4).coerceIn(8.0, 19.5)
+            val t3Ds = (base + 1.0).coerceIn(8.0, 19.5)
+            val exam = (base + 0.85).coerceIn(8.0, 19.75)
+
+            annualMap[subject.id] = SubjectAnnualInputs(
+                t1 = TrimesterGradeInput(formatGradeInput(t1Dc), formatGradeInput(t1Ds)),
+                t2 = TrimesterGradeInput(formatGradeInput(t2Dc), formatGradeInput(t2Ds)),
+                t3 = TrimesterGradeInput(formatGradeInput(t3Dc), formatGradeInput(t3Ds))
+            )
+            examMap[subject.id] = formatGradeInput(exam)
+        }
+
+        _moyenneState.update { state ->
+            state.copy(
+                annualInputs = annualMap,
+                examGradeTexts = examMap,
+                simulatorCustomAnnualText = ""
+            )
+        }
     }
 
     override fun onCleared() {
@@ -446,11 +614,22 @@ class DevoirsViewModel(
         timerJob?.cancel()
     }
 
-    class Factory(private val repository: DevoirRepository) : ViewModelProvider.Factory {
+    companion object {
+        private fun formatGradeInput(value: Double): String =
+            "%.2f".format(value).replace(',', '.').trimEnd('0').trimEnd('.')
+
+        private fun formatCoeffInput(value: Double): String =
+            if (value % 1.0 == 0.0) value.toInt().toString() else value.toString()
+    }
+
+    class Factory(
+        private val repository: DevoirRepository,
+        private val bacConfig: BacConfig
+    ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(DevoirsViewModel::class.java)) {
-                return DevoirsViewModel(repository) as T
+                return DevoirsViewModel(repository, bacConfig) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

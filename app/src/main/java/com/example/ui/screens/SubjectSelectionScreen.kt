@@ -24,28 +24,38 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.Biotech
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.HistoryEdu
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.PrecisionManufacturing
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.RestartAlt
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,46 +69,83 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.R
+import com.example.data.local.SubjectEntity
 import com.example.data.model.CycleLevel
 import com.example.data.model.DevoirItem
 import com.example.ui.components.DevoirCard
+import com.example.ui.components.localizedCycle
+import com.example.ui.components.localizedLabel
+import com.example.ui.components.localizedShortLabel
+import com.example.ui.components.localizedSubjectName
 import com.example.ui.components.subjectAccentColor
 import com.example.ui.theme.CobaltDeep
 import com.example.ui.theme.CobaltPrimary
+import com.example.ui.viewmodel.SubjectsUiState
 
-data class SubjectOptionSpec(
-    val id: String,
-    val name: String,
-    val subtitle: String,
-    val icon: ImageVector
-)
+/**
+ * Associe la clé d'icône persistée dans Room (`SubjectEntity.iconKey`) à son icône Material Symbols.
+ */
+private fun subjectIconForKey(iconKey: String): ImageVector = when (iconKey) {
+    "calculate" -> Icons.Filled.Calculate
+    "science" -> Icons.Filled.Science
+    "translate" -> Icons.Filled.Translate
+    "biotech" -> Icons.Filled.Biotech
+    "auto_stories" -> Icons.Filled.AutoStories
+    "public" -> Icons.Filled.Public
+    "code" -> Icons.Filled.Code
+    "history_edu" -> Icons.Filled.HistoryEdu
+    "account_balance" -> Icons.Filled.AccountBalance
+    "precision" -> Icons.Filled.PrecisionManufacturing
+    else -> Icons.Filled.School
+}
 
-private val tunisianSubjectCatalog: List<SubjectOptionSpec> = listOf(
-    SubjectOptionSpec("maths", "Mathématiques", "Algèbre, Analyse, Géométrie", Icons.Filled.Calculate),
-    SubjectOptionSpec("physique", "Physique-Chimie", "Circuits RC/RL, Cinétique", Icons.Filled.Science),
-    SubjectOptionSpec("arabe", "Arabe", "Texte, Langue & Essai (العربية)", Icons.Filled.Translate),
-    SubjectOptionSpec("svt", "SVT", "Génétique, Neuro, Géologie", Icons.Filled.Biotech),
-    SubjectOptionSpec("francais", "Français", "Compréhension, Langue, Essai", Icons.Filled.AutoStories),
-    SubjectOptionSpec("anglais", "Anglais", "Reading, Grammar & Writing", Icons.Filled.Public),
-    SubjectOptionSpec("info", "Informatique", "Python, Algo & Bases SQL", Icons.Filled.Code),
-    SubjectOptionSpec("philo", "Philosophie", "Dissertation & Concepts Bac", Icons.Filled.HistoryEdu),
-    SubjectOptionSpec("eco", "Économie & Gestion", "PIB, Croissance & Finance", Icons.Filled.AccountBalance),
-    SubjectOptionSpec("tech", "Technologie", "GRAFCET & Logique Séquentielle", Icons.Filled.PrecisionManufacturing)
-)
+/**
+ * Retourne le sous-titre localisé (FR / AR / EN) pour les matières standard du programme tunisien,
+ * ou le sous-titre saisi par l'utilisateur pour une matière personnalisée.
+ */
+@Composable
+private fun localizedSubjectSubtitle(subject: SubjectEntity): String = when (subject.id) {
+    "maths" -> stringResource(R.string.subj_maths_sub)
+    "physique" -> stringResource(R.string.subj_physique_sub)
+    "arabe" -> stringResource(R.string.subj_arabe_sub)
+    "svt" -> stringResource(R.string.subj_svt_sub)
+    "francais" -> stringResource(R.string.subj_francais_sub)
+    "anglais" -> stringResource(R.string.subj_anglais_sub)
+    "info" -> stringResource(R.string.subj_info_sub)
+    "philo" -> stringResource(R.string.subj_philo_sub)
+    "eco" -> stringResource(R.string.subj_eco_sub)
+    "tech" -> stringResource(R.string.subj_tech_sub)
+    else -> subject.subtitle
+}
 
+/**
+ * Écran de sélection rapide par année scolaire et matière.
+ * Les matières académiques sont chargées réactivement depuis Room via SubjectsViewModel
+ * et affichées dans le LazyColumn principal.
+ */
 @Composable
 fun SubjectSelectionScreen(
+    subjectsUiState: SubjectsUiState,
     allDevoirs: List<DevoirItem>,
     selectedYear: CycleLevel,
     selectedSubject: String,
     onSelectYear: (CycleLevel) -> Unit,
     onSelectSubject: (String) -> Unit,
+    onAddCustomSubject: (name: String, subtitle: String) -> Unit,
+    onDeleteSubject: (subjectId: String) -> Unit,
     onResetSelection: () -> Unit,
     onOpenDevoir: (DevoirItem) -> Unit,
     onToggleFavorite: (String) -> Unit,
     onViewInLibrary: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showAddSubjectDialog by remember { mutableStateOf(false) }
+
+    val subjects = when (subjectsUiState) {
+        is SubjectsUiState.Success -> subjectsUiState.subjects
+        else -> emptyList()
+    }
+
     val matchingDevoirs = remember(allDevoirs, selectedYear, selectedSubject) {
         allDevoirs.filter { devoir ->
             val yearOk = selectedYear == CycleLevel.ALL || devoir.level == selectedYear
@@ -115,18 +162,17 @@ fun SubjectSelectionScreen(
         }
     }
 
-    val subjectCountsForYear = remember(allDevoirs, selectedYear) {
+    val subjectCountsForYear = remember(allDevoirs, selectedYear, subjects) {
         val yearScoped = if (selectedYear == CycleLevel.ALL) {
             allDevoirs
         } else {
             allDevoirs.filter { it.level == selectedYear }
         }
-        tunisianSubjectCatalog.associate { spec ->
-            spec.name to yearScoped.count { it.subject.equals(spec.name, ignoreCase = true) }
+        subjects.associate { subj ->
+            subj.canonicalName to yearScoped.count { it.subject.equals(subj.canonicalName, ignoreCase = true) }
         }
     }
 
-    val subjectPairs = remember { tunisianSubjectCatalog.chunked(2) }
     val hasActiveFilter = selectedYear != CycleLevel.ALL || selectedSubject != "Toutes"
 
     LazyColumn(
@@ -134,9 +180,9 @@ fun SubjectSelectionScreen(
             .fillMaxSize()
             .testTag("subject_selection_screen"),
         contentPadding = PaddingValues(bottom = 28.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Editorial Header Card
+        // Bannière éditoriale
         item(key = "selection_header") {
             Box(
                 modifier = Modifier
@@ -173,10 +219,12 @@ fun SubjectSelectionScreen(
                                 onClick = onResetSelection,
                                 shape = CircleShape,
                                 color = Color.White.copy(alpha = 0.18f),
-                                modifier = Modifier.testTag("subject_selection_reset_btn")
+                                modifier = Modifier
+                                    .minimumInteractiveComponentSize()
+                                    .testTag("subject_selection_reset_btn")
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
@@ -213,7 +261,7 @@ fun SubjectSelectionScreen(
             }
         }
 
-        // Step 1: Academic Year Selector
+        // Étape 1 : Année scolaire
         item(key = "year_section_title") {
             Row(
                 modifier = Modifier
@@ -222,20 +270,20 @@ fun SubjectSelectionScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(R.string.step_choose_year),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
-                        text = selectedYear.label,
+                        text = selectedYear.localizedLabel(),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
                 Text(
-                    text = "${yearCounts[selectedYear] ?: 0} sujets",
+                    text = stringResource(R.string.subjects_count_label, yearCounts[selectedYear] ?: 0),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -261,7 +309,7 @@ fun SubjectSelectionScreen(
             }
         }
 
-        // Step 2: Subject Grid Header
+        // Étape 2 : Liste des matières chargées depuis Room
         item(key = "subject_section_title") {
             Row(
                 modifier = Modifier
@@ -270,62 +318,122 @@ fun SubjectSelectionScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(R.string.step_choose_subject),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
-                        text = if (selectedSubject == "Toutes") {
-                            stringResource(R.string.all_subjects_label)
-                        } else {
-                            selectedSubject
-                        },
+                        text = localizedSubjectName(selectedSubject),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
 
-                if (selectedSubject != "Toutes") {
-                    TextButton(
-                        onClick = { onSelectSubject("Toutes") },
-                        modifier = Modifier.testTag("clear_subject_selection_btn")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    if (selectedSubject != "Toutes") {
+                        TextButton(
+                            onClick = { onSelectSubject("Toutes") },
+                            modifier = Modifier
+                                .minimumInteractiveComponentSize()
+                                .testTag("clear_subject_selection_btn")
+                        ) {
+                            Text(stringResource(R.string.all_subjects_label))
+                        }
+                    }
+
+                    FilledTonalButton(
+                        onClick = { showAddSubjectDialog = true },
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                        modifier = Modifier
+                            .minimumInteractiveComponentSize()
+                            .testTag("add_subject_btn")
                     ) {
-                        Text(stringResource(R.string.all_subjects_label))
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(stringResource(R.string.subject_add_btn))
                     }
                 }
             }
         }
 
-        // 2-Column Subject Grid Rows
-        items(subjectPairs, key = { pair -> pair.joinToString("_") { it.id } }) { pair ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                pair.forEach { spec ->
-                    val isSelected = selectedSubject.equals(spec.name, ignoreCase = true)
-                    val count = subjectCountsForYear[spec.name] ?: 0
-                    SubjectTileCard(
-                        spec = spec,
+        when (subjectsUiState) {
+            is SubjectsUiState.Loading -> {
+                item(key = "subjects_loading") {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 18.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(22.dp), strokeWidth = 2.5.dp)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(R.string.subjects_loading),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            is SubjectsUiState.Error -> {
+                item(key = "subjects_error") {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        shape = MaterialTheme.shapes.medium,
+                        color = MaterialTheme.colorScheme.errorContainer
+                    ) {
+                        Text(
+                            text = subjectsUiState.message,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier.padding(14.dp)
+                        )
+                    }
+                }
+            }
+
+            is SubjectsUiState.Success -> {
+                // Chaque matière Room est rendue directement comme élément du LazyColumn
+                items(
+                    items = subjectsUiState.subjects,
+                    key = { subject -> "room_subject_${subject.id}" }
+                ) { subject ->
+                    val isSelected = selectedSubject.equals(subject.canonicalName, ignoreCase = true)
+                    val count = subjectCountsForYear[subject.canonicalName] ?: 0
+                    SubjectRowCard(
+                        subject = subject,
                         count = count,
                         selected = isSelected,
                         onClick = {
-                            if (isSelected) onSelectSubject("Toutes") else onSelectSubject(spec.name)
+                            if (isSelected) onSelectSubject("Toutes")
+                            else onSelectSubject(subject.canonicalName)
                         },
-                        modifier = Modifier.weight(1f)
+                        onDelete = if (subject.isCustom) {
+                            {
+                                if (isSelected) onSelectSubject("Toutes")
+                                onDeleteSubject(subject.id)
+                            }
+                        } else null,
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
-                }
-                if (pair.size == 1) {
-                    Spacer(modifier = Modifier.weight(1f))
                 }
             }
         }
 
-        // Matching Study Materials Header + CTA to Library
+        // En-tête des supports correspondants + accès bibliothèque
         item(key = "matching_results_header") {
             Row(
                 modifier = Modifier
@@ -341,7 +449,12 @@ fun SubjectSelectionScreen(
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
-                        text = "${matchingDevoirs.size} support${if (matchingDevoirs.size > 1) "s" else ""} · ${selectedYear.shortLabel} · $selectedSubject",
+                        text = stringResource(
+                            R.string.matching_supports_summary,
+                            matchingDevoirs.size,
+                            selectedYear.localizedShortLabel(),
+                            localizedSubjectName(selectedSubject)
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -349,7 +462,9 @@ fun SubjectSelectionScreen(
 
                 FilledTonalButton(
                     onClick = onViewInLibrary,
-                    modifier = Modifier.testTag("open_filtered_library_btn")
+                    modifier = Modifier
+                        .minimumInteractiveComponentSize()
+                        .testTag("open_filtered_library_btn")
                 ) {
                     Text(stringResource(R.string.action_open_library))
                     Spacer(modifier = Modifier.width(4.dp))
@@ -362,7 +477,7 @@ fun SubjectSelectionScreen(
             }
         }
 
-        // Matching Study Materials List or Friendly Empty State
+        // Liste des supports correspondants ou état vide
         if (matchingDevoirs.isEmpty()) {
             item(key = "matching_empty") {
                 Surface(
@@ -401,7 +516,9 @@ fun SubjectSelectionScreen(
                         Spacer(modifier = Modifier.height(14.dp))
                         Button(
                             onClick = onResetSelection,
-                            modifier = Modifier.testTag("empty_subject_reset_btn")
+                            modifier = Modifier
+                                .minimumInteractiveComponentSize()
+                                .testTag("empty_subject_reset_btn")
                         ) {
                             Text(stringResource(R.string.action_reset_filters))
                         }
@@ -418,6 +535,16 @@ fun SubjectSelectionScreen(
                 )
             }
         }
+    }
+
+    if (showAddSubjectDialog) {
+        AddSubjectDialog(
+            onDismiss = { showAddSubjectDialog = false },
+            onConfirm = { name, subtitle ->
+                onAddCustomSubject(name, subtitle)
+                showAddSubjectDialog = false
+            }
+        )
     }
 }
 
@@ -439,7 +566,8 @@ private fun AcademicYearTile(
 
     Surface(
         modifier = Modifier
-            .width(104.dp)
+            .width(108.dp)
+            .minimumInteractiveComponentSize()
             .clip(MaterialTheme.shapes.medium)
             .clickable(onClick = onClick)
             .testTag("year_tile_${year.id}"),
@@ -456,14 +584,14 @@ private fun AcademicYearTile(
             verticalArrangement = Arrangement.spacedBy(3.dp)
         ) {
             Text(
-                text = year.cycle,
+                text = year.localizedCycle(),
                 style = MaterialTheme.typography.labelSmall,
                 color = contentColor.copy(alpha = 0.78f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = year.shortLabel,
+                text = year.localizedShortLabel(),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = contentColor,
@@ -471,34 +599,43 @@ private fun AcademicYearTile(
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = "$count devoir${if (count > 1) "s" else ""}",
+                text = stringResource(R.string.devoirs_count_short, count),
                 style = MaterialTheme.typography.labelSmall,
                 color = contentColor.copy(alpha = 0.85f),
-                maxLines = 1
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
 }
 
+/**
+ * Carte horizontale d'une matière académique issue de Room, affichée dans le LazyColumn.
+ */
 @Composable
-private fun SubjectTileCard(
-    spec: SubjectOptionSpec,
+private fun SubjectRowCard(
+    subject: SubjectEntity,
     count: Int,
     selected: Boolean,
     onClick: () -> Unit,
+    onDelete: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
-    val accent = subjectAccentColor(spec.name)
+    val accent = subjectAccentColor(subject.canonicalName)
+    val displayName = localizedSubjectName(subject.canonicalName)
+    val displaySubtitle = localizedSubjectSubtitle(subject)
     val bgColor by animateColorAsState(
         targetValue = if (selected) accent.copy(alpha = 0.14f) else MaterialTheme.colorScheme.surface,
-        label = "subject_tile_bg"
+        label = "subject_row_bg"
     )
 
     Surface(
         modifier = modifier
+            .fillMaxWidth()
+            .minimumInteractiveComponentSize()
             .clip(MaterialTheme.shapes.medium)
             .clickable(onClick = onClick)
-            .testTag("subject_card_${spec.id}"),
+            .testTag("subject_card_${subject.id}"),
         shape = MaterialTheme.shapes.medium,
         color = bgColor,
         tonalElevation = if (selected) 3.dp else 1.dp,
@@ -507,56 +644,34 @@ private fun SubjectTileCard(
             color = if (selected) accent else MaterialTheme.colorScheme.outlineVariant
         )
     ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+            Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(accent.copy(alpha = 0.16f)),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(accent.copy(alpha = 0.16f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = spec.icon,
-                        contentDescription = spec.name,
-                        tint = accent,
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
-
-                if (selected) {
-                    Icon(
-                        imageVector = Icons.Filled.CheckCircle,
-                        contentDescription = null,
-                        tint = accent,
-                        modifier = Modifier.size(20.dp)
-                    )
-                } else {
-                    Surface(
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.surfaceVariant
-                    ) {
-                        Text(
-                            text = count.toString(),
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-                        )
-                    }
-                }
+                Icon(
+                    imageVector = subjectIconForKey(subject.iconKey),
+                    contentDescription = displayName,
+                    tint = accent,
+                    modifier = Modifier.size(22.dp)
+                )
             }
 
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
                 Text(
-                    text = spec.name,
+                    text = displayName,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -564,13 +679,108 @@ private fun SubjectTileCard(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = spec.subtitle,
+                    text = displaySubtitle,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
+
+            if (onDelete != null) {
+                IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier
+                        .minimumInteractiveComponentSize()
+                        .testTag("delete_subject_${subject.id}")
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.DeleteOutline,
+                        contentDescription = stringResource(R.string.cd_delete_subject),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            if (selected) {
+                Icon(
+                    imageVector = Icons.Filled.CheckCircle,
+                    contentDescription = null,
+                    tint = accent,
+                    modifier = Modifier.size(22.dp)
+                )
+            } else {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceVariant
+                ) {
+                    Text(
+                        text = count.toString(),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                    )
+                }
+            }
         }
     }
+}
+
+/**
+ * Boîte de dialogue permettant à l'élève d'ajouter une matière scolaire personnalisée dans Room.
+ */
+@Composable
+private fun AddSubjectDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (name: String, subtitle: String) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var subtitle by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.subject_add_dialog_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text(stringResource(R.string.subject_name_label)) },
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("add_subject_name_input")
+                )
+                OutlinedTextField(
+                    value = subtitle,
+                    onValueChange = { subtitle = it },
+                    label = { Text(stringResource(R.string.subject_subtitle_label)) },
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("add_subject_subtitle_input")
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onConfirm(name, subtitle) },
+                enabled = name.isNotBlank(),
+                modifier = Modifier
+                    .minimumInteractiveComponentSize()
+                    .testTag("confirm_add_subject_btn")
+            ) {
+                Text(stringResource(R.string.action_save))
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                modifier = Modifier.minimumInteractiveComponentSize()
+            ) {
+                Text(stringResource(R.string.action_cancel))
+            }
+        }
+    )
 }

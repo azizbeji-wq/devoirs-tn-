@@ -7,8 +7,16 @@ import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+
+/**
+ * CompositionLocal indiquant aux composants si le thème sombre actif est engagé,
+ * afin d'adapter automatiquement le contraste des badges de matières et du surlignage.
+ */
+val LocalIsDarkTheme = staticCompositionLocalOf { false }
 
 private val LightColorScheme = lightColorScheme(
     primary = CobaltPrimary,
@@ -71,10 +79,12 @@ fun DevoirsTNTheme(
 ) {
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = AppTypography,
-        shapes = AppShapes,
-        content = content
-    )
+    CompositionLocalProvider(LocalIsDarkTheme provides darkTheme) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = AppTypography,
+            shapes = AppShapes,
+            content = content
+        )
+    }
 }

@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": 2,
+  "matiere": "Économie & Gestion",
+  "devoirs": [
+    {
+      "id": "bac_eco_ds1_economie",
+      "titre": "Devoir de Synthèse N°1 — Croissance Économique & Élasticité",
+      "matiere": "Économie & Gestion",
+      "niveau": "BAC",
+      "section": "ECO_GESTION",
+      "type": "SYNTHESE",
+      "trimestre": "T1",
+      "duree": 180,
+      "bareme": 20,
+      "difficulte": "Bac Type",
+      "etablissement": "Lycée Menzah 6 · Tunis",
+      "sujetEntrainement": false,
+      "langue": "fr",
+      "chapitres": ["PIB & Croissance", "Élasticité-prix", "Productivité", "Dissertation éco"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Calculs économiques : PIB réel et taux de croissance",
+          "bareme": "10 pts",
+          "enonce": "Une économie présente un PIB nominal de 145 milliards DT en 2024 et 158 milliards DT en 2025, avec un indice des prix passé de 100 à 105.\n1. Calculer le taux de croissance du PIB nominal entre 2024 et 2025.\n2. Calculer le PIB réel de 2025 aux prix de 2024 puis le taux de croissance réel.\n3. Expliquer pourquoi le PIB réel est un meilleur indicateur de la création de richesse.",
+          "corrige": "1. Taux nominal = ((158 - 145) / 145) × 100 = +8,97 %.\n2. PIB réel 2025 = (158 / 105) × 100 = 150,48 milliards DT.\nTaux de croissance réel = ((150,48 - 145) / 145) × 100 = +3,78 %.\n3. Le PIB réel élimine l'effet de l'inflation (hausse des prix) et mesure uniquement l'augmentation réelle des volumes produits."
+        },
+        {
+          "numero": 2,
+          "titre": "Mini-dissertation : Investissement et croissance",
+          "bareme": "10 pts",
+          "enonce": "Sujet : « Montrez comment l'investissement matériel et immatériel stimule la croissance économique durable en Tunisie. »\nProposer un plan structuré en deux parties et rédiger l'introduction.",
+          "corrige": "Introduction : Accroche sur les défis de compétitivité, définition de l'investissement (FBCF + recherche/formation), problématique et annonce du plan.\nPlan recommandé :\n- I. L'investissement matériel, moteur de la demande et des capacités productives (effet multiplicateur keynésien, infrastructures).\n- II. L'investissement immatériel, levier de productivité globale et d'innovation (capital humain, R&D, transition numérique)."
+        }
+      ]
+    },
+    {
+      "id": "train_lycee_3eme_dc1_eco",
+      "titre": "Devoir de Contrôle N°1 — Équilibre du Marché & Bilan Comptable",
+      "matiere": "Économie & Gestion",
+      "niveau": "LYCEE_3",
+      "section": "ECO_GESTION",
+      "type": "CONTROLE",
+      "trimestre": "T1",
+      "duree": 120,
+      "bareme": 20,
+      "difficulte": "Standard",
+      "etablissement": "Établissement : non précisé",
+      "sujetEntrainement": true,
+      "langue": "fr",
+      "chapitres": ["Offre & Demande", "Prix d'équilibre", "Bilan comptable tunisien", "Fonds de roulement"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Économie — Loi de l'offre et de la demande",
+          "bareme": "10 pts",
+          "enonce": "Sur un marché concurrentiel, les fonctions de demande et d'offre d'un produit agricole sont données (en milliers de litres, prix P en DT) par :\nQd = 120 - 4P   et   Qo = 20 + 6P.\n1. Déterminer le prix d'équilibre P* et la quantité d'équilibre Q*.\n2. Si l'État impose un prix plafond P = 8 DT, calculer Qd(8) et Qo(8), puis qualifier et chiffrer le déséquilibre obtenu.",
+          "corrige": "1. À l'équilibre, Qd = Qo ⇒ 120 - 4P* = 20 + 6P* ⇒ 100 = 10P* ⇒ P* = 10 DT.\n   Quantité d'équilibre : Q* = 120 - 4(10) = 80 milliers de litres (vérification : 20 + 6(10) = 80).\n2. Pour P = 8 DT : Qd(8) = 120 - 32 = 88 milliers de litres ; Qo(8) = 20 + 48 = 68 milliers de litres.\n   Comme Qd > Qo, il y a une pénurie (excès de demande) égale à 88 - 68 = 20 milliers de litres."
+        },
+        {
+          "numero": 2,
+          "titre": "Gestion — Bilan de création et Fonds de Roulement (Système Comptable Tunisien)",
+          "bareme": "10 pts",
+          "enonce": "Une PME tunisienne est créée avec les éléments suivants (en DT) :\n- Capital social : 80 000\n- Emprunt bancaire à long terme : 20 000\n- Matériel industriel : 55 000\n- Stocks de matières premières : 18 000\n- Créances clients : 7 000\n- Dettes fournisseurs : 10 000\n- Avoirs en Banque : à déterminer.\n1. Classer les postes selon le bilan du Système Comptable Tunisien (Actifs non courants / courants ; Capitaux propres et Passifs non courants / courants) et calculer le montant en Banque.\n2. Calculer le Fonds de Roulement (FR) et commenter l'équilibre financier.",
+          "corrige": "1. Capitaux Propres & Passifs :\n   - Capitaux propres : Capital social = 80 000 DT\n   - Passifs non courants : Emprunt LMT = 20 000 DT\n   - Passifs courants : Fournisseurs = 10 000 DT\n   Total Capitaux propres & Passifs = 80 000 + 20 000 + 10 000 = 110 000 DT.\n   Actifs :\n   - Actifs non courants : Matériel industriel = 55 000 DT\n   - Actifs courants : Stocks (18 000) + Clients (7 000) + Banque.\n   Par égalité Total Actifs = Total Capitaux Propres & Passifs :\n   Banque = 110 000 - (55 000 + 18 000 + 7 000) = 110 000 - 80 000 = 30 000 DT.\n2. Ressources stables = 80 000 + 20 000 = 100 000 DT.\n   FR = Ressources stables - Actifs non courants = 100 000 - 55 000 = +45 000 DT.\n   (Vérification par le bas du bilan : Actifs courants 55 000 - Passifs courants 10 000 = +45 000 DT.)\n   FR > 0 : les ressources stables financent intégralement les immobilisations et dégagent une marge de sécurité pour le cycle d'exploitation."
+        }
+      ]
+    }
+  ]
+}

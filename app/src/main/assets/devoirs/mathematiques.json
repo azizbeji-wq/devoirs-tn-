@@ -1,0 +1,334 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": 2,
+  "matiere": "Mathématiques",
+  "devoirs": [
+    {
+      "id": "bac_maths_ds1_analyse",
+      "titre": "Devoir de Synthèse N°1 — Suites, Limites & Nombres Complexes",
+      "matiere": "Mathématiques",
+      "niveau": "BAC",
+      "section": "MATHS",
+      "type": "SYNTHESE",
+      "trimestre": "T1",
+      "duree": 240,
+      "bareme": 20,
+      "difficulte": "Pilote",
+      "etablissement": "Lycée Pilote Bourguiba · Tunis",
+      "sujetEntrainement": false,
+      "langue": "fr",
+      "chapitres": ["Nombres complexes", "Suites réelles", "Continuité & TVI", "Isométries"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Nombres complexes et lieu géométrique",
+          "bareme": "5 pts",
+          "enonce": "Le plan complexe est muni d'un repère orthonormé direct (O, u, v).\n1. Résoudre dans ℂ l'équation (E) : z² - 2(1 + i√3)z + 4i√3 = 0.\n2. On note A et B les points d'affixes respectives z_A = 2 et z_B = 2i√3.\n   a) Écrire z_A et z_B sous forme exponentielle.\n   b) Montrer que le triangle OAB est rectangle en O et déterminer l'affixe du centre Ω de son cercle circonscrit.\n3. Pour tout z ≠ 2, on pose Z = (z - 2i√3) / (z - 2). Déterminer l'ensemble des points M(z) tels que Z soit imaginaire pur.",
+          "corrige": "1. Δ' = (1 + i√3)² - 4i√3 = 1 + 2i√3 - 3 - 4i√3 = -2 - 2i√3 = (1 - i√3)².\nLes racines sont z₁ = (1 + i√3) + (1 - i√3) = 2 et z₂ = (1 + i√3) - (1 - i√3) = 2i√3.\n2. a) z_A = 2·e^(i·0) et z_B = 2√3·e^(iπ/2).\n   b) arg(z_B / z_A) ≡ π/2 [2π], donc (OA) ⊥ (OB). L'hypoténuse est [AB], donc Ω est le milieu de [AB] : z_Ω = (2 + 2i√3)/2 = 1 + i√3.\n3. Z imaginaire pur ⇔ arg((z - z_B)/(z - z_A)) ≡ π/2 [π] ou z = z_B.\nDonc M appartient au cercle de diamètre [AB] privé du point A."
+        },
+        {
+          "numero": 2,
+          "titre": "Suite récurrente et théorème des gendarmes",
+          "bareme": "7 pts",
+          "enonce": "On considère la suite (u_n) définie par u₀ = 2 et u_{n+1} = (1/2)·(u_n + 3/u_n) pour tout n ∈ ℕ.\n1. Montrer par récurrence que pour tout n ∈ ℕ, u_n ≥ √3.\n2. Étudier la monotonie de la suite (u_n) et en déduire qu'elle converge vers une limite ℓ à déterminer.\n3. Montrer que pour tout n ∈ ℕ : 0 ≤ u_{n+1} - √3 ≤ (1/2)(u_n - √3).\n4. En déduire la limite de u_n et une valeur approchée de √3 à 10⁻³ près.",
+          "corrige": "1. Initialisation : u₀ = 2 ≥ √3 (car 4 ≥ 3). Hérédité : u_{n+1} - √3 = (u_n - √3)² / (2u_n) ≥ 0 car u_n > 0.\n2. u_{n+1} - u_n = (3 - u_n²) / (2u_n) ≤ 0 car u_n ≥ √3. Donc (u_n) est décroissante et minorée par √3 : elle converge vers ℓ ≥ √3 vérifiant ℓ = (ℓ + 3/ℓ)/2 ⇒ ℓ² = 3 ⇒ ℓ = √3.\n3. u_{n+1} - √3 = (u_n - √3) · [(u_n - √3) / (2u_n)]. Comme 0 ≤ u_n - √3 < u_n, le rapport est ≤ 1/2.\n4. Par récurrence : 0 ≤ u_n - √3 ≤ (1/2)^n (2 - √3) → 0. Dès n = 2, u₂ = 1,7321 approche √3 à 10⁻³ près."
+        },
+        {
+          "numero": 3,
+          "titre": "Étude complète d'une fonction irrationnelle",
+          "bareme": "8 pts",
+          "enonce": "Soit f la fonction définie sur [0, +∞[ par f(x) = x - √(x² + 1) + 2.\n1. Calculer lim_{x→+∞} f(x) et interpréter géométriquement le résultat.\n2. Étudier la dérivabilité de f sur [0, +∞[ et dresser son tableau de variation.\n3. Montrer que f réalise une bijection de [0, +∞[ sur un intervalle J à préciser.\n4. Expliciter f⁻¹(y) pour tout y ∈ J.",
+          "corrige": "1. En multipliant par l'expression conjuguée : x - √(x² + 1) = -1 / (x + √(x² + 1)) → 0 quand x → +∞. Ainsi lim f(x) = 2 : la droite y = 2 est asymptote horizontale au voisinage de +∞.\n2. f'(x) = 1 - x / √(x² + 1) > 0 car √(x² + 1) > x ≥ 0. Donc f est strictement croissante de f(0) = 1 vers 2.\n3. f est continue et strictement croissante sur [0, +∞[, donc bijective de [0, +∞[ sur J = [1, 2[.\n4. y = f(x) ⇔ √(x² + 1) = x + 2 - y. En élevant au carré : x² + 1 = x² + 2x(2 - y) + (2 - y)², d'où f⁻¹(y) = [1 - (2 - y)²] / [2(2 - y)]."
+        }
+      ]
+    },
+    {
+      "id": "college_9eme_concours_maths",
+      "titre": "Concours Pilote 9ème Année — Algèbre, Thalès & Pythagore",
+      "matiere": "Mathématiques",
+      "niveau": "COLLEGE_9",
+      "section": "TRONC_COMMUN",
+      "type": "EXAMEN",
+      "trimestre": "NATIONAL",
+      "duree": 120,
+      "bareme": 20,
+      "difficulte": "Pilote",
+      "etablissement": "Concours d'Accès aux Lycées Pilotes · Tunisie",
+      "sujetEntrainement": false,
+      "langue": "fr",
+      "chapitres": ["Racines carrées", "Théorème de Thalès", "Identités remarquables", "Inéquations"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Calculs algébriques et radicaux",
+          "bareme": "8 pts",
+          "enonce": "On donne A = √48 - 2√27 + √75 et B = (2√3 - 1)² - (√3 + 2)(√3 - 2).\n1. Simplifier A et montrer que A = 3√3.\n2. Développer et réduire B.\n3. Résoudre dans ℝ l'inéquation : 2(x - 3) + 5 ≤ 4x - 7 et représenter les solutions sur une droite graduée.",
+          "corrige": "1. A = 4√3 - 6√3 + 5√3 = 3√3.\n2. B = (12 - 4√3 + 1) - (3 - 4) = 13 - 4√3 - (-1) = 14 - 4√3.\n3. 2x - 6 + 5 ≤ 4x - 7 ⇒ -2x ≤ -6 ⇒ x ≥ 3. Donc S_ℝ = [3, +∞[."
+        },
+        {
+          "numero": 2,
+          "titre": "Configuration de Thalès et triangle rectangle",
+          "bareme": "12 pts",
+          "enonce": "Soit ABC un triangle tel que AB = 6 cm, AC = 8 cm et BC = 10 cm.\n1. Montrer que ABC est rectangle en A.\n2. Soit M ∈ [AB] tel que AM = 2,4 cm. La parallèle à (BC) passant par M coupe [AC] en N.\n   Calculer AN et MN.\n3. Calculer l'aire du trapèze BMNC.",
+          "corrige": "1. AB² + AC² = 36 + 64 = 100 = BC². D'après la réciproque du théorème de Pythagore, ABC est rectangle en A.\n2. Comme (MN) // (BC), d'après Thalès : AM/AB = AN/AC = MN/BC = 2,4/6 = 0,4.\nDonc AN = 0,4 × 8 = 3,2 cm et MN = 0,4 × 10 = 4 cm.\n3. Aire(ABC) = (6×8)/2 = 24 cm² ; Aire(AMN) = (2,4×3,2)/2 = 3,84 cm².\nAire(BMNC) = 24 - 3,84 = 20,16 cm²."
+        }
+      ]
+    },
+    {
+      "id": "lycee_1ere_dc1_maths",
+      "titre": "Devoir de Contrôle N°1 — Activités Numériques & Vecteurs",
+      "matiere": "Mathématiques",
+      "niveau": "LYCEE_1",
+      "section": "TRONC_COMMUN",
+      "type": "CONTROLE",
+      "trimestre": "T1",
+      "duree": 60,
+      "bareme": 20,
+      "difficulte": "Standard",
+      "etablissement": "Lycée El Khaznadar · Tunis",
+      "sujetEntrainement": false,
+      "langue": "fr",
+      "chapitres": ["PGCD / PPCM", "Puissances", "Vecteurs & Translations", "Colinéarité"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Arithmétique : PGCD, PPCM et fraction irréductible",
+          "bareme": "10 pts",
+          "enonce": "1. Décomposer 420 et 504 en produits de facteurs premiers.\n2. En déduire PGCD(420, 504) et PPCM(420, 504).\n3. Rendre la fraction 420 / 504 irréductible.",
+          "corrige": "1. 420 = 2² × 3 × 5 × 7 ; 504 = 2³ × 3² × 7.\n2. PGCD(420, 504) = 2² × 3 × 7 = 84.\nPPCM(420, 504) = 2³ × 3² × 5 × 7 = 2520.\n3. 420 / 504 = (420 ÷ 84) / (504 ÷ 84) = 5 / 6."
+        },
+        {
+          "numero": 2,
+          "titre": "Calcul vectoriel dans un parallélogramme",
+          "bareme": "10 pts",
+          "enonce": "Soit ABCD un parallélogramme de centre O.\n1. Simplifier la somme vectorielle : u = AB + CD + BC + DA.\n2. Construire le point E tel que AE = AB + AD.\n3. Que représente E par rapport au parallélogramme ABCD ?",
+          "corrige": "1. Par relation de Chasles : u = (AB + BC) + (CD + DA) = AC + CA = 0 (vecteur nul).\n2. Dans le parallélogramme ABCD, AB + AD = AC (règle du parallélogramme).\n3. Donc AE = AC, ce qui signifie que le point E est confondu avec le point C."
+        }
+      ]
+    },
+    {
+      "id": "college_7eme_dc1_maths",
+      "titre": "Devoir de Contrôle N°1 — Priorités Opératoires & Symétrie",
+      "matiere": "Mathématiques",
+      "niveau": "COLLEGE_7",
+      "section": "TRONC_COMMUN",
+      "type": "CONTROLE",
+      "trimestre": "T1",
+      "duree": 60,
+      "bareme": 20,
+      "difficulte": "Fondamental",
+      "etablissement": "Collège Ibn Khaldoun · Tunis",
+      "sujetEntrainement": false,
+      "langue": "fr",
+      "chapitres": ["Priorités opératoires", "Nombres décimaux", "Médiatrice", "Angles"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Calculs avec priorités et distributivité",
+          "bareme": "10 pts",
+          "enonce": "Calculer en détaillant les étapes :\n1. A = 24 - 3 × (5 + 2) + 12 ÷ 4\n2. B = 17 × 99 (en utilisant la distributivité de la multiplication)\n3. Trouver le chiffre manquant pour que 45_2 soit divisible par 9.",
+          "corrige": "1. A = 24 - 3 × 7 + 3 = 24 - 21 + 3 = 6.\n2. B = 17 × (100 - 1) = 1700 - 17 = 1683.\n3. Somme des chiffres : 4 + 5 + ? + 2 = 11 + ?. Le multiple de 9 suivant est 18, donc le chiffre manquant est 7 (4572)."
+        },
+        {
+          "numero": 2,
+          "titre": "Médiatrice d'un segment et triangle isocèle",
+          "bareme": "10 pts",
+          "enonce": "Soit [AB] un segment de longueur 6 cm et Δ sa médiatrice passant par le milieu I.\n1. On place un point M sur Δ tel que MA = 5 cm. Quelle est la longueur MB ? Justifier.\n2. Quelle est la nature du triangle MAB ?",
+          "corrige": "1. Tout point appartenant à la médiatrice d'un segment est équidistant de ses extrémités. Comme M ∈ Δ, MB = MA = 5 cm.\n2. Le triangle MAB possède deux côtés égaux (MA = MB = 5 cm) : il est isocèle en M."
+        }
+      ]
+    },
+    {
+      "id": "primaire_6eme_concours_maths",
+      "titre": "Concours 6ème Année — Problèmes de Pourcentages & Périmètres",
+      "matiere": "Mathématiques",
+      "niveau": "PRIMAIRE_6",
+      "section": "TRONC_COMMUN",
+      "type": "EXAMEN",
+      "trimestre": "NATIONAL",
+      "duree": 60,
+      "bareme": 20,
+      "difficulte": "Concours 6ème",
+      "etablissement": "Concours d'Entrée aux Collèges Pilotes (Sixième)",
+      "sujetEntrainement": false,
+      "langue": "fr",
+      "chapitres": ["Fractions", "Pourcentages", "Aire du rectangle", "Vitesse moyenne"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Problème : Achat de fournitures scolaires",
+          "bareme": "10 pts",
+          "enonce": "Sami dispose de 60 dinars. Il dépense les 2/5 de sa somme pour acheter un cartable, puis 25 % du reste pour des cahiers.\n1. Quel est le prix du cartable ?\n2. Quelle somme lui reste-t-il après tous ses achats ?",
+          "corrige": "1. Prix du cartable = 60 × 2 / 5 = 24 dinars.\nReste après le cartable = 60 - 24 = 36 dinars.\n2. Prix des cahiers = 36 × 25 / 100 = 9 dinars.\nSomme finale restante = 36 - 9 = 27 dinars."
+        },
+        {
+          "numero": 2,
+          "titre": "Géométrie : Champ rectangulaire",
+          "bareme": "10 pts",
+          "enonce": "Un terrain rectangulaire a un périmètre de 180 m. Sa longueur dépasse sa largeur de 20 m.\n1. Calculer le demi-périmètre, la longueur et la largeur du terrain.\n2. Calculer son aire en m² puis en ares.",
+          "corrige": "1. Demi-périmètre = 180 ÷ 2 = 90 m.\nLargeur = (90 - 20) ÷ 2 = 35 m ; Longueur = 35 + 20 = 55 m.\n2. Aire = 55 × 35 = 1925 m² = 19,25 ares."
+        }
+      ]
+    },
+    {
+      "id": "univ_prepa_ds1_analyse",
+      "titre": "Devoir Surveillé Prépa MP/PC — Développements Limités & Intégrales",
+      "matiere": "Mathématiques",
+      "niveau": "UNIVERSITE",
+      "section": "PREPA_LICENCE",
+      "type": "SYNTHESE",
+      "trimestre": "T1",
+      "duree": 180,
+      "bareme": 20,
+      "difficulte": "Supérieur",
+      "etablissement": "IPEIT / IPEIM · Prépa Tunisie",
+      "sujetEntrainement": false,
+      "langue": "fr",
+      "chapitres": ["Développements limités", "Équivalents", "Intégration par parties", "Séries numériques"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Développement limité et limite indéterminée",
+          "bareme": "10 pts",
+          "enonce": "1. Donner le développement limité à l'ordre 3 au voisinage de 0 de f(x) = ln(1 + x) - sin(x).\n2. En déduire lim_{x→0} [ln(1 + x) - sin(x)] / x².",
+          "corrige": "1. ln(1 + x) = x - x²/2 + x³/3 + o(x³) et sin(x) = x - x³/6 + o(x³).\nPar différence : f(x) = -x²/2 + (1/3 + 1/6)x³ + o(x³) = -x²/2 + x³/2 + o(x³).\n2. f(x)/x² = -1/2 + x/2 + o(x) → -1/2 quand x → 0."
+        },
+        {
+          "numero": 2,
+          "titre": "Intégrale de Wallis et convergence",
+          "bareme": "10 pts",
+          "enonce": "Soit I_n = ∫₀^(π/2) sin^n(t) dt.\n1. Calculer I₀ et I₁.\n2. Par une intégration par parties, établir la relation de récurrence : n·I_n = (n - 1)·I_{n-2} pour n ≥ 2.",
+          "corrige": "1. I₀ = π/2 et I₁ = [-cos(t)]₀^(π/2) = 1.\n2. En posant u(t) = sin^(n-1)(t) et v'(t) = sin(t) : I_n = [-cos(t)sin^(n-1)(t)]₀^(π/2) + (n-1)∫₀^(π/2) cos²(t)sin^(n-2)(t) dt = (n-1)(I_{n-2} - I_n), d'où n·I_n = (n - 1)·I_{n-2}."
+        }
+      ]
+    },
+    {
+      "id": "train_college_7eme_dc2_maths",
+      "titre": "Devoir de Contrôle N°2 — Fractions, Partages & Angles dans le Triangle",
+      "matiere": "Mathématiques",
+      "niveau": "COLLEGE_7",
+      "section": "TRONC_COMMUN",
+      "type": "CONTROLE",
+      "trimestre": "T2",
+      "duree": 60,
+      "bareme": 20,
+      "difficulte": "Fondamental",
+      "etablissement": "Établissement : non précisé",
+      "sujetEntrainement": true,
+      "langue": "fr",
+      "chapitres": ["Fractions", "Problèmes de partage", "Somme des angles d'un triangle", "Angles alternes-internes"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Opérations sur les fractions et problème",
+          "bareme": "10 pts",
+          "enonce": "1. Calculer et donner le résultat sous forme de fraction irréductible :\n   a) A = 5/6 + 7/4 - 1/3\n   b) B = (8/15) × (25/12) ÷ (10/9)\n2. La bibliothèque d'un collège compte 360 livres. Les 2/5 sont des manuels scientifiques, 1/4 sont des romans en arabe et le reste des ouvrages en français.\n   a) Quelle fraction de la bibliothèque représentent les ouvrages en français ?\n   b) Calculer le nombre de livres de chaque catégorie.",
+          "corrige": "1. a) Dénominateur commun = 12 : A = 10/12 + 21/12 - 4/12 = 27/12 = 9/4.\n   b) (8/15) × (25/12) = (2 × 5) / (3 × 3) = 10/9. Puis B = (10/9) ÷ (10/9) = (10/9) × (9/10) = 1.\n2. a) Fraction scientifique + arabe = 2/5 + 1/4 = 8/20 + 5/20 = 13/20.\n      Fraction en français = 1 - 13/20 = 7/20.\n   b) Scientifiques : 360 × 2/5 = 144 livres.\n      Romans en arabe : 360 × 1/4 = 90 livres.\n      Ouvrages en français : 360 × 7/20 = 126 livres.\n      Vérification : 144 + 90 + 126 = 360."
+        },
+        {
+          "numero": 2,
+          "titre": "Angles, bissectrice et droites parallèles",
+          "bareme": "10 pts",
+          "enonce": "Soit ABC un triangle tel que l'angle ABC = 52° et l'angle ACB = 68°. La bissectrice [Ax) de l'angle BAC coupe [BC] en D.\n1. Calculer la mesure de l'angle BAC.\n2. Calculer les mesures des angles BAD et ADB.\n3. Par le point D, on trace la parallèle à la droite (AB) qui coupe [AC] en E. Calculer les mesures des angles ADE et EDC en justifiant.",
+          "corrige": "1. La somme des angles d'un triangle vaut 180° : BAC = 180° - (52° + 68°) = 180° - 120° = 60°.\n2. [Ax) est la bissectrice de BAC, donc BAD = 60° ÷ 2 = 30°.\n   Dans le triangle ABD : ADB = 180° - (52° + 30°) = 180° - 82° = 98°.\n3. Comme (DE) // (AB) et la sécante (AD) les coupe, les angles alternes-internes ADE et BAD sont égaux : ADE = 30°.\n   Avec la sécante (BC), les angles correspondants EDC et ABC sont égaux : EDC = 52°.\n   Vérification : ADB + ADE + EDC = 98° + 30° + 52° = 180° (angle plat BDC)."
+        }
+      ]
+    },
+    {
+      "id": "train_college_8eme_ds1_maths",
+      "titre": "Devoir de Synthèse N°1 — Calcul Littéral, Équations & Symétrie Centrale",
+      "matiere": "Mathématiques",
+      "niveau": "COLLEGE_8",
+      "section": "TRONC_COMMUN",
+      "type": "SYNTHESE",
+      "trimestre": "T1",
+      "duree": 120,
+      "bareme": 20,
+      "difficulte": "Standard",
+      "etablissement": "Établissement : non précisé",
+      "sujetEntrainement": true,
+      "langue": "fr",
+      "chapitres": ["Développement & Factorisation", "Équations du 1er degré dans ℚ", "Symétrie centrale", "Rectangle & Pythagore"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Développement, factorisation et équation dans ℚ",
+          "bareme": "10 pts",
+          "enonce": "1. Développer et réduire l'expression : E = (3x - 2)(2x + 5) - (x - 4)².\n2. Factoriser l'expression : F = 9x² - 25 + (3x - 5)(x + 2).\n3. Résoudre dans ℚ l'équation : (2x - 1)/3 - (x + 2)/4 = 5/12.",
+          "corrige": "1. (3x - 2)(2x + 5) = 6x² + 15x - 4x - 10 = 6x² + 11x - 10.\n   (x - 4)² = x² - 8x + 16.\n   E = 6x² + 11x - 10 - x² + 8x - 16 = 5x² + 19x - 26.\n2. On reconnaît a² - b² : 9x² - 25 = (3x - 5)(3x + 5).\n   F = (3x - 5)[(3x + 5) + (x + 2)] = (3x - 5)(4x + 7).\n3. On multiplie les deux membres par le PPCM(3, 4, 12) = 12 :\n   4(2x - 1) - 3(x + 2) = 5 ⇒ 8x - 4 - 3x - 6 = 5 ⇒ 5x - 10 = 5 ⇒ 5x = 15 ⇒ x = 3.\n   Vérification : (6 - 1)/3 - (3 + 2)/4 = 5/3 - 5/4 = (20 - 15)/12 = 5/12. Donc S_ℚ = {3}."
+        },
+        {
+          "numero": 2,
+          "titre": "Symétrie centrale et propriétés du rectangle",
+          "bareme": "10 pts",
+          "enonce": "Soit ABC un triangle rectangle en A tel que AB = 5 cm et AC = 12 cm. On désigne par I le milieu de [BC] et par D le symétrique de A par rapport au point I.\n1. Montrer que le quadrilatère ABDC est un rectangle.\n2. Calculer la longueur BC, puis en déduire la longueur de la médiane AI.\n3. Calculer le périmètre du triangle ABC et l'aire du rectangle ABDC.",
+          "corrige": "1. I est le milieu de [BC] par hypothèse, et I est le milieu de [AD] car D est le symétrique de A par rapport à I. Les diagonales [BC] et [AD] se coupent en leur milieu : ABDC est donc un parallélogramme. De plus, l'angle BAC = 90°, donc ABDC est un rectangle.\n2. Dans le triangle ABC rectangle en A, d'après le théorème de Pythagore : BC² = AB² + AC² = 5² + 12² = 25 + 144 = 169, donc BC = √169 = 13 cm.\n   Les diagonales d'un rectangle ont même longueur : AD = BC = 13 cm. Comme I est le milieu de [AD], AI = 13 ÷ 2 = 6,5 cm.\n3. Périmètre(ABC) = 5 + 12 + 13 = 30 cm.\n   Aire(ABDC) = AB × AC = 5 × 12 = 60 cm²."
+        }
+      ]
+    },
+    {
+      "id": "train_lycee_2eme_ds1_maths",
+      "titre": "Devoir de Synthèse N°1 — Polynômes, Trinôme du 2nd Degré & Barycentre",
+      "matiere": "Mathématiques",
+      "niveau": "LYCEE_2",
+      "section": "SCIENCES_EXP",
+      "type": "SYNTHESE",
+      "trimestre": "T1",
+      "duree": 120,
+      "bareme": 20,
+      "difficulte": "Standard",
+      "etablissement": "Établissement : non précisé",
+      "sujetEntrainement": true,
+      "langue": "fr",
+      "chapitres": ["Polynômes", "Équations & inéquations du 2nd degré", "Barycentre", "Ensemble de points"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Factorisation d'un polynôme de degré 3 et inéquation",
+          "bareme": "10 pts",
+          "enonce": "Soit le polynôme P(x) = 2x³ - 3x² - 8x + 12.\n1. Vérifier que 2 est une racine de P, puis déterminer les réels a, b et c tels que P(x) = (x - 2)(ax² + bx + c).\n2. Résoudre dans ℝ l'équation 2x² + x - 6 = 0.\n3. Résoudre dans ℝ l'inéquation P(x) ≥ 0 à l'aide d'un tableau de signes.",
+          "corrige": "1. P(2) = 2(8) - 3(4) - 8(2) + 12 = 16 - 12 - 16 + 12 = 0, donc 2 est racine.\n   Par identification (ou division euclidienne) : a = 2, b = 1, c = -6.\n   Vérification : (x - 2)(2x² + x - 6) = 2x³ + x² - 6x - 4x² - 2x + 12 = 2x³ - 3x² - 8x + 12.\n2. Δ = 1² - 4(2)(-6) = 1 + 48 = 49 = 7².\n   x₁ = (-1 - 7)/4 = -2 et x₂ = (-1 + 7)/4 = 6/4 = 3/2.\n3. P(x) = 2(x + 2)(x - 3/2)(x - 2).\n   Signe de P(x) :\n   - Sur ]-∞, -2[ : P(x) < 0\n   - Sur [-2, 3/2] : P(x) ≥ 0\n   - Sur ]3/2, 2[ : P(x) < 0\n   - Sur [2, +∞[ : P(x) ≥ 0\n   Donc S_ℝ = [-2, 3/2] ∪ [2, +∞[."
+        },
+        {
+          "numero": 2,
+          "titre": "Barycentre de trois points et lieu géométrique",
+          "bareme": "10 pts",
+          "enonce": "Dans un repère orthonormé (O, i, j), on donne A(1, 2), B(5, 0) et C(-1, 6).\n1. Justifier l'existence du barycentre G du système {(A, 2) ; (B, 1) ; (C, 1)} et calculer ses coordonnées.\n2. Déterminer l'ensemble E des points M du plan tels que ||2 MA + MB + MC|| = 8.\n3. Soit I le milieu de [BC]. Calculer les coordonnées de I et montrer par associativité du barycentre que G est le milieu de [AI].",
+          "corrige": "1. Somme des coefficients : 2 + 1 + 1 = 4 ≠ 0, donc G existe et est unique.\n   x_G = [2(1) + 1(5) + 1(-1)] / 4 = 6/4 = 3/2 = 1,5.\n   y_G = [2(2) + 1(0) + 1(6)] / 4 = 10/4 = 5/2 = 2,5.\n   Ainsi G(1,5 ; 2,5).\n2. Par propriété fondamentale du barycentre : 2 MA + MB + MC = 4 MG.\n   ||4 MG|| = 8 ⇔ 4·MG = 8 ⇔ MG = 2.\n   Donc E est le cercle de centre G(1,5 ; 2,5) et de rayon R = 2.\n3. I((5 - 1)/2 ; (0 + 6)/2) = I(2 ; 3). Or I est l'isobarycentre de {(B, 1) ; (C, 1)} (poids total 2). Par associativité, G est le barycentre de {(A, 2) ; (I, 2)}, donc G est le milieu de [AI] (vérif : (1+2)/2 = 1,5 et (2+3)/2 = 2,5)."
+        }
+      ]
+    },
+    {
+      "id": "train_lycee_3eme_dc1_maths",
+      "titre": "Devoir de Contrôle N°1 — Limites, Continuité, TVI & Produit Scalaire",
+      "matiere": "Mathématiques",
+      "niveau": "LYCEE_3",
+      "section": "MATHS",
+      "type": "CONTROLE",
+      "trimestre": "T1",
+      "duree": 120,
+      "bareme": 20,
+      "difficulte": "Standard",
+      "etablissement": "Établissement : non précisé",
+      "sujetEntrainement": true,
+      "langue": "fr",
+      "chapitres": ["Limites & formes indéterminées", "Continuité & TVI", "Produit scalaire", "Théorème d'Al-Kashi"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Limites, prolongement par continuité et TVI",
+          "bareme": "10 pts",
+          "enonce": "1. Soit f définie sur ℝ par f(x) = (x² + x - 2) / (x - 1) si x ≠ 1 et f(1) = a.\n   Déterminer la valeur de a pour que f soit continue en 1.\n2. Calculer lim_{x→+∞} [√(x² + 4x) - x].\n3. Soit g(x) = x³ + 2x - 5. Montrer que l'équation g(x) = 0 admet une unique solution α dans ]1, 2[.",
+          "corrige": "1. Pour x ≠ 1, x² + x - 2 = (x - 1)(x + 2), donc f(x) = x + 2.\n   lim_{x→1} f(x) = 1 + 2 = 3. f est continue en 1 ⇔ f(1) = lim_{x→1} f(x) ⇔ a = 3.\n2. Multiplication par l'expression conjuguée (pour x > 0) :\n   √(x² + 4x) - x = [(x² + 4x) - x²] / [√(x² + 4x) + x] = 4x / [x(√(1 + 4/x) + 1)] = 4 / [√(1 + 4/x) + 1].\n   Quand x → +∞, 4/x → 0, donc la limite vaut 4 / (1 + 1) = 2.\n3. g est une fonction polynôme, donc continue et dérivable sur ℝ.\n   g'(x) = 3x² + 2 > 0 pour tout x ∈ ℝ, donc g est strictement croissante sur [1, 2].\n   g(1) = 1 + 2 - 5 = -2 < 0 et g(2) = 8 + 4 - 5 = 7 > 0, d'où g(1)·g(2) < 0.\n   D'après le théorème des valeurs intermédiaires (TVI) et la stricte monotonie, l'équation g(x) = 0 admet une unique solution α ∈ ]1, 2[."
+        },
+        {
+          "numero": 2,
+          "titre": "Produit scalaire, théorème d'Al-Kashi et médiane",
+          "bareme": "10 pts",
+          "enonce": "Soit ABC un triangle tel que AB = 4, AC = 6 et l'angle BAC = 60°.\n1. Calculer le produit scalaire AB · AC.\n2. En utilisant le théorème d'Al-Kashi, calculer la longueur BC.\n3. Soit I le milieu de [BC]. Calculer la longueur de la médiane AI.",
+          "corrige": "1. AB · AC = AB × AC × cos(60°) = 4 × 6 × (1/2) = 12.\n2. Théorème d'Al-Kashi : BC² = AB² + AC² - 2·AB·AC·cos(60°) = 16 + 36 - 2(12) = 52 - 24 = 28.\n   Donc BC = √28 = 2√7.\n3. Théorème de la médiane : AB² + AC² = 2·AI² + BC²/2.\n   16 + 36 = 2·AI² + 28/2 ⇒ 52 = 2·AI² + 14 ⇒ 2·AI² = 38 ⇒ AI² = 19 ⇒ AI = √19.\n   (Vérification vectorielle : 4·AI² = ||AB + AC||² = 16 + 36 + 2(12) = 76 ⇒ AI² = 19.)"
+        }
+      ]
+    }
+  ]
+}

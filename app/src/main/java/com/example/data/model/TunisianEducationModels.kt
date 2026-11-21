@@ -81,6 +81,11 @@ data class DevoirExercise(
     val solution: String
 )
 
+/**
+ * Représentation métier d'un devoir PDF hébergé en ligne.
+ * Les fichiers PDF téléchargés sont stockés dans le dossier privé de l'application
+ * (`localSujetPath`, `localCorrigePath`) et vérifiés par taille / SHA-256.
+ */
 data class DevoirItem(
     val id: String,
     val title: String,
@@ -90,14 +95,44 @@ data class DevoirItem(
     val type: DevoirType,
     val trimester: Trimester,
     val durationMinutes: Int,
-    val totalPoints: Int,
     val difficulty: String,
-    val sourceSchool: String,
     val chapterTags: List<String>,
-    val exercises: List<DevoirExercise>,
+    val source: String = "Sujet d'entraînement",
+    val version: Int = 1,
+    val sizeMb: Double = 0.0,
+    val sujetUrl: String,
+    val corrigeUrl: String? = null,
+    val sujetSizeBytes: Long = 0L,
+    val corrigeSizeBytes: Long = 0L,
+    val sujetSha256: String? = null,
+    val corrigeSha256: String? = null,
+    val localSujetPath: String? = null,
+    val localCorrigePath: String? = null,
+    val downloadedBytes: Long = 0L,
+    val downloadedVersion: Int = 0,
     val isFavorite: Boolean = false,
     val isCompleted: Boolean = false
-)
+) {
+    /** Indique si un corrigé PDF en ligne est associé à ce devoir. */
+    val hasCorrigePdf: Boolean
+        get() = !corrigeUrl.isNullOrBlank()
+
+    /** Indique si le sujet (et son corrigé s'il existe) est disponible localement hors ligne. */
+    val isAvailableOffline: Boolean
+        get() = !localSujetPath.isNullOrBlank() &&
+            (!hasCorrigePdf || !localCorrigePath.isNullOrBlank())
+
+    /** Indique si une mise à jour en ligne existe par rapport à la version téléchargée localement. */
+    val hasNewerRemoteVersion: Boolean
+        get() = isAvailableOffline && downloadedVersion in 1 until version
+
+    /** Taille totale estimée en octets (utilisée pour la progression et l'avertissement > 20 Mo). */
+    val estimatedTotalBytes: Long
+        get() {
+            val fromMetadata = sujetSizeBytes + corrigeSizeBytes
+            return if (fromMetadata > 0L) fromMetadata else (sizeMb * 1024.0 * 1024.0).toLong()
+        }
+}
 
 data class SubjectCoefficient(
     val id: String,

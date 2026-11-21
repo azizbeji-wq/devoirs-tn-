@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": 2,
+  "matiere": "Informatique",
+  "devoirs": [
+    {
+      "id": "bac_info_ds1_algo",
+      "titre": "Devoir de Synthèse N°1 — Algorithmes Python, Récursivité & SQL",
+      "matiere": "Informatique",
+      "niveau": "BAC",
+      "section": "INFORMATIQUE",
+      "type": "SYNTHESE",
+      "trimestre": "T1",
+      "duree": 180,
+      "bareme": 20,
+      "difficulte": "Bac Type",
+      "etablissement": "Lycée Pilote de Sousse",
+      "sujetEntrainement": false,
+      "langue": "fr",
+      "chapitres": ["Python", "Récursivité", "Tri par insertion", "Bases de données SQL"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Nombre premier circulaire & fonction récursive",
+          "bareme": "10 pts",
+          "enonce": "Un entier N > 1 est dit « super-pair » si tous ses chiffres sont pairs.\n1. Écrire en Python une fonction récursive `est_super_pair(n)` qui retourne `True` si n est super-pair, `False` sinon.\n2. Écrire une procédure `filtrer_fichier(source, dest)` qui lit un fichier texte contenant un entier par ligne et recopie dans `dest` uniquement les nombres super-pairs triés par ordre croissant.",
+          "corrige": "1. Solution Python récursive :\n```python\ndef est_super_pair(n):\n    if n < 10:\n        return n % 2 == 0\n    if (n % 10) % 2 != 0:\n        return False\n    return est_super_pair(n // 10)\n```\n2. Lecture, filtrage, tri (tri par sélection/insertion) et écriture ligne par ligne :\n```python\ndef filtrer_fichier(source, dest):\n    with open(source, 'r') as f:\n        vals = [int(l.strip()) for l in f if l.strip() and est_super_pair(int(l.strip()))]\n    vals.sort()\n    with open(dest, 'w') as g:\n        for v in vals:\n            g.write(str(v) + '\\n')\n```"
+        },
+        {
+          "numero": 2,
+          "titre": "Requêtes SQL — Gestion d'une bibliothèque scolaire",
+          "bareme": "10 pts",
+          "enonce": "Soit la base relationnelle :\n- ELEVE(IdEleve, Nom, Niveau, Section)\n- EMPRUNT(IdEmprunt, #IdEleve, #CodeLivre, DateEmp)\n- LIVRE(CodeLivre, Titre, Matiere, NbExemplaires)\nÉcrire en SQL :\n1. La liste des titres des livres de « Mathématiques » ayant au moins 3 exemplaires.\n2. Le nombre d'emprunts effectués par chaque élève de niveau « Bac » trié par ordre décroissant.",
+          "corrige": "1.\n```sql\nSELECT Titre\nFROM LIVRE\nWHERE Matiere = 'Mathématiques' AND NbExemplaires >= 3;\n```\n2.\n```sql\nSELECT E.Nom, COUNT(M.IdEmprunt) AS TotalEmprunts\nFROM ELEVE E\nJOIN EMPRUNT M ON E.IdEleve = M.IdEleve\nWHERE E.Niveau = 'Bac'\nGROUP BY E.IdEleve, E.Nom\nORDER BY TotalEmprunts DESC;\n```"
+        }
+      ]
+    },
+    {
+      "id": "train_lycee_2eme_dc1_info",
+      "titre": "Devoir de Contrôle N°1 — Algorithmes, Tableaux & Chaînes en Python",
+      "matiere": "Informatique",
+      "niveau": "LYCEE_2",
+      "section": "INFORMATIQUE",
+      "type": "CONTROLE",
+      "trimestre": "T1",
+      "duree": 90,
+      "bareme": 20,
+      "difficulte": "Standard",
+      "etablissement": "Établissement : non précisé",
+      "sujetEntrainement": true,
+      "langue": "fr",
+      "chapitres": ["Structures itératives", "Fonctions Python", "Tableaux unidimensionnels", "Chaînes de caractères"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Nombres parfaits et recherche par boucle",
+          "bareme": "10 pts",
+          "enonce": "Un entier strictement positif n est dit « parfait » s'il est égal à la somme de ses diviseurs stricts (positifs et inférieurs à n). Exemple : 6 = 1 + 2 + 3.\n1. Vérifier à la main si 28 et 12 sont des nombres parfaits.\n2. Écrire en Python une fonction `est_parfait(n)` retournant `True` si n est parfait et `False` sinon.\n3. Écrire une boucle affichant tous les nombres parfaits compris entre 2 et 500.",
+          "corrige": "1. Diviseurs stricts de 28 : 1 + 2 + 4 + 7 + 14 = 28 → 28 est parfait.\n   Diviseurs stricts de 12 : 1 + 2 + 3 + 4 + 6 = 16 ≠ 12 → 12 n'est pas parfait.\n2. Fonction Python :\n```python\ndef est_parfait(n):\n    if n < 2:\n        return False\n    somme = 0\n    for d in range(1, n // 2 + 1):\n        if n % d == 0:\n            somme += d\n    return somme == n\n```\n3. Programme principal :\n```python\nfor k in range(2, 501):\n    if est_parfait(k):\n        print(k)\n```\nRésultat affiché : 6, 28, 496 (vérif : 1+2+4+8+16+31+62+124+248 = 496)."
+        },
+        {
+          "numero": 2,
+          "titre": "Statistiques sur un tableau de notes et test de palindrome",
+          "bareme": "10 pts",
+          "enonce": "1. Écrire une fonction Python `statistiques_notes(T)` qui prend une liste non vide T de notes sur 20 et retourne le triplet `(moyenne, max_note, nb_admis)` sans utiliser les fonctions prédéfinies `sum()` ni `max()`, où `nb_admis` compte les notes ≥ 10.\n2. Écrire une fonction `est_palindrome(ch)` qui vérifie si une chaîne `ch` se lit de la même manière dans les deux sens sans tenir compte des majuscules/minuscules (ex : « Radar » → True).",
+          "corrige": "1.\n```python\ndef statistiques_notes(T):\n    somme = 0.0\n    max_note = T[0]\n    nb_admis = 0\n    for note in T:\n        somme += note\n        if note > max_note:\n            max_note = note\n        if note >= 10:\n            nb_admis += 1\n    moyenne = somme / len(T)\n    return (moyenne, max_note, nb_admis)\n```\n2.\n```python\ndef est_palindrome(ch):\n    s = ch.lower()\n    i, j = 0, len(s) - 1\n    while i < j:\n        if s[i] != s[j]:\n            return False\n        i += 1\n        j -= 1\n    return True\n```"
+        }
+      ]
+    }
+  ]
+}

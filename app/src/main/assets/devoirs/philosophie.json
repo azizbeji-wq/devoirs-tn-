@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": 2,
+  "matiere": "Philosophie",
+  "devoirs": [
+    {
+      "id": "bac_lettres_exam_philo",
+      "titre": "Sujet Bac Blanc — Dissertation Philosophique : Liberté & Autrui",
+      "matiere": "Philosophie",
+      "niveau": "BAC",
+      "section": "LETTRES",
+      "type": "EXAMEN",
+      "trimestre": "NATIONAL",
+      "duree": 240,
+      "bareme": 20,
+      "difficulte": "Bac Type",
+      "etablissement": "Session Nationale · Programme Tunisien",
+      "sujetEntrainement": false,
+      "langue": "fr",
+      "chapitres": ["Autrui", "Liberté", "L'État & la Loi", "Méthodologie Bac"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Questions de compréhension et définition conceptuelle",
+          "bareme": "6 pts",
+          "enonce": "1. Distinguer « liberté naturelle » et « liberté civile » chez Rousseau.\n2. Expliquer brièvement en quoi le regard d'autrui peut être à la fois limite et condition de la conscience de soi.",
+          "corrige": "1. La liberté naturelle consiste à suivre ses impulsions sans borne autre que la force individuelle ; la liberté civile naît du contrat social : « l'obéissance à la loi qu'on s'est prescrite est liberté ».\n2. Chez Sartre, le regard d'autrui peut réifier (« l'enfer, c'est les autres »), mais chez Hegel et Levinas, la reconnaissance par autrui est indispensable pour accéder à la conscience de soi et à la responsabilité éthique."
+        },
+        {
+          "numero": 2,
+          "titre": "Dissertation : « La présence d'autrui est-elle un obstacle à ma liberté ? »",
+          "bareme": "14 pts",
+          "enonce": "Traiter le sujet en respectant la démarche analytique et critique attendue au Baccalauréat tunisien (Problématisation, Thèse, Antithèse, Dépassement/Synthèse).",
+          "corrige": "Problématique : Si autrui semble d'abord restreindre mon champ d'action par ses désirs et son jugement, n'est-il pas paradoxalement le médiateur grâce auquel ma liberté devient réelle et sensée ?\n- Moment 1 (Thèse) : Autrui comme limite et menace (conflit des consciences, conformisme social, regard qui fige).\n- Moment 2 (Antithèse) : Autrui comme condition d'épanouissement (langage, coopération, reconnaissance mutuelle, solidarité).\n- Moment 3 (Dépassement) : La liberté authentique n'est pas l'isolement solitaire mais la co-liberté régulée par le droit et l'éthique."
+        }
+      ]
+    },
+    {
+      "id": "train_bac_scexp_dc1_philo",
+      "titre": "Devoir de Contrôle N°1 — La Science, l'Expérience & la Vérité",
+      "matiere": "Philosophie",
+      "niveau": "BAC",
+      "section": "SCIENCES_EXP",
+      "type": "CONTROLE",
+      "trimestre": "T1",
+      "duree": 120,
+      "bareme": 20,
+      "difficulte": "Bac Type",
+      "etablissement": "Établissement : non précisé",
+      "sujetEntrainement": true,
+      "langue": "fr",
+      "chapitres": ["Épistémologie", "Vérité formelle & expérimentale", "Gaston Bachelard", "Karl Popper"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Questions conceptuelles (Programme Bac Scientifique)",
+          "bareme": "8 pts",
+          "enonce": "1. Distinguer « vérité formelle » et « vérité matérielle » en donnant un exemple pour chacune.\n2. Expliquer la célèbre formule de Gaston Bachelard : « Rien ne va de soi. Rien n'est donné. Tout est construit. »",
+          "corrige": "1. La vérité formelle repose uniquement sur la cohérence logique interne d'un raisonnement déductif sans recours à l'observation (ex : théorème de Pythagore en géométrie euclidienne). La vérité matérielle (ou empirique) correspond à l'adéquation d'un énoncé avec les faits observables et mesurables (ex : la loi d'Ohm vérifiée expérimentalement).\n2. Pour Bachelard, la connaissance scientifique ne consiste pas à enregistrer passivement le réel immédiat : le savant doit rompre avec l'opinion commune (obstacles épistémologiques), poser des problèmes, formuler des hypothèses mathématiques et construire des dispositifs expérimentaux."
+        },
+        {
+          "numero": 2,
+          "titre": "Essai philosophique : « L'expérience suffit-elle à fonder la vérité scientifique ? »",
+          "bareme": "12 pts",
+          "enonce": "Construire une réflexion philosophique structurée (Introduction problématisée, développement argumenté et nuancé, conclusion).",
+          "corrige": "Problématique : Si l'expérimentation apparaît comme le juge ultime des sciences de la nature, la seule observation empirique peut-elle suffire à produire une vérité universelle et nécessaire ?\n- Moment 1 (Valeur de l'expérience) : Contre la spéculation vide, l'expérience met les hypothèses à l'épreuve du réel (Claude Bernard, démarche expérimentale : observation → hypothèse → expérimentation → loi).\n- Moment 2 (Limites de l'empirisme pur) : Les sens peuvent tromper, et l'induction (passer de quelques cas observés à une loi universelle) n'offre jamais une certitude absolue (Hume). De plus, comme le montre Karl Popper, une théorie scientifique doit être réfutable et guidée par la raison théorique.\n- Moment 3 (Dépassement) : La vérité scientifique naît d'un dialogue fécond entre la raison mathématique et le contrôle expérimental (le « rationalisme appliqué » de Bachelard) ; elle demeure toujours approchée et rectifiable."
+        }
+      ]
+    }
+  ]
+}

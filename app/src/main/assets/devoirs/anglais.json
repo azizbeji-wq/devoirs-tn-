@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": 2,
+  "matiere": "Anglais",
+  "devoirs": [
+    {
+      "id": "lycee_3eme_dc2_anglais",
+      "titre": "Devoir de Contrôle N°2 — Reading, Grammar & Guided Writing",
+      "matiere": "Anglais",
+      "niveau": "LYCEE_3",
+      "section": "MATHS",
+      "type": "CONTROLE",
+      "trimestre": "T2",
+      "duree": 60,
+      "bareme": 20,
+      "difficulte": "Standard",
+      "etablissement": "Lycée Pilote de Gabès",
+      "sujetEntrainement": false,
+      "langue": "en",
+      "chapitres": ["Tenses & Conditionals", "Word Formation", "Essay Writing", "Education & Tech"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Language: Put the bracketed words in the right tense or form",
+          "bareme": "10 pts",
+          "enonce": "1. If Tunisian students (organize) __________ their revision earlier, they will feel much more confident.\n2. Renewable energy plays an (increase) __________ important role in Tunisia's economy.\n3. By the end of June, the candidates (complete) __________ all their national exams.\n4. She succeeded thanks to her (determine) __________ and daily discipline.",
+          "corrige": "1. organize (Type 1 conditional: Present Simple + will).\n2. increasingly (Adverb modifying adjective 'important').\n3. will have completed (Future Perfect triggered by 'By the end of June').\n4. determination (Noun after possessive 'her')."
+        },
+        {
+          "numero": 2,
+          "titre": "Writing: 12-line Article for School Magazine",
+          "bareme": "10 pts",
+          "enonce": "Topic: Write a short article giving three practical tips to help 3rd-year high school students balance exam preparation and healthy habits.",
+          "corrige": "Scoring criteria:\n- Adherence to task & format (title + 3 clear tips: active recall, 45-min study blocks, 8h sleep) : 4 pts.\n- Language accuracy & connectors (First, Furthermore, Finally) : 4 pts.\n- Mechanics (spelling, capitalization, punctuation) : 2 pts."
+        }
+      ]
+    },
+    {
+      "id": "train_bac_scexp_ds1_anglais",
+      "titre": "Devoir de Synthèse N°1 — Language & Guided Essay (Bac Sciences)",
+      "matiere": "Anglais",
+      "niveau": "BAC",
+      "section": "SCIENCES_EXP",
+      "type": "SYNTHESE",
+      "trimestre": "T1",
+      "duree": 120,
+      "bareme": 20,
+      "difficulte": "Bac Type",
+      "etablissement": "Établissement : non précisé",
+      "sujetEntrainement": true,
+      "langue": "en",
+      "chapitres": ["Passive Voice", "Present Perfect Continuous", "Word Derivation", "Brain Drain & Innovation"],
+      "exercices": [
+        {
+          "numero": 1,
+          "titre": "Language: Put the bracketed words in the right tense or form",
+          "bareme": "10 pts",
+          "enonce": "Put the bracketed words in the correct tense or form:\n1. Over the last decade, solar energy projects (expand) __________ rapidly across southern Tunisia.\n2. Scientific research should be funded to promote (sustain) __________ development.\n3. Thousands of young engineers (recruit) __________ by tech startups every year.\n4. Without continuous (innovate) __________, companies struggle to stay competitive.\n5. She wishes she (apply) __________ for the Mediterranean science scholarship earlier.",
+          "corrige": "1. have been expanding / have expanded (Present Perfect Continuous or Present Perfect triggered by 'Over the last decade').\n2. sustainable (Adjective modifying the noun 'development').\n3. are recruited (Present Simple Passive: routine action with 'every year' and agent 'by tech startups').\n4. innovation (Noun after adjective 'continuous').\n5. had applied (Past regret after 'wishes' + 'earlier' → Past Perfect)."
+        },
+        {
+          "numero": 2,
+          "titre": "Writing: Argumentative Essay (12 lines — Bac Format)",
+          "bareme": "10 pts",
+          "enonce": "Topic: Many talented young graduates leave Tunisia to work abroad (brain drain), while others choose to build startups and contribute locally. Write a 12-line essay discussing the main reasons behind this trend and suggesting two concrete solutions to encourage young talents to stay or return.",
+          "corrige": "Official Bac English Marking Scale (10 pts):\n- Adherence to task & content adequacy (4 pts): Clear intro defining brain drain, 2 causes (higher salaries, research facilities) + 2 realistic solutions (startup incentives, remote global jobs, better R&D labs).\n- Lexical appropriacy & grammar accuracy (4 pts): Accurate tenses, linking words (Whereas, Consequently, Moreover, To address this issue).\n- Mechanical accuracy (2 pts): Spelling, punctuation, capitalization, and clear paragraphing."
+        }
+      ]
+    }
+  ]
+}
