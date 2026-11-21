@@ -1,0 +1,6 @@
+{
+  "name": "Devoirs TN",
+  "description": "Bibliothèque de devoirs de contrôle, devoirs de synthèse, sujets du Bac tunisien avec corrigés détaillés, calculateur de moyenne officiel et fiches méthodes de révision.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

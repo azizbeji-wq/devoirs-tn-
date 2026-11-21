@@ -1,0 +1,89 @@
+<resources>
+    <string name="app_name">Devoirs TN</string>
+
+    <!-- Navigation -->
+    <string name="nav_matieres">Matières</string>
+    <string name="nav_devoirs">Devoirs</string>
+    <string name="nav_moyenne">Moyenne</string>
+    <string name="nav_idees">Idées</string>
+    <string name="nav_suivi">Espace</string>
+
+    <!-- Subject Selection Screen -->
+    <string name="subject_selector_badge">Parcours Tunisien · Filtre Rapide</string>
+    <string name="subject_selector_title">Choisis ton niveau et ta matière</string>
+    <string name="subject_selector_subtitle">Filtre instantanément les devoirs et révisions par année scolaire (6ème, 7ème, 8ème, 9ème, Bac…) et par discipline.</string>
+    <string name="step_choose_year">1. Année scolaire</string>
+    <string name="step_choose_subject">2. Matière</string>
+    <string name="all_subjects_label">Toutes les matières</string>
+    <string name="matching_materials_title">Supports correspondants</string>
+    <string name="action_open_library">Voir tout</string>
+    <string name="subject_empty_title">Aucun support pour cette combinaison</string>
+    <string name="subject_empty_subtitle">Sélectionne « Tous » en année scolaire ou une autre matière pour explorer les devoirs disponibles.</string>
+
+    <!-- Devoirs Library -->
+    <string name="hero_badge_regime">Régime Tunisien · Programme Officiel</string>
+    <string name="hero_title">Réussis tes devoirs &amp; examens</string>
+    <string name="hero_subtitle">Devoirs de contrôle, synthèses, sujets du Bac et corrigés détaillés du Primaire à l\'Université.</string>
+    <string name="search_placeholder">Rechercher un devoir, chapitre, matière…</string>
+    <string name="filter_all">Tous</string>
+    <string name="filter_level_label">Cycle &amp; Niveau</string>
+    <string name="filter_section_label">Section</string>
+    <string name="filter_type_label">Type d\'épreuve</string>
+    <string name="filter_trimester_label">Trimestre</string>
+    <string name="filter_subject_label">Matière</string>
+    <string name="empty_devoirs_title">Aucun devoir trouvé</string>
+    <string name="empty_devoirs_subtitle">Essaie d\'élargir tes filtres (niveau, section ou trimestre) pour découvrir tous les sujets disponibles.</string>
+    <string name="action_reset_filters">Réinitialiser les filtres</string>
+
+    <!-- Devoir Detail -->
+    <string name="back_button_cd">Retour</string>
+    <string name="bookmark_cd">Ajouter aux favoris</string>
+    <string name="bookmarked_cd">Retirer des favoris</string>
+    <string name="mark_completed">Marquer comme fait</string>
+    <string name="completed_badge">Devoir maîtrisé</string>
+    <string name="timer_section_title">Chronomètre d\'examen</string>
+    <string name="timer_start">Démarrer</string>
+    <string name="timer_pause">Pause</string>
+    <string name="timer_reset">Réinitialiser</string>
+    <string name="show_solution">Voir le corrigé &amp; barème</string>
+    <string name="hide_solution">Masquer le corrigé</string>
+    <string name="toggle_all_solutions_show">Tout corriger</string>
+    <string name="toggle_all_solutions_hide">Masquer les corrigés</string>
+    <string name="official_header_republic">République Tunisienne · Ministère de l\'Éducation</string>
+    <string name="solution_label">Corrigé officiel &amp; méthode</string>
+
+    <!-- Moyenne Calculator -->
+    <string name="moyenne_title">Calculateur Tunisien</string>
+    <string name="moyenne_subtitle">Coefficients officiels et formules (DC + 2×DS) / 3</string>
+    <string name="mode_trimestre">Trimestre (DC + DS)</string>
+    <string name="mode_direct">Note directe / Bac</string>
+    <string name="label_dc">Devoir Contrôle</string>
+    <string name="label_ds">Devoir Synthèse</string>
+    <string name="label_note">Note / 20</string>
+    <string name="action_reset_grades">Réinitialiser</string>
+    <string name="action_simulate_sample">Exemple 15/20</string>
+
+    <!-- Ideas & Methods -->
+    <string name="idees_title">Idées &amp; Méthodes</string>
+    <string name="idees_subtitle">Stratégies de révision tunisiennes et boîte à idées d\'évolution</string>
+    <string name="tab_methods">Fiches Méthodes</string>
+    <string name="tab_app_ideas">Idées de Projet</string>
+    <string name="idea_vote_action">Retenir cette idée</string>
+    <string name="idea_voted_label">Idée retenue</string>
+
+    <!-- Mon Espace -->
+    <string name="suivi_title">Mon Espace Révision</string>
+    <string name="suivi_subtitle">Suis tes devoirs favoris et ta progression trimestrielle</string>
+    <string name="stat_completed">Faits</string>
+    <string name="stat_favorites">Favoris</string>
+    <string name="stat_total">Disponibles</string>
+    <string name="section_favorites">Mes devoirs favoris</string>
+    <string name="section_completed">Devoirs terminés</string>
+    <string name="empty_favorites">Aucun devoir en favori pour l\'instant. Appuie sur l\'icône signet d\'un devoir pour le garder sous la main.</string>
+    <string name="empty_completed">Termine un devoir et coche « Marquer comme fait » pour suivre ton avancée par matière.</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_hero_banner">Illustration d\'un bureau d\'élève tunisien face à la mer</string>
+    <string name="cd_ideas_banner">Illustration d\'idées et de méthodes de révision</string>
+    <string name="cd_clear_search">Effacer la recherche</string>
+</resources>
