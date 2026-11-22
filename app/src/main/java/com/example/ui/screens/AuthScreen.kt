@@ -47,6 +47,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -66,6 +69,17 @@ import kotlinx.coroutines.launch
  * Écran de connexion Google (Jetpack Credential Manager + Firebase Auth).
  * Tente une reconnexion silencieuse au démarrage puis propose le bouton officiel Google.
  */
+import com.example.LocalActivityContext
+
+fun Context.findActivity(): Activity? {
+    var context = this
+    while (context is ContextWrapper) {
+        if (context is Activity) return context
+        context = context.baseContext
+    }
+    return null
+}
+
 @Composable
 fun AuthScreen(
     preferences: AppPreferencesState,
@@ -73,7 +87,7 @@ fun AuthScreen(
     onAuthSuccess: (FirebaseUser) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
+    val context = LocalActivityContext.current
     val coroutineScope = rememberCoroutineScope()
 
     var isCheckingSavedAccount by remember { mutableStateOf(true) }

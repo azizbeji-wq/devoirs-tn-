@@ -119,6 +119,10 @@ import kotlinx.coroutines.launch
  * Gère l'initialisation Firebase App Check, la langue dynamique (FR / AR RTL / EN),
  * le mode sombre (Système / Clair / Sombre) et la navigation adaptative mobile / tablette.
  */
+val LocalActivityContext = androidx.compose.runtime.staticCompositionLocalOf<android.content.Context> {
+    error("No Activity Context provided")
+}
+
 class MainActivity : ComponentActivity() {
 
     private val database by lazy {
@@ -181,7 +185,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        
         // ÉTAPE 1 : Configurer Firebase App Check avant l'UI, les ViewModels ou tout appel Firebase
         configureAppCheck(this, intent)
 
@@ -230,6 +234,7 @@ class MainActivity : ComponentActivity() {
             }
 
             CompositionLocalProvider(
+                LocalActivityContext provides baseContext,
                 LocalContext provides localizedContext,
                 LocalConfiguration provides localizedContext.resources.configuration,
                 LocalLayoutDirection provides layoutDirection
