@@ -366,6 +366,34 @@ class CloudSyncRepository(
         }
     }
 
+    /**
+     * Supprime l'ensemble des documents Firestore appartenant à l'utilisateur courant :
+     * sous-collections (`examAttempts`, `reminders`, `subjects`) puis le document `/users/{uid}`.
+     */
+    suspend fun deleteAllUserData(): Result<Unit> {
+        val uid = runCatching { requireUserId() }.getOrElse { return Result.failure(it) }
+        val userDocRef = db.collection("users").document(uid)
+        val path = "users/$uid"
+        return try {
+            val subcollections = listOf("examAttempts", "reminders", "subjects")
+            for (subcollection in subcollections) {
+                val snapshot = userDocRef.collection(subcollection).get().await()
+                val docs = snapshot.documents
+                for (chunk in docs.chunked(400)) {
+                    val batch = db.batch()
+                    chunk.forEach { doc -> batch.delete(doc.reference) }
+                    batch.commit().await()
+                }
+            }
+            userDocRef.delete().await()
+            Result.success(Unit)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            recordAndWrapError(e, OperationType.DELETE, path)
+        }
+    }
+
     private fun recordAndWrapError(
         exception: Exception,
         operationType: OperationType,

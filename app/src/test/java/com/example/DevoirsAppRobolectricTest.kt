@@ -85,7 +85,7 @@ class DevoirsAppRobolectricTest {
         assertEquals("À télécharger", ctx.getString(R.string.status_to_download))
         assertEquals("Stockage", ctx.getString(R.string.space_tab_storage))
         assertEquals("Télécharger tout le trimestre 1 — 9ème année", ctx.getString(R.string.download_pack_9eme_t1_cta))
-        assertTrue(ctx.getString(R.string.privacy_dialog_body).contains("100 % local"))
+        assertTrue(ctx.getString(R.string.privacy_dialog_body).contains("Firebase Firestore"))
     }
 
     @Test

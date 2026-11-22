@@ -241,6 +241,27 @@
     <string name="label_ds">Synthesis (DS)</string>
     <string name="label_ds_x2">Synthesis (×2)</string>
     <string name="action_reset_grades">Reset</string>
+    <string name="bac_subject_coeffs_title">Subject Weights (%1$s)</string>
+    <string name="bac_subject_coeffs_total">Total weights: %1$s</string>
+    <string name="bac_subject_coeffs_custom_badge">Custom</string>
+    <string name="bac_subject_coeffs_official_badge">Official scale</string>
+    <string name="bac_subject_coeffs_reset">Restore official</string>
+    <string name="bac_subject_coeff_default_hint">Official: %1$s</string>
+    <string name="bac_subject_coeff_invalid">0 to 20</string>
+    <string name="bac_coeff_input_label">Weight</string>
+    <string name="cd_bac_coeff_decrease">Decrease weight for %1$s</string>
+    <string name="cd_bac_coeff_increase">Increase weight for %1$s</string>
+    <string name="bac_result_card_title">Official Calculated Result</string>
+    <string name="bac_result_card_preview_title">Average Progress</string>
+    <string name="bac_result_waiting_hint">Enter your grades and customize each subject\'s weight to see your animated official average.</string>
+    <string name="bac_result_next_mention">Only +%1$s pt left for \"%2$s\" (%3$d/20)</string>
+    <string name="bac_result_top_mention">Outstanding! Very Good honors achieved (≥ 16/20).</string>
+    <string name="bac_milestone_pass">10</string>
+    <string name="bac_milestone_ab">12</string>
+    <string name="bac_milestone_b">14</string>
+    <string name="bac_milestone_tb">16</string>
+    <string name="bac_result_annual_only_hint">Annual average in progress — complete the Exam tab to compute your final Overall Average.</string>
+    <string name="bac_result_exam_only_hint">Exam average in progress — complete the Annual tab to compute your final Overall Average.</string>
 
     <!-- Study Methods -->
     <string name="methods_title">Study Methods</string>
@@ -616,4 +637,33 @@
     <string name="cloud_sync_error">Offline mode — sync will resume automatically</string>
     <string name="cd_account_icon">Signed-in student account</string>
     <string name="cd_cloud_sync_icon">Cloud Firestore sync status</string>
+
+    <!-- Account Deletion & Parental Consent (< 15 years) -->
+    <string name="delete_account_card_title">Delete Account &amp; Data</string>
+    <string name="delete_account_card_subtitle">Permanently erases your Firebase account, Firestore cloud backup, and all local data on this device.</string>
+    <string name="delete_account_btn">Delete my account and data</string>
+    <string name="delete_account_in_progress">Deleting…</string>
+    <string name="delete_account_dialog_title">Permanently delete your account?</string>
+    <string name="delete_account_dialog_body">This action cannot be undone. It will immediately delete:\n• your Firebase Authentication account;\n• your Firestore documents (profile, favorites, exam attempts, reminders, custom subjects);\n• all local data (Room database, downloaded PDFs, and preferences).</string>
+    <string name="delete_account_dialog_confirm">Delete permanently</string>
+    <string name="delete_account_dialog_cancel">Cancel</string>
+    <string name="delete_account_error_generic">Account deletion failed. Check your Internet connection and try again.</string>
+    <string name="delete_account_error_reauth">For security reasons, please re-confirm your Google sign-in and try deleting again.</string>
+    <string name="cd_delete_account_icon">Delete account and data</string>
+    <string name="cd_parental_consent_icon">Parental consent</string>
+    <string name="consent_title">Age Verification &amp; Parental Consent</string>
+    <string name="consent_subtitle">Devoirs TN protects student privacy. Select your age group to continue.</string>
+    <string name="consent_age_15_plus_title">I am 15 or older</string>
+    <string name="consent_age_15_plus_subtitle">Proceed directly to Google Sign-In and your study library.</string>
+    <string name="consent_age_under_15_title">I am under 15</string>
+    <string name="consent_age_under_15_subtitle">A parent or legal guardian must approve before continuing.</string>
+    <string name="consent_parent_section_title">Parent or Legal Guardian Approval</string>
+    <string name="consent_parent_info_body">Devoirs TN only stores study records (favorites, progress, reminders) using Google Sign-In and Firebase Firestore, with zero ads or trackers. You can disable the AI Tutor or delete the account and all data anytime in Settings.</string>
+    <string name="consent_parent_ai_toggle_title">Allow AI Tutor (Gemini)</string>
+    <string name="consent_parent_ai_toggle_desc">Off by default for students under 15. Can be changed anytime in Settings.</string>
+    <string name="consent_parent_checkbox_label">I confirm I am the parent or legal guardian of the student and I authorize the use of Devoirs TN and cloud backup of their study progress.</string>
+    <string name="consent_continue_btn">Continue</string>
+    <string name="consent_parent_confirm_btn">Confirm parental consent</string>
+    <string name="settings_parental_consent_minor_btn">Parental consent active (&lt; 15) · Review</string>
+    <string name="settings_parental_consent_review_btn">Review parental consent</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -71,9 +72,9 @@ fun AuthScreen(
     preferences: AppPreferencesState,
     onSelectLanguage: (AppLanguage) -> Unit,
     onAuthSuccess: (FirebaseUser) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    activityContext: Context = LocalContext.current
 ) {
-    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
     var isCheckingSavedAccount by remember { mutableStateOf(true) }
@@ -82,7 +83,7 @@ fun AuthScreen(
 
     LaunchedEffect(Unit) {
         attemptAutoSignIn(
-            context = context,
+            context = activityContext,
             onAuthSuccess = { user ->
                 isCheckingSavedAccount = false
                 onAuthSuccess(user)
@@ -247,7 +248,7 @@ fun AuthScreen(
                         isSigningIn = true
                         coroutineScope.launch {
                             onGoogleSignInClicked(
-                                context = context,
+                                context = activityContext,
                                 onAuthSuccess = { user ->
                                     isSigningIn = false
                                     onAuthSuccess(user)
