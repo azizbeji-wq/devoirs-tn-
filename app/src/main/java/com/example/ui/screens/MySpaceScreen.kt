@@ -195,7 +195,12 @@ fun MySpaceScreen(
     userDisplayName: String? = null,
     userEmail: String? = null,
     cloudSyncState: CloudSyncUiState = CloudSyncUiState.Loading,
-    onSignOut: (() -> Unit)? = null
+    onSignOut: (() -> Unit)? = null,
+    isDeletingAccount: Boolean = false,
+    deleteAccountError: String? = null,
+    onDeleteAccountAndData: (() -> Unit)? = null,
+    onDismissDeleteAccountError: () -> Unit = {},
+    onReviewParentalConsent: (() -> Unit)? = null
 ) {
     val favoriteDevoirs = allDevoirs.filter { it.isFavorite }
     val completedDevoirs = allDevoirs.filter { it.isCompleted }
@@ -661,6 +666,11 @@ fun MySpaceScreen(
                         userEmail = userEmail,
                         cloudSyncState = cloudSyncState,
                         onSignOut = onSignOut,
+                        isDeletingAccount = isDeletingAccount,
+                        deleteAccountError = deleteAccountError,
+                        onDeleteAccountAndData = onDeleteAccountAndData,
+                        onDismissDeleteAccountError = onDismissDeleteAccountError,
+                        onReviewParentalConsent = onReviewParentalConsent,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }

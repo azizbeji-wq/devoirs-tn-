@@ -90,6 +90,7 @@ data class MoyenneUiState(
     val examPercent: Double = 75.0,
     val annualInputs: Map<String, SubjectAnnualInputs> = emptyMap(),
     val examGradeTexts: Map<String, String> = emptyMap(),
+    val customSubjectCoeffTexts: Map<String, String> = emptyMap(),
     val customFgCoeffTexts: Map<String, String> = emptyMap(),
     val fgGeneralMultiplierText: String = "4",
     val simulatorTargetText: String = "14",
@@ -101,6 +102,50 @@ data class MoyenneUiState(
     val selectedSection: BacSectionConfig?
         get() = config.sections.find { it.id == selectedSectionId } ?: config.sections.firstOrNull()
 
+    /**
+     * Section active avec les coefficients personnalisés par matière appliqués de manière sûre.
+     * Les valeurs hors bornes [0, 20] ou invalides retombent sur le coefficient officiel.
+     */
+    val effectiveSection: BacSectionConfig?
+        get() {
+            val base = selectedSection ?: return null
+            if (customSubjectCoeffTexts.isEmpty()) return base
+            return base.copy(
+                subjects = base.subjects.map { subject ->
+                    val raw = customSubjectCoeffTexts[subject.id]
+                    val parsed = raw?.let { BacCalculator.parseCoefficient(it) }
+                        ?.takeIf { it in 0.0..20.0 }
+                    if (parsed != null) {
+                        subject.copy(annualCoeff = parsed, examCoeff = parsed)
+                    } else {
+                        subject
+                    }
+                }
+            )
+        }
+
+    fun isSubjectCoeffInvalid(subjectId: String): Boolean {
+        val raw = customSubjectCoeffTexts[subjectId]?.trim() ?: return false
+        if (raw.isEmpty()) return false
+        val parsed = BacCalculator.parseCoefficient(raw) ?: return true
+        return parsed !in 0.0..20.0
+    }
+
+    fun isSubjectCoeffCustomized(subjectId: String): Boolean {
+        val raw = customSubjectCoeffTexts[subjectId]?.trim() ?: return false
+        if (raw.isEmpty()) return false
+        val official = selectedSection?.subjects?.find { it.id == subjectId } ?: return false
+        val parsed = BacCalculator.parseCoefficient(raw) ?: return true
+        return kotlin.math.abs(parsed - official.annualCoeff) > 0.001 ||
+            kotlin.math.abs(parsed - official.examCoeff) > 0.001
+    }
+
+    val hasCustomSubjectCoeffs: Boolean
+        get() = selectedSection?.subjects?.any { isSubjectCoeffCustomized(it.id) } == true
+
+    val totalSubjectCoeffSum: Double
+        get() = effectiveSection?.subjects?.sumOf { it.examCoeff } ?: 0.0
+
     val effectiveWeights
         get() = config.weights.copy(
             annualPercent = annualPercent,
@@ -109,13 +154,13 @@ data class MoyenneUiState(
 
     val annualResult: AnnualCalculationResult
         get() {
-            val section = selectedSection ?: return AnnualCalculationResult(emptyMap(), emptyMap(), null)
+            val section = effectiveSection ?: return AnnualCalculationResult(emptyMap(), emptyMap(), null)
             return BacCalculator.computeAnnualAverage(section, annualInputs, effectiveWeights)
         }
 
     val examResult: ExamCalculationResult
         get() {
-            val section = selectedSection ?: return ExamCalculationResult(null, 0.0, 0.0)
+            val section = effectiveSection ?: return ExamCalculationResult(null, 0.0, 0.0)
             return BacCalculator.computeExamAverage(section, examGradeTexts)
         }
 
@@ -143,7 +188,7 @@ data class MoyenneUiState(
 
     val fgResult: FormuleGlobaleResult
         get() {
-            val section = selectedSection ?: return FormuleGlobaleResult(null, 0.0, 0.0, emptyList())
+            val section = effectiveSection ?: return FormuleGlobaleResult(null, 0.0, 0.0, emptyList())
             return BacCalculator.computeFormuleGlobale(
                 generalAverage = generalAverage,
                 section = section,
@@ -494,6 +539,7 @@ class DevoirsViewModel(
                 selectedSectionId = sectionId,
                 annualInputs = emptyMap(),
                 examGradeTexts = emptyMap(),
+                customSubjectCoeffTexts = emptyMap(),
                 customFgCoeffTexts = emptyMap()
             )
         }
@@ -549,6 +595,28 @@ class DevoirsViewModel(
         _moyenneState.update { state ->
             state.copy(examGradeTexts = state.examGradeTexts + (subjectId to value.take(6)))
         }
+    }
+
+    fun updateSubjectCoeff(subjectId: String, value: String) {
+        val sanitized = value.filter { it.isDigit() || it == '.' || it == ',' }.take(5)
+        _moyenneState.update { state ->
+            state.copy(customSubjectCoeffTexts = state.customSubjectCoeffTexts + (subjectId to sanitized))
+        }
+    }
+
+    fun stepSubjectCoeff(subjectId: String, delta: Double) {
+        _moyenneState.update { state ->
+            val currentCoeff = state.effectiveSection?.subjects?.find { it.id == subjectId }?.examCoeff
+                ?: return@update state
+            val next = ((currentCoeff + delta) * 2.0).let { kotlin.math.round(it) / 2.0 }.coerceIn(0.0, 20.0)
+            state.copy(
+                customSubjectCoeffTexts = state.customSubjectCoeffTexts + (subjectId to formatCoeffInput(next))
+            )
+        }
+    }
+
+    fun resetSubjectCoeffs() {
+        _moyenneState.update { it.copy(customSubjectCoeffTexts = emptyMap()) }
     }
 
     fun updateCustomFgCoeff(subjectId: String, value: String) {

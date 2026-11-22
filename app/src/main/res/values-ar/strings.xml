@@ -249,6 +249,27 @@
     <string name="label_ds">فرض تأليفي</string>
     <string name="label_ds_x2">فرض تأليفي (×2)</string>
     <string name="action_reset_grades">إعادة ضبط</string>
+    <string name="bac_subject_coeffs_title">ضوارب المواد (%1$s)</string>
+    <string name="bac_subject_coeffs_total">مجموع الضوارب : %1$s</string>
+    <string name="bac_subject_coeffs_custom_badge">معدّلة</string>
+    <string name="bac_subject_coeffs_official_badge">السلّم الرسمي</string>
+    <string name="bac_subject_coeffs_reset">استعادة الرسمية</string>
+    <string name="bac_subject_coeff_default_hint">الرسمي : %1$s</string>
+    <string name="bac_subject_coeff_invalid">0 إلى 20</string>
+    <string name="bac_coeff_input_label">الضارب</string>
+    <string name="cd_bac_coeff_decrease">إنقاص ضارب %1$s</string>
+    <string name="cd_bac_coeff_increase">زيادة ضارب %1$s</string>
+    <string name="bac_result_card_title">النتيجة الرسمية المحسوبة</string>
+    <string name="bac_result_card_preview_title">تقدّم معدّلك</string>
+    <string name="bac_result_waiting_hint">أدخل أعدادك وحدّد ضارب كل مادة لعرض معدّلك الرسمي مع شريط التقدّم.</string>
+    <string name="bac_result_next_mention">يتبقّى +%1$s نقطة لملاحظة « %2$s » (%3$d/20)</string>
+    <string name="bac_result_top_mention">ممتاز! بلغت ملاحظة حسن جداً (≥ 16/20).</string>
+    <string name="bac_milestone_pass">10</string>
+    <string name="bac_milestone_ab">12</string>
+    <string name="bac_milestone_b">14</string>
+    <string name="bac_milestone_tb">16</string>
+    <string name="bac_result_annual_only_hint">المعدّل السنوي جارٍ — أكمل تبويب الامتحان لحساب المعدّل العام النهائي.</string>
+    <string name="bac_result_exam_only_hint">معدّل الامتحان جارٍ — أكمل تبويب السنوي لحساب المعدّل العام النهائي.</string>
 
     <!-- منهجيات المراجعة -->
     <string name="methods_title">منهجيات المراجعة</string>
@@ -624,4 +645,33 @@
     <string name="cloud_sync_error">وضع دون اتصال — ستُستأنف المزامنة تلقائياً</string>
     <string name="cd_account_icon">حساب التلميذ المتصل</string>
     <string name="cd_cloud_sync_icon">حالة المزامنة السحابية Firestore</string>
+
+    <!-- حذف الحساب والموافقة الأبوية (أقل من 15 سنة) -->
+    <string name="delete_account_card_title">حذف الحساب والبيانات</string>
+    <string name="delete_account_card_subtitle">يمحو نهائياً حساب Firebase والنسخة السحابية على Firestore وجميع البيانات المحلية على هذا الجهاز.</string>
+    <string name="delete_account_btn">حذف حسابي وبياناتي</string>
+    <string name="delete_account_in_progress">جارٍ الحذف…</string>
+    <string name="delete_account_dialog_title">حذف حسابك نهائياً؟</string>
+    <string name="delete_account_dialog_body">هذا الإجراء نهائي ولا يمكن التراجع عنه. سيتم حذف:\n• حساب Firebase Authentication؛\n• مستندات Firestore (الملف الشخصي، المفضلة، محاولات الامتحانات، التذكيرات والمواد المخصصة)؛\n• جميع البيانات المحلية (قاعدة Room وملفات PDF المحمّلة والإعدادات).</string>
+    <string name="delete_account_dialog_confirm">حذف نهائي</string>
+    <string name="delete_account_dialog_cancel">إلغاء</string>
+    <string name="delete_account_error_generic">تعذّر حذف الحساب. تحقّق من اتصالك بالإنترنت ثم أعد المحاولة.</string>
+    <string name="delete_account_error_reauth">لأسباب أمنية، يرجى إعادة تأكيد تسجيل الدخول عبر Google ثم إعادة محاولة الحذف.</string>
+    <string name="cd_delete_account_icon">حذف الحساب والبيانات</string>
+    <string name="cd_parental_consent_icon">الموافقة الأبوية</string>
+    <string name="consent_title">التحقق من العمر والموافقة الأبوية</string>
+    <string name="consent_subtitle">يحمي تطبيق فروض تونس خصوصية التلاميذ. يرجى اختيار الفئة العمرية للمتابعة.</string>
+    <string name="consent_age_15_plus_title">عمري 15 سنة أو أكثر</string>
+    <string name="consent_age_15_plus_subtitle">يمكنني المتابعة مباشرة نحو تسجيل الدخول عبر Google والمراجعة.</string>
+    <string name="consent_age_under_15_title">عمري أقل من 15 سنة</string>
+    <string name="consent_age_under_15_subtitle">موافقة الولي أو الوصي القانوني مطلوبة قبل البدء.</string>
+    <string name="consent_parent_section_title">موافقة الولي أو الوصي القانوني</string>
+    <string name="consent_parent_info_body">يحفظ التطبيق البيانات الدراسية فقط (المفضلة، التقدم، التذكيرات) عبر حساب Google و Firebase Firestore دون إعلانات أو تتبع. يمكنك تعطيل المرافق الذكي أو حذف الحساب وكل البيانات في أي وقت من الإعدادات.</string>
+    <string name="consent_parent_ai_toggle_title">السماح بالمرافق الذكي (Gemini)</string>
+    <string name="consent_parent_ai_toggle_desc">معطّل افتراضياً لمن هم دون 15 سنة. يمكن تغييره في أي وقت من الإعدادات.</string>
+    <string name="consent_parent_checkbox_label">أؤكّد أنني الولي أو الوصي القانوني للتلميذ وأوافق على استخدام فروض تونس وحفظ تقدّمه الدراسي.</string>
+    <string name="consent_continue_btn">متابعة</string>
+    <string name="consent_parent_confirm_btn">تأكيد الموافقة الأبوية</string>
+    <string name="settings_parental_consent_minor_btn">الموافقة الأبوية مفعّلة (&lt; 15 سنة) · تعديل</string>
+    <string name="settings_parental_consent_review_btn">مراجعة الموافقة الأبوية</string>
 </resources>

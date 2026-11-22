@@ -50,9 +50,23 @@ enum class ThemeMode(val id: String) {
 }
 
 /**
+ * Statut de vérification d'âge et de consentement parental (seuil légal de 15 ans).
+ */
+enum class AgeConsentStatus(val id: String) {
+    UNSET("unset"),
+    ADULT_OR_15_PLUS("15_plus"),
+    MINOR_WITH_PARENTAL_CONSENT("under_15_consented");
+
+    companion object {
+        fun fromId(id: String?): AgeConsentStatus =
+            entries.find { it.id.equals(id, ignoreCase = true) } ?: UNSET
+    }
+}
+
+/**
  * État immuable des préférences globales de l'application :
  * langue, thème, objectif hebdomadaire, données mobiles, métadonnées catalogue,
- * interrupteur parental du Tuteur IA et quota quotidien par appareil.
+ * interrupteur parental du Tuteur IA, quota quotidien par appareil et consentement parental.
  */
 data class AppPreferencesState(
     val language: AppLanguage = AppLanguage.FR,
@@ -63,7 +77,8 @@ data class AppPreferencesState(
     val lastCatalogueSyncMillis: Long = 0L,
     val aiTutorEnabled: Boolean = true,
     val tutorDailyUsedCount: Int = 0,
-    val tutorDailyQuotaLimit: Int = AppPreferencesRepository.DEFAULT_DAILY_TUTOR_QUOTA
+    val tutorDailyQuotaLimit: Int = AppPreferencesRepository.DEFAULT_DAILY_TUTOR_QUOTA,
+    val ageConsentStatus: AgeConsentStatus = AgeConsentStatus.UNSET
 ) {
     /** Nombre de requêtes IA restantes aujourd'hui sur cet appareil. */
     val tutorDailyRemaining: Int
@@ -107,6 +122,9 @@ class AppPreferencesRepository(
         val catalogueVersion = prefs.getInt(KEY_CATALOGUE_VERSION, 0)
         val lastSync = prefs.getLong(KEY_LAST_CATALOGUE_SYNC, 0L)
         val aiTutorEnabled = prefs.getBoolean(KEY_AI_TUTOR_ENABLED, true)
+        val ageConsentStatus = AgeConsentStatus.fromId(
+            prefs.getString(KEY_AGE_CONSENT_STATUS, AgeConsentStatus.UNSET.id)
+        )
 
         val today = currentDateProvider()
         val storedDate = prefs.getString(KEY_TUTOR_DAILY_DATE, null)
@@ -129,7 +147,8 @@ class AppPreferencesRepository(
             lastCatalogueSyncMillis = lastSync,
             aiTutorEnabled = aiTutorEnabled,
             tutorDailyUsedCount = usedToday,
-            tutorDailyQuotaLimit = dailyTutorQuotaLimit
+            tutorDailyQuotaLimit = dailyTutorQuotaLimit,
+            ageConsentStatus = ageConsentStatus
         )
     }
 
@@ -235,6 +254,32 @@ class AppPreferencesRepository(
         )
     }
 
+    /** Enregistre le choix d'âge / accord parental (et optionnellement l'activation du Tuteur IA). */
+    fun setAgeConsentStatus(
+        status: AgeConsentStatus,
+        aiTutorEnabledOverride: Boolean? = null
+    ) {
+        val editor = prefs.edit().putString(KEY_AGE_CONSENT_STATUS, status.id)
+        if (aiTutorEnabledOverride != null) {
+            editor.putBoolean(KEY_AI_TUTOR_ENABLED, aiTutorEnabledOverride)
+        }
+        editor.apply()
+        _state.value = _state.value.copy(
+            ageConsentStatus = status,
+            aiTutorEnabled = aiTutorEnabledOverride ?: _state.value.aiTutorEnabled
+        )
+    }
+
+    /** Efface toutes les préférences locales lors de la suppression complète du compte et des données. */
+    fun clearAllLocalData() {
+        val preservedLanguage = _state.value.language
+        prefs.edit().clear().putString(KEY_LANGUAGE, preservedLanguage.code).apply()
+        _state.value = AppPreferencesState(
+            language = preservedLanguage,
+            tutorDailyQuotaLimit = dailyTutorQuotaLimit
+        )
+    }
+
     companion object {
         private const val PREFS_NAME = "devoirs_tn_preferences"
         private const val KEY_LANGUAGE = "app_language"
@@ -246,6 +291,7 @@ class AppPreferencesRepository(
         private const val KEY_AI_TUTOR_ENABLED = "ai_tutor_enabled"
         private const val KEY_TUTOR_DAILY_DATE = "tutor_daily_date"
         private const val KEY_TUTOR_DAILY_COUNT = "tutor_daily_count"
+        private const val KEY_AGE_CONSENT_STATUS = "age_consent_status"
 
         const val DEFAULT_WEEKLY_GOAL = 3
         /** Quota quotidien par appareil pour le Tuteur IA (20 requêtes / jour). */

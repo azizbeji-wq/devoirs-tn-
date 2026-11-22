@@ -241,6 +241,27 @@
     <string name="label_ds">Devoir Synthèse</string>
     <string name="label_ds_x2">Devoir Synthèse (×2)</string>
     <string name="action_reset_grades">Réinitialiser</string>
+    <string name="bac_subject_coeffs_title">Coefficients par matière (%1$s)</string>
+    <string name="bac_subject_coeffs_total">Total des coefficients : %1$s</string>
+    <string name="bac_subject_coeffs_custom_badge">Personnalisés</string>
+    <string name="bac_subject_coeffs_official_badge">Barème officiel</string>
+    <string name="bac_subject_coeffs_reset">Rétablir officiels</string>
+    <string name="bac_subject_coeff_default_hint">Officiel : %1$s</string>
+    <string name="bac_subject_coeff_invalid">0 à 20</string>
+    <string name="bac_coeff_input_label">Coeff</string>
+    <string name="cd_bac_coeff_decrease">Diminuer le coefficient de %1$s</string>
+    <string name="cd_bac_coeff_increase">Augmenter le coefficient de %1$s</string>
+    <string name="bac_result_card_title">Résultat officiel calculé</string>
+    <string name="bac_result_card_preview_title">Progression de ta moyenne</string>
+    <string name="bac_result_waiting_hint">Saisis tes notes et définis les coefficients par matière pour visualiser ta moyenne officielle animée.</string>
+    <string name="bac_result_next_mention">Plus que +%1$s pt pour « %2$s » (%3$d/20)</string>
+    <string name="bac_result_top_mention">Excellence ! Mention Très Bien atteinte (≥ 16/20).</string>
+    <string name="bac_milestone_pass">10</string>
+    <string name="bac_milestone_ab">12</string>
+    <string name="bac_milestone_b">14</string>
+    <string name="bac_milestone_tb">16</string>
+    <string name="bac_result_annual_only_hint">Moyenne annuelle en cours — complète l\'onglet Examen pour la Moyenne Générale finale.</string>
+    <string name="bac_result_exam_only_hint">Moyenne d\'examen en cours — complète l\'onglet Annuelle pour la Moyenne Générale finale.</string>
 
     <!-- Méthodes de révision -->
     <string name="methods_title">Méthodes de révision</string>
@@ -616,4 +637,33 @@
     <string name="cloud_sync_error">Synchronisation hors ligne — reprise automatique dès que possible</string>
     <string name="cd_account_icon">Compte élève connecté</string>
     <string name="cd_cloud_sync_icon">État de la synchronisation Cloud Firestore</string>
+
+    <!-- Suppression du compte et consentement parental (< 15 ans) -->
+    <string name="delete_account_card_title">Suppression du compte et des données</string>
+    <string name="delete_account_card_subtitle">Efface définitivement ton compte Firebase, ta sauvegarde Firestore et toutes les données locales de cet appareil.</string>
+    <string name="delete_account_btn">Supprimer mon compte et mes données</string>
+    <string name="delete_account_in_progress">Suppression en cours…</string>
+    <string name="delete_account_dialog_title">Supprimer définitivement ton compte ?</string>
+    <string name="delete_account_dialog_body">Cette action est irréversible. Elle supprimera immédiatement :\n• ton compte Firebase Authentication ;\n• tes documents Firestore (profil, favoris, tentatives d\'examens, rappels, matières personnalisées) ;\n• toutes les données locales (base Room, PDF téléchargés et préférences).</string>
+    <string name="delete_account_dialog_confirm">Supprimer définitivement</string>
+    <string name="delete_account_dialog_cancel">Annuler</string>
+    <string name="delete_account_error_generic">La suppression du compte a échoué. Vérifie ta connexion Internet puis réessaie.</string>
+    <string name="delete_account_error_reauth">Pour des raisons de sécurité, confirme à nouveau ta connexion Google puis relance la suppression.</string>
+    <string name="cd_delete_account_icon">Supprimer le compte et les données</string>
+    <string name="cd_parental_consent_icon">Consentement parental</string>
+    <string name="consent_title">Vérification d\'âge &amp; accord parental</string>
+    <string name="consent_subtitle">Devoirs TN protège la vie privée des élèves tunisiens. Indique ta tranche d\'âge pour continuer.</string>
+    <string name="consent_age_15_plus_title">J\'ai 15 ans ou plus</string>
+    <string name="consent_age_15_plus_subtitle">Je peux accéder directement à la connexion Google et à mes révisions.</string>
+    <string name="consent_age_under_15_title">J\'ai moins de 15 ans</string>
+    <string name="consent_age_under_15_subtitle">L\'autorisation d\'un parent ou tuteur légal est requise avant de commencer.</string>
+    <string name="consent_parent_section_title">Autorisation du parent ou tuteur légal</string>
+    <string name="consent_parent_info_body">Devoirs TN sauvegarde uniquement les données scolaires (favoris, progression, rappels) via un compte Google et Firebase Firestore, sans publicité ni traceur. Vous pouvez désactiver le Tuteur IA ou supprimer le compte et toutes les données à tout moment dans les Paramètres.</string>
+    <string name="consent_parent_ai_toggle_title">Autoriser le Tuteur IA (Gemini)</string>
+    <string name="consent_parent_ai_toggle_desc">Désactivé par défaut pour les moins de 15 ans. Modifiable à tout moment dans les Paramètres.</string>
+    <string name="consent_parent_checkbox_label">Je confirme être le parent ou le tuteur légal de l\'élève et j\'autorise l\'utilisation de Devoirs TN ainsi que la sauvegarde de sa progression.</string>
+    <string name="consent_continue_btn">Continuer</string>
+    <string name="consent_parent_confirm_btn">Valider l\'accord parental</string>
+    <string name="settings_parental_consent_minor_btn">Accord parental validé (&lt; 15 ans) · Modifier</string>
+    <string name="settings_parental_consent_review_btn">Vérifier le consentement parental</string>
 </resources>

@@ -115,6 +115,9 @@ fun MoyenneCalculatorScreen(
     onResetWeights: () -> Unit,
     onUpdateAnnualGrade: (subjectId: String, trimester: TrimesterKey, dc: String?, ds: String?) -> Unit,
     onUpdateExamGrade: (subjectId: String, value: String) -> Unit,
+    onUpdateSubjectCoeff: (subjectId: String, value: String) -> Unit = { _, _ -> },
+    onStepSubjectCoeff: (subjectId: String, delta: Double) -> Unit = { _, _ -> },
+    onResetSubjectCoeffs: () -> Unit = {},
     onUpdateCustomFgCoeff: (subjectId: String, value: String) -> Unit,
     onUpdateFgMultiplier: (String) -> Unit,
     onResetFgCoeffs: () -> Unit,
@@ -126,6 +129,7 @@ fun MoyenneCalculatorScreen(
 ) {
     var showWeightConfig by rememberSaveable { mutableStateOf(false) }
     val section = state.selectedSection
+    val effectiveSection = state.effectiveSection ?: section
 
     val generalAvg = state.generalAverage
     val annualAvg = state.annualResult.annualAverage
@@ -338,6 +342,19 @@ fun MoyenneCalculatorScreen(
                                 modifier = Modifier.testTag("bac_weights_slider")
                             )
 
+                            if (section != null && effectiveSection != null) {
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+                                SubjectCoefficientsConfigSection(
+                                    section = section,
+                                    effectiveSection = effectiveSection,
+                                    state = state,
+                                    onUpdateSubjectCoeff = onUpdateSubjectCoeff,
+                                    onStepSubjectCoeff = onStepSubjectCoeff,
+                                    onResetSubjectCoeffs = onResetSubjectCoeffs
+                                )
+                            }
+
                             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
                             // Note indicative + métadonnées issues de assets/bac_config.json
@@ -380,6 +397,20 @@ fun MoyenneCalculatorScreen(
             }
         }
 
+        // Carte de résultat officiel final avec compteur numérique et barre de progression animés
+        item(key = "bac_official_result_progress") {
+            OfficialResultProgressCard(
+                generalAvg = generalAvg,
+                annualAvg = annualAvg,
+                examAvg = examAvg,
+                mention = state.mention,
+                session = state.session,
+                totalCoeffSum = state.totalSubjectCoeffSum,
+                hasCustomCoeffs = state.hasCustomSubjectCoeffs,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+        }
+
         // Un seul niveau d'onglets : Annuelle | Examen | FG | Simulateur
         item(key = "bac_mode_tabs") {
             PrimaryTabRow(
@@ -416,7 +447,7 @@ fun MoyenneCalculatorScreen(
         }
 
         // Contenu de l'onglet actif
-        if (section != null) {
+        if (section != null && effectiveSection != null) {
             when (state.selectedCalcTab) {
                 BacCalcTab.ANNUELLE -> {
                     item(key = "trimester_selector") {
@@ -429,15 +460,22 @@ fun MoyenneCalculatorScreen(
                         )
                     }
 
-                    items(section.subjects, key = { "ann_${section.id}_${state.selectedTrimester.name}_${it.id}" }) { subject ->
+                    items(effectiveSection.subjects, key = { "ann_${section.id}_${state.selectedTrimester.name}_${it.id}" }) { subject ->
+                        val officialSubject = section.subjects.find { it.id == subject.id } ?: subject
                         val triInput = state.annualInputs[subject.id]?.forTrimester(state.selectedTrimester)
                             ?: TrimesterGradeInput()
                         val subjAvg = state.annualResult.subjectTrimesterAverages[state.selectedTrimester]?.get(subject.id)
+                        val coeffText = state.customSubjectCoeffTexts[subject.id] ?: formatCoeff(officialSubject.annualCoeff)
                         AnnualSubjectCard(
                             subject = subject,
+                            officialCoeff = officialSubject.annualCoeff,
+                            coeffText = coeffText,
+                            isCoeffInvalid = state.isSubjectCoeffInvalid(subject.id),
+                            isCoeffCustomized = state.isSubjectCoeffCustomized(subject.id),
                             input = triInput,
                             subjectAverage = subjAvg,
                             onUpdate = { dc, ds -> onUpdateAnnualGrade(subject.id, state.selectedTrimester, dc, ds) },
+                            onUpdateCoeff = { onUpdateSubjectCoeff(subject.id, it) },
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     }
@@ -483,11 +521,18 @@ fun MoyenneCalculatorScreen(
                         }
                     }
 
-                    items(section.subjects, key = { "exam_${section.id}_${it.id}" }) { subject ->
+                    items(effectiveSection.subjects, key = { "exam_${section.id}_${it.id}" }) { subject ->
+                        val officialSubject = section.subjects.find { it.id == subject.id } ?: subject
+                        val coeffText = state.customSubjectCoeffTexts[subject.id] ?: formatCoeff(officialSubject.examCoeff)
                         ExamSubjectCard(
                             subject = subject,
+                            officialCoeff = officialSubject.examCoeff,
+                            coeffText = coeffText,
+                            isCoeffInvalid = state.isSubjectCoeffInvalid(subject.id),
+                            isCoeffCustomized = state.isSubjectCoeffCustomized(subject.id),
                             gradeText = state.examGradeTexts[subject.id] ?: "",
                             onGradeChange = { onUpdateExamGrade(subject.id, it) },
+                            onUpdateCoeff = { onUpdateSubjectCoeff(subject.id, it) },
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     }
@@ -496,7 +541,7 @@ fun MoyenneCalculatorScreen(
                 BacCalcTab.FG -> {
                     item(key = "fg_panel") {
                         FormuleGlobaleSection(
-                            section = section,
+                            section = effectiveSection,
                             state = state,
                             onUpdateFgMultiplier = onUpdateFgMultiplier,
                             onUpdateCustomFgCoeff = onUpdateCustomFgCoeff,
@@ -705,6 +750,11 @@ private fun StickyBacSummaryBar(
         animationSpec = tween(durationMillis = 650, easing = FastOutSlowInEasing),
         label = "bac_gauge_sweep"
     )
+    val animatedGaugeNumber by animateFloatAsState(
+        targetValue = (gaugeValue ?: 0.0).toFloat().coerceIn(0f, 20f),
+        animationSpec = tween(durationMillis = 650, easing = FastOutSlowInEasing),
+        label = "bac_gauge_number"
+    )
 
     val sessionColor = when (session) {
         BacSession.PRINCIPALE -> emerald
@@ -729,9 +779,9 @@ private fun StickyBacSummaryBar(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                // Jauge circulaire visible (piste claire contrastée + arc animé)
+                // Jauge circulaire visible (piste claire contrastée + arc & compteur animés)
                 AnimatedBacGauge(
-                    valueText = gaugeValue?.let { "%.2f".format(it) } ?: "--",
+                    valueText = if (gaugeValue != null) "%.2f".format(animatedGaugeNumber) else "--",
                     subLabel = gaugeLabel,
                     sweepFraction = animatedSweepFraction,
                     arcColor = animatedArcColor,
@@ -983,9 +1033,14 @@ private fun TrimesterBarCard(
 @Composable
 private fun AnnualSubjectCard(
     subject: BacSubjectConfig,
+    officialCoeff: Double,
+    coeffText: String,
+    isCoeffInvalid: Boolean,
+    isCoeffCustomized: Boolean,
     input: TrimesterGradeInput,
     subjectAverage: Double?,
     onUpdate: (dc: String?, ds: String?) -> Unit,
+    onUpdateCoeff: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val dcValidation = BacCalculator.validateGrade(input.dcText)
@@ -995,7 +1050,14 @@ private fun AnnualSubjectCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        border = BorderStroke(
+            width = 1.dp,
+            color = if (isCoeffCustomized) {
+                MaterialTheme.colorScheme.tertiary.copy(alpha = 0.45f)
+            } else {
+                MaterialTheme.colorScheme.outlineVariant
+            }
+        )
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
             Row(
@@ -1016,12 +1078,20 @@ private fun AnnualSubjectCard(
                     )
                     Surface(
                         shape = RoundedCornerShape(6.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer
+                        color = if (isCoeffCustomized) {
+                            MaterialTheme.colorScheme.tertiaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.primaryContainer
+                        }
                     ) {
                         Text(
                             text = stringResource(R.string.bac_coeff_badge, formatCoeff(subject.annualCoeff)),
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            color = if (isCoeffCustomized) {
+                                MaterialTheme.colorScheme.onTertiaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.onPrimaryContainer
+                            },
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                         )
                     }
@@ -1035,12 +1105,22 @@ private fun AnnualSubjectCard(
                 }
             }
 
+            if (isCoeffCustomized) {
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = stringResource(R.string.bac_subject_coeff_default_hint, formatCoeff(officialCoeff)),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+            }
+
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Libellés courts et permanents au-dessus de chaque champ : « DC » et « DS »
+            // Libellés courts et permanents au-dessus de chaque champ : « DC », « DS » et « Coeff »
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.Top
             ) {
                 ValidatedGradeField(
                     value = input.dcText,
@@ -1058,6 +1138,14 @@ private fun AnnualSubjectCard(
                     fieldTag = "annual_ds_${subject.id}",
                     modifier = Modifier.weight(1f)
                 )
+                InlineSubjectCoeffField(
+                    subjectId = "annual_${subject.id}",
+                    value = coeffText,
+                    isInvalid = isCoeffInvalid,
+                    isCustomized = isCoeffCustomized,
+                    onValueChange = onUpdateCoeff,
+                    modifier = Modifier.width(74.dp)
+                )
             }
         }
     }
@@ -1066,8 +1154,13 @@ private fun AnnualSubjectCard(
 @Composable
 private fun ExamSubjectCard(
     subject: BacSubjectConfig,
+    officialCoeff: Double,
+    coeffText: String,
+    isCoeffInvalid: Boolean,
+    isCoeffCustomized: Boolean,
     gradeText: String,
     onGradeChange: (String) -> Unit,
+    onUpdateCoeff: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val validation = BacCalculator.validateGrade(gradeText)
@@ -1078,54 +1171,97 @@ private fun ExamSubjectCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        border = BorderStroke(
+            width = 1.dp,
+            color = if (isCoeffCustomized) {
+                MaterialTheme.colorScheme.tertiary.copy(alpha = 0.45f)
+            } else {
+                MaterialTheme.colorScheme.outlineVariant
+            }
+        )
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = subject.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = subject.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                     Surface(
                         shape = RoundedCornerShape(6.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer
+                        color = if (isCoeffCustomized) {
+                            MaterialTheme.colorScheme.tertiaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.primaryContainer
+                        }
                     ) {
                         Text(
                             text = stringResource(R.string.bac_coeff_badge, formatCoeff(subject.examCoeff)),
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            color = if (isCoeffCustomized) {
+                                MaterialTheme.colorScheme.onTertiaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.onPrimaryContainer
+                            },
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                         )
                     }
-                    if (parsed != null) {
-                        Text(
-                            text = "= %.2f pts".format(parsed * subject.examCoeff),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = emerald,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
+                }
+                if (parsed != null) {
+                    Text(
+                        text = "= %.2f pts".format(parsed * subject.examCoeff),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = emerald,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
 
-            ValidatedGradeField(
-                value = gradeText,
-                onValueChange = onGradeChange,
-                label = stringResource(R.string.bac_exam_field_label),
-                validation = validation,
-                fieldTag = "exam_grade_${subject.id}",
-                modifier = Modifier.width(122.dp)
-            )
+            if (isCoeffCustomized) {
+                Text(
+                    text = stringResource(R.string.bac_subject_coeff_default_hint, formatCoeff(officialCoeff)),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.Top
+            ) {
+                ValidatedGradeField(
+                    value = gradeText,
+                    onValueChange = onGradeChange,
+                    label = stringResource(R.string.bac_exam_field_label),
+                    validation = validation,
+                    fieldTag = "exam_grade_${subject.id}",
+                    modifier = Modifier.weight(1f)
+                )
+                InlineSubjectCoeffField(
+                    subjectId = "exam_${subject.id}",
+                    value = coeffText,
+                    isInvalid = isCoeffInvalid,
+                    isCustomized = isCoeffCustomized,
+                    onValueChange = onUpdateCoeff,
+                    modifier = Modifier.width(84.dp)
+                )
+            }
         }
     }
 }

@@ -16,6 +16,7 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
@@ -168,3 +169,73 @@ suspend fun signOutFromFirebase(context: Context) {
         Firebase.auth.signOut()
     }
 }
+
+sealed interface AccountDeletionResult {
+    data object Success : AccountDeletionResult
+    data object RequiresRecentLogin : AccountDeletionResult
+    data class Error(val message: String) : AccountDeletionResult
+}
+
+/**
+ * Supprime définitivement le compte Firebase Authentication de l'utilisateur courant.
+ * Si Firebase exige une connexion récente, propose automatiquement une ré-authentification Google
+ * via Jetpack Credential Manager (avec un Context d'Activity) puis relance la suppression.
+ */
+suspend fun deleteFirebaseAccount(activityContext: Context): AccountDeletionResult =
+    withContext(NonCancellable) {
+        val currentUser = Firebase.auth.currentUser ?: return@withContext AccountDeletionResult.Success
+        try {
+            currentUser.delete().await()
+            runCatching {
+                CredentialManager.create(activityContext)
+                    .clearCredentialState(ClearCredentialStateRequest())
+            }
+            Firebase.auth.signOut()
+            AccountDeletionResult.Success
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: FirebaseAuthRecentLoginRequiredException) {
+            // Tente une ré-authentification Google interactive puis supprime le compte
+            try {
+                val webClientId = activityContext.getString(R.string.default_web_client_id)
+                val credentialManager = CredentialManager.create(activityContext)
+                val signInWithGoogleOption = GetSignInWithGoogleOption.Builder(
+                    serverClientId = webClientId
+                ).build()
+                val request = GetCredentialRequest.Builder()
+                    .addCredentialOption(signInWithGoogleOption)
+                    .build()
+                val result = credentialManager.getCredential(
+                    request = request,
+                    context = activityContext
+                )
+                val credential = result.credential
+                if (credential is CustomCredential &&
+                    credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+                ) {
+                    val googleToken = GoogleIdTokenCredential.createFrom(credential.data)
+                    val firebaseCred = GoogleAuthProvider.getCredential(googleToken.idToken, null)
+                    currentUser.reauthenticate(firebaseCred).await()
+                    currentUser.delete().await()
+                    runCatching {
+                        credentialManager.clearCredentialState(ClearCredentialStateRequest())
+                    }
+                    Firebase.auth.signOut()
+                    AccountDeletionResult.Success
+                } else {
+                    AccountDeletionResult.RequiresRecentLogin
+                }
+            } catch (cancel: GetCredentialCancellationException) {
+                Log.w("Auth", "Re-authentication cancelled during account deletion", cancel)
+                AccountDeletionResult.RequiresRecentLogin
+            } catch (reauthError: Exception) {
+                Log.e("Auth", "Re-authentication failed before account deletion: ${reauthError.message}", reauthError)
+                AccountDeletionResult.RequiresRecentLogin
+            }
+        } catch (e: Exception) {
+            Log.e("Auth", "Failed to delete Firebase Auth account: ${e.message}", e)
+            AccountDeletionResult.Error(
+                e.localizedMessage ?: activityContext.getString(R.string.delete_account_error_generic)
+            )
+        }
+    }

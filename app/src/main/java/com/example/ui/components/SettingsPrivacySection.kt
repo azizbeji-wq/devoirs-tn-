@@ -20,6 +20,8 @@ import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.FamilyRestroom
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Palette
@@ -27,6 +29,8 @@ import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -36,6 +40,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,6 +55,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.R
+import com.example.data.local.AgeConsentStatus
 import com.example.data.local.AppLanguage
 import com.example.data.local.AppPreferencesState
 import com.example.data.local.ThemeMode
@@ -57,9 +63,10 @@ import com.example.ui.viewmodel.CloudSyncUiState
 
 /**
  * Panneau de préférences intégré à l'application :
+ * - Compte Google, synchronisation Firestore, déconnexion et suppression complète du compte/données
  * - Sélecteur de langue (Français, العربية avec RTL automatique, English)
  * - Sélecteur de thème (Suivre le système, Clair, Sombre)
- * - Politique de confidentialité courte intégrée et accessible hors ligne
+ * - Contrôle parental, consentement moins de 15 ans et politique de confidentialité
  */
 @Composable
 fun SettingsPrivacySection(
@@ -71,9 +78,15 @@ fun SettingsPrivacySection(
     userEmail: String? = null,
     cloudSyncState: CloudSyncUiState = CloudSyncUiState.Loading,
     onSignOut: (() -> Unit)? = null,
+    isDeletingAccount: Boolean = false,
+    deleteAccountError: String? = null,
+    onDeleteAccountAndData: (() -> Unit)? = null,
+    onDismissDeleteAccountError: () -> Unit = {},
+    onReviewParentalConsent: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     var showPrivacyDialog by rememberSaveable { mutableStateOf(false) }
+    var showDeleteConfirmDialog by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -438,6 +451,115 @@ fun SettingsPrivacySection(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(stringResource(R.string.privacy_open_btn))
                 }
+
+                if (onReviewParentalConsent != null) {
+                    OutlinedButton(
+                        onClick = onReviewParentalConsent,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .minimumInteractiveComponentSize()
+                            .testTag("review_parental_consent_btn")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.FamilyRestroom,
+                            contentDescription = stringResource(R.string.cd_parental_consent_icon),
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if (preferences.ageConsentStatus == AgeConsentStatus.MINOR_WITH_PARENTAL_CONSENT) {
+                                stringResource(R.string.settings_parental_consent_minor_btn)
+                            } else {
+                                stringResource(R.string.settings_parental_consent_review_btn)
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        // Carte 5 : Suppression définitive du compte et de toutes les données
+        if (onDeleteAccountAndData != null) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("settings_delete_account_card"),
+                shape = MaterialTheme.shapes.large,
+                color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.25f),
+                tonalElevation = 1.dp,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.45f))
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.DeleteForever,
+                            contentDescription = stringResource(R.string.cd_delete_account_icon),
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(22.dp)
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.delete_account_card_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Text(
+                                text = stringResource(R.string.delete_account_card_subtitle),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    if (!deleteAccountError.isNullOrBlank()) {
+                        Text(
+                            text = deleteAccountError,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.testTag("delete_account_error_text")
+                        )
+                    }
+
+                    Button(
+                        onClick = {
+                            onDismissDeleteAccountError()
+                            showDeleteConfirmDialog = true
+                        },
+                        enabled = !isDeletingAccount,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .minimumInteractiveComponentSize()
+                            .testTag("delete_account_button")
+                    ) {
+                        if (isDeletingAccount) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onError
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(stringResource(R.string.delete_account_in_progress))
+                        } else {
+                            Icon(
+                                imageVector = Icons.Filled.DeleteForever,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(stringResource(R.string.delete_account_btn))
+                        }
+                    }
+                }
             }
         }
 
@@ -454,6 +576,60 @@ fun SettingsPrivacySection(
 
     if (showPrivacyDialog) {
         PrivacyPolicyDialog(onDismiss = { showPrivacyDialog = false })
+    }
+
+    if (showDeleteConfirmDialog && onDeleteAccountAndData != null) {
+        AlertDialog(
+            onDismissRequest = { if (!isDeletingAccount) showDeleteConfirmDialog = false },
+            modifier = Modifier.testTag("delete_account_confirm_dialog"),
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.DeleteForever,
+                    contentDescription = stringResource(R.string.cd_delete_account_icon),
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.delete_account_dialog_title),
+                    style = MaterialTheme.typography.titleMedium
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.delete_account_dialog_body),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteConfirmDialog = false
+                        onDeleteAccountAndData()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    ),
+                    modifier = Modifier
+                        .minimumInteractiveComponentSize()
+                        .testTag("delete_account_confirm_btn")
+                ) {
+                    Text(stringResource(R.string.delete_account_dialog_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDeleteConfirmDialog = false },
+                    modifier = Modifier
+                        .minimumInteractiveComponentSize()
+                        .testTag("delete_account_cancel_btn")
+                ) {
+                    Text(stringResource(R.string.delete_account_dialog_cancel))
+                }
+            }
+        )
     }
 }
 

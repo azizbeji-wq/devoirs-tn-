@@ -8,11 +8,14 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.LocalActivityResultRegistryOwner
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.work.WorkManager
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -75,9 +78,13 @@ import com.example.data.ai.TutorAiRepository
 import com.example.data.ai.TutorHelpMode
 import com.example.data.ai.configureAppCheck
 import com.example.data.download.PdfDownloadCoordinator
+import com.example.data.download.PdfStorageManager
+import com.example.data.firebase.AccountDeletionResult
 import com.example.data.firebase.CloudSyncRepository
 import com.example.data.firebase.authStateFlow
+import com.example.data.firebase.deleteFirebaseAccount
 import com.example.data.firebase.signOutFromFirebase
+import com.example.data.local.AgeConsentStatus
 import com.example.data.local.AppLanguage
 import com.example.data.local.AppPreferencesRepository
 import com.example.data.local.AppPreferencesState
@@ -96,6 +103,7 @@ import com.example.ui.screens.DownloadConfirmationDialogs
 import com.example.ui.screens.IdeasMethodsScreen
 import com.example.ui.screens.MoyenneCalculatorScreen
 import com.example.ui.screens.MySpaceScreen
+import com.example.ui.screens.ParentalConsentScreen
 import com.example.ui.screens.SubjectSelectionScreen
 import com.example.ui.theme.DevoirsTNTheme
 import com.example.ui.viewmodel.CloudSyncUiState
@@ -112,7 +120,10 @@ import com.example.ui.viewmodel.TutorHistoryScope
 import com.example.ui.viewmodel.TutorViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Activité principale de Devoirs TN.
@@ -237,20 +248,33 @@ class MainActivity : ComponentActivity() {
                 LocalActivityContext provides baseContext,
                 LocalContext provides localizedContext,
                 LocalConfiguration provides localizedContext.resources.configuration,
-                LocalLayoutDirection provides layoutDirection
+                LocalLayoutDirection provides layoutDirection,
+                LocalActivityResultRegistryOwner provides this@MainActivity,
+                LocalOnBackPressedDispatcherOwner provides this@MainActivity
             ) {
                 DevoirsTNTheme(darkTheme = useDarkTheme) {
                     val authUser by Firebase.auth.authStateFlow().collectAsStateWithLifecycle(
                         initialValue = Firebase.auth.currentUser
                     )
                     val authScope = rememberCoroutineScope()
+                    var isDeletingAccount by remember { mutableStateOf(false) }
+                    var deleteAccountError by remember { mutableStateOf<String?>(null) }
                     val signedInUser = authUser
 
-                    if (signedInUser == null) {
+                    if (preferences.ageConsentStatus == AgeConsentStatus.UNSET) {
+                        ParentalConsentScreen(
+                            preferences = preferences,
+                            onSelectLanguage = appPreferences::setLanguage,
+                            onCompleteConsent = { status, aiTutorEnabledOverride ->
+                                appPreferences.setAgeConsentStatus(status, aiTutorEnabledOverride)
+                            }
+                        )
+                    } else if (signedInUser == null) {
                         AuthScreen(
                             preferences = preferences,
                             onSelectLanguage = appPreferences::setLanguage,
-                            onAuthSuccess = { /* Firebase.auth.authStateFlow() met à jour l'état automatiquement */ }
+                            onAuthSuccess = { /* Firebase.auth.authStateFlow() met à jour l'état automatiquement */ },
+                            activityContext = this@MainActivity
                         )
                     } else {
                         val uid = signedInUser.uid
@@ -305,7 +329,57 @@ class MainActivity : ComponentActivity() {
                                 onRecordCatalogueSync = appPreferences::recordCatalogueSync,
                                 onSignOut = {
                                     authScope.launch {
-                                        signOutFromFirebase(baseContext)
+                                        signOutFromFirebase(this@MainActivity)
+                                    }
+                                },
+                                isDeletingAccount = isDeletingAccount,
+                                deleteAccountError = deleteAccountError,
+                                onDismissDeleteAccountError = { deleteAccountError = null },
+                                onReviewParentalConsent = {
+                                    appPreferences.setAgeConsentStatus(AgeConsentStatus.UNSET)
+                                },
+                                onDeleteAccountAndData = {
+                                    if (isDeletingAccount) return@DevoirsTNApp
+                                    isDeletingAccount = true
+                                    deleteAccountError = null
+                                    authScope.launch {
+                                        val firestoreResult = withContext(NonCancellable) {
+                                            cloudSyncRepository.deleteAllUserData()
+                                        }
+                                        if (firestoreResult.isFailure) {
+                                            isDeletingAccount = false
+                                            deleteAccountError = localizedContext.getString(
+                                                R.string.delete_account_error_generic
+                                            )
+                                            return@launch
+                                        }
+                                        when (val authResult = deleteFirebaseAccount(this@MainActivity)) {
+                                            AccountDeletionResult.Success -> {
+                                                withContext(NonCancellable + Dispatchers.IO) {
+                                                    runCatching {
+                                                        WorkManager.getInstance(applicationContext).cancelAllWork()
+                                                    }
+                                                    runCatching {
+                                                        PdfStorageManager(applicationContext).deleteAllDownloadedPdfs()
+                                                    }
+                                                    runCatching {
+                                                        database.clearAllTables()
+                                                    }
+                                                }
+                                                appPreferences.clearAllLocalData()
+                                                isDeletingAccount = false
+                                            }
+                                            AccountDeletionResult.RequiresRecentLogin -> {
+                                                isDeletingAccount = false
+                                                deleteAccountError = localizedContext.getString(
+                                                    R.string.delete_account_error_reauth
+                                                )
+                                            }
+                                            is AccountDeletionResult.Error -> {
+                                                isDeletingAccount = false
+                                                deleteAccountError = authResult.message
+                                            }
+                                        }
                                     }
                                 },
                                 cloudSyncViewModel = cloudSyncViewModel,
@@ -375,6 +449,11 @@ fun DevoirsTNApp(
     onToggleAiTutorEnabled: (Boolean) -> Unit,
     onRecordCatalogueSync: (Int, Long) -> Unit,
     onSignOut: () -> Unit,
+    isDeletingAccount: Boolean = false,
+    deleteAccountError: String? = null,
+    onDismissDeleteAccountError: () -> Unit = {},
+    onReviewParentalConsent: () -> Unit = {},
+    onDeleteAccountAndData: () -> Unit = {},
     cloudSyncViewModel: CloudSyncViewModel,
     viewModel: DevoirsViewModel,
     subjectsViewModel: SubjectsViewModel,
@@ -655,6 +734,11 @@ fun DevoirsTNApp(
                                 userEmail = cloudSyncViewModel.email,
                                 cloudSyncState = cloudSyncState,
                                 onSignOut = onSignOut,
+                                isDeletingAccount = isDeletingAccount,
+                                deleteAccountError = deleteAccountError,
+                                onDeleteAccountAndData = onDeleteAccountAndData,
+                                onDismissDeleteAccountError = onDismissDeleteAccountError,
+                                onReviewParentalConsent = onReviewParentalConsent,
                                 onSyncReminder = cloudSyncViewModel::syncReminder,
                                 onSyncCustomSubject = cloudSyncViewModel::syncCustomSubject,
                                 onDeleteCloudSubject = cloudSyncViewModel::deleteCloudSubject,
@@ -733,6 +817,11 @@ fun DevoirsTNApp(
                             userEmail = cloudSyncViewModel.email,
                             cloudSyncState = cloudSyncState,
                             onSignOut = onSignOut,
+                            isDeletingAccount = isDeletingAccount,
+                            deleteAccountError = deleteAccountError,
+                            onDeleteAccountAndData = onDeleteAccountAndData,
+                            onDismissDeleteAccountError = onDismissDeleteAccountError,
+                            onReviewParentalConsent = onReviewParentalConsent,
                             onSyncReminder = cloudSyncViewModel::syncReminder,
                             onSyncCustomSubject = cloudSyncViewModel::syncCustomSubject,
                             onDeleteCloudSubject = cloudSyncViewModel::deleteCloudSubject,
@@ -796,6 +885,11 @@ private fun TabContentContainer(
     userEmail: String?,
     cloudSyncState: CloudSyncUiState,
     onSignOut: () -> Unit,
+    isDeletingAccount: Boolean,
+    deleteAccountError: String?,
+    onDeleteAccountAndData: () -> Unit,
+    onDismissDeleteAccountError: () -> Unit,
+    onReviewParentalConsent: () -> Unit,
     onSyncReminder: (String, String, String, Long) -> Unit,
     onSyncCustomSubject: (String, String) -> Unit,
     onDeleteCloudSubject: (String) -> Unit,
@@ -896,6 +990,9 @@ private fun TabContentContainer(
                 onResetWeights = viewModel::resetWeightsToDefault,
                 onUpdateAnnualGrade = viewModel::updateAnnualGrade,
                 onUpdateExamGrade = viewModel::updateExamGrade,
+                onUpdateSubjectCoeff = viewModel::updateSubjectCoeff,
+                onStepSubjectCoeff = viewModel::stepSubjectCoeff,
+                onResetSubjectCoeffs = viewModel::resetSubjectCoeffs,
                 onUpdateCustomFgCoeff = viewModel::updateCustomFgCoeff,
                 onUpdateFgMultiplier = viewModel::updateFgGeneralMultiplier,
                 onResetFgCoeffs = viewModel::resetFgCoeffs,
@@ -969,7 +1066,12 @@ private fun TabContentContainer(
                 userDisplayName = userDisplayName,
                 userEmail = userEmail,
                 cloudSyncState = cloudSyncState,
-                onSignOut = onSignOut
+                onSignOut = onSignOut,
+                isDeletingAccount = isDeletingAccount,
+                deleteAccountError = deleteAccountError,
+                onDeleteAccountAndData = onDeleteAccountAndData,
+                onDismissDeleteAccountError = onDismissDeleteAccountError,
+                onReviewParentalConsent = onReviewParentalConsent
             )
         }
     }

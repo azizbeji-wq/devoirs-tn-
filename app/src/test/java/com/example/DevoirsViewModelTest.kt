@@ -12,6 +12,9 @@ import com.example.data.model.Trimester
 import com.example.data.model.TunisianSection
 import com.example.data.repository.DevoirRepository
 import com.example.domain.bac.BacConfig
+import com.example.domain.bac.BacSectionConfig
+import com.example.domain.bac.BacSubjectConfig
+import com.example.domain.bac.TrimesterKey
 import com.example.ui.viewmodel.DevoirsViewModel
 import com.example.ui.viewmodel.MainTab
 import kotlinx.coroutines.Dispatchers
@@ -240,6 +243,69 @@ class DevoirsViewModelTest {
         vm.toggleStarIdea("idea_offline_pack")
         advanceUntilIdle()
         assertFalse("idea_offline_pack" in vm.starredIdeaIds.value)
+    }
+
+    @Test
+    fun `updateSubjectCoeff stepSubjectCoeff et resetSubjectCoeffs recalculent la moyenne officielle`() = runTest {
+        val fakeDevoirDao = FakeDevoirDao()
+        val fakeIdeaDao = FakeStarredIdeaDao()
+        val repo = DevoirRepository(
+            devoirDao = fakeDevoirDao,
+            starredIdeaDao = fakeIdeaDao,
+            loadAssetDevoirs = { seedDevoirs }
+        )
+        val config = BacConfig(
+            sections = listOf(
+                BacSectionConfig(
+                    id = "bac_maths",
+                    title = "Bac Mathématiques",
+                    shortTitle = "Maths",
+                    subjects = listOf(
+                        BacSubjectConfig(id = "maths", name = "Mathématiques", annualCoeff = 4.0, examCoeff = 4.0),
+                        BacSubjectConfig(id = "phys", name = "Physique", annualCoeff = 4.0, examCoeff = 4.0)
+                    )
+                )
+            )
+        )
+        val vm = DevoirsViewModel(repository = repo, bacConfig = config)
+        subscribeFlows(vm)
+        advanceUntilIdle()
+
+        // Saisie de notes : Maths = 18, Physique = 10 -> moyenne officielle initiale (coeff 4 / 4) = 14.0
+        vm.updateAnnualGrade("maths", TrimesterKey.T1, dc = "18", ds = "18")
+        vm.updateAnnualGrade("phys", TrimesterKey.T1, dc = "10", ds = "10")
+        vm.updateExamGrade("maths", "18")
+        vm.updateExamGrade("phys", "10")
+
+        assertEquals(14.0, vm.moyenneState.value.annualResult.annualAverage!!, 0.001)
+        assertEquals(14.0, vm.moyenneState.value.examResult.examAverage!!, 0.001)
+        assertEquals(14.0, vm.moyenneState.value.generalAverage!!, 0.001)
+        assertFalse(vm.moyenneState.value.hasCustomSubjectCoeffs)
+        assertEquals(8.0, vm.moyenneState.value.totalSubjectCoeffSum, 0.001)
+
+        // Modification du coefficient de Maths à 6 et Physique à 2 -> (18*6 + 10*2) / 8 = 16.0
+        vm.updateSubjectCoeff("maths", "6")
+        vm.updateSubjectCoeff("phys", "2")
+        assertTrue(vm.moyenneState.value.hasCustomSubjectCoeffs)
+        assertTrue(vm.moyenneState.value.isSubjectCoeffCustomized("maths"))
+        assertEquals(16.0, vm.moyenneState.value.annualResult.annualAverage!!, 0.001)
+        assertEquals(16.0, vm.moyenneState.value.examResult.examAverage!!, 0.001)
+        assertEquals(16.0, vm.moyenneState.value.generalAverage!!, 0.001)
+
+        // Pas de +0.5 sur Maths -> 6.5 ; total = 8.5
+        vm.stepSubjectCoeff("maths", 0.5)
+        assertEquals(8.5, vm.moyenneState.value.totalSubjectCoeffSum, 0.001)
+
+        // Valeur invalide > 20 -> signalée invalide et retombe en sécurité sur le coefficient officiel (4.0)
+        vm.updateSubjectCoeff("maths", "25")
+        assertTrue(vm.moyenneState.value.isSubjectCoeffInvalid("maths"))
+        assertEquals(6.0, vm.moyenneState.value.totalSubjectCoeffSum, 0.001)
+
+        // Réinitialisation des coefficients -> retour à 4 / 4 et moyenne 14.0
+        vm.resetSubjectCoeffs()
+        assertFalse(vm.moyenneState.value.hasCustomSubjectCoeffs)
+        assertEquals(8.0, vm.moyenneState.value.totalSubjectCoeffSum, 0.001)
+        assertEquals(14.0, vm.moyenneState.value.generalAverage!!, 0.001)
     }
 
     private class FakeDevoirDao : DevoirDao {
