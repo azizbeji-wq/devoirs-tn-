@@ -7,9 +7,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.data.ai.PdfPageImageScaler
 import com.example.data.ai.TutorAiRepository
+import com.example.data.ai.TutorErrorException
 import com.example.data.ai.TutorHelpMode
 import com.example.data.ai.TutorLanguage
+import com.example.data.local.AppPreferencesRepository
 import com.example.data.local.TutorMessageEntity
+import com.example.data.local.TutorQuotaAndPolicyStore
 import com.example.data.model.DevoirExercise
 import com.example.data.model.DevoirItem
 import kotlinx.coroutines.CancellationException
@@ -45,7 +48,10 @@ sealed interface TutorGenerationState {
         val language: TutorLanguage
     ) : TutorGenerationState
 
-    data class Error(val message: String) : TutorGenerationState
+    data class Error(
+        val message: String,
+        val canRetry: Boolean = true
+    ) : TutorGenerationState
 }
 
 data class PendingTutorRequest(
@@ -68,23 +74,37 @@ data class TutorUiState(
     val selectedLanguage: TutorLanguage = TutorLanguage.FRENCH,
     val questionDraft: String = "",
     val generationState: TutorGenerationState = TutorGenerationState.Idle,
-    val lastFailedRequest: PendingTutorRequest? = null
+    val lastFailedRequest: PendingTutorRequest? = null,
+    val aiTutorEnabled: Boolean = true,
+    val dailyQuotaUsed: Int = 0,
+    val dailyQuotaLimit: Int = AppPreferencesRepository.DEFAULT_DAILY_TUTOR_QUOTA
 ) {
     val isPdfPageMode: Boolean get() = activePdfPageNumber != null
+    val dailyQuotaRemaining: Int get() = (dailyQuotaLimit - dailyQuotaUsed).coerceAtLeast(0)
+    val isDailyQuotaReached: Boolean get() = dailyQuotaUsed >= dailyQuotaLimit
 }
 
 /**
  * ViewModel du tuteur IA Gemini :
  * - Gère le contexte textuel classique ET le mode multimodal « Explique cette page » depuis le lecteur PDF,
+ * - Applique le contrôle parental (`aiTutorEnabled`) et le quota quotidien par appareil (20 requêtes/jour),
  * - Conserve une copie déjà redimensionnée du bitmap de la page courante pour les suites (Indice 1 / 2 / Solution / Chat),
  * - Expose l'historique Room par page courante ou pour l'ensemble du devoir.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class TutorViewModel(
-    private val tutorRepository: TutorAiRepository
+    private val tutorRepository: TutorAiRepository,
+    private val quotaPolicyStore: TutorQuotaAndPolicyStore? = null
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(TutorUiState())
+    private val _uiState = MutableStateFlow(
+        TutorUiState(
+            aiTutorEnabled = quotaPolicyStore?.state?.value?.aiTutorEnabled ?: true,
+            dailyQuotaUsed = quotaPolicyStore?.state?.value?.tutorDailyUsedCount ?: 0,
+            dailyQuotaLimit = quotaPolicyStore?.state?.value?.tutorDailyQuotaLimit
+                ?: AppPreferencesRepository.DEFAULT_DAILY_TUTOR_QUOTA
+        )
+    )
     val uiState: StateFlow<TutorUiState> = _uiState.asStateFlow()
 
     private val activeKey = MutableStateFlow<Pair<String, Int>?>(null)
@@ -93,6 +113,29 @@ class TutorViewModel(
 
     /** Copie légère déjà réduite (<= 1024 px) de la page PDF active pour les requêtes Gemini successives. */
     private var activePageBitmap: Bitmap? = null
+
+    init {
+        quotaPolicyStore?.let { store ->
+            viewModelScope.launch {
+                store.state.collect { prefs ->
+                    _uiState.update { current ->
+                        val shouldClose = !prefs.aiTutorEnabled && current.isSheetOpen
+                        if (shouldClose) {
+                            activeGenerationJob?.cancel()
+                            releaseActivePageBitmap()
+                        }
+                        current.copy(
+                            isSheetOpen = if (!prefs.aiTutorEnabled) false else current.isSheetOpen,
+                            generationState = if (shouldClose) TutorGenerationState.Idle else current.generationState,
+                            aiTutorEnabled = prefs.aiTutorEnabled,
+                            dailyQuotaUsed = prefs.tutorDailyUsedCount,
+                            dailyQuotaLimit = prefs.tutorDailyQuotaLimit
+                        )
+                    }
+                }
+            }
+        }
+    }
 
     val messages: StateFlow<List<TutorMessageEntity>> = combine(
         activeKey,
@@ -131,13 +174,16 @@ class TutorViewModel(
         boundDevoirId.value = devoirId
     }
 
-    /** Ouvre le tuteur en mode texte (fiche devoir ou historique complet du devoir). */
+    /** Ouvre le tuteur en mode texte (fiche devoir, exercice texte ou historique complet du devoir). */
     fun openTutor(
         devoir: DevoirItem,
         exercise: DevoirExercise,
         autoTriggerMode: TutorHelpMode? = null,
         initialHistoryScope: TutorHistoryScope = TutorHistoryScope.CURRENT_CONTEXT
     ) {
+        quotaPolicyStore?.refreshDailyTutorQuota()
+        if (!_uiState.value.aiTutorEnabled) return
+
         activeGenerationJob?.cancel()
         releaseActivePageBitmap()
         boundDevoirId.value = devoir.id
@@ -176,6 +222,9 @@ class TutorViewModel(
         pageBitmap: Bitmap,
         autoTriggerMode: TutorHelpMode? = TutorHelpMode.EXPLAIN
     ) {
+        quotaPolicyStore?.refreshDailyTutorQuota()
+        if (!_uiState.value.aiTutorEnabled) return
+
         activeGenerationJob?.cancel()
         boundDevoirId.value = devoir.id
         activeKey.value = devoir.id to pageNumber
@@ -190,6 +239,8 @@ class TutorViewModel(
             solution = ""
         )
 
+        val willTrigger = autoTriggerMode != null && !_uiState.value.isDailyQuotaReached
+
         _uiState.update {
             it.copy(
                 isSheetOpen = true,
@@ -199,10 +250,13 @@ class TutorViewModel(
                 activePdfDocumentKindLabel = documentKindLabel,
                 historyScope = TutorHistoryScope.CURRENT_CONTEXT,
                 selectedLanguage = suggestedLang,
-                generationState = if (autoTriggerMode != null) {
-                    TutorGenerationState.Loading(autoTriggerMode, suggestedLang)
-                } else {
-                    TutorGenerationState.Idle
+                generationState = when {
+                    autoTriggerMode != null && it.isDailyQuotaReached -> TutorGenerationState.Error(
+                        message = dailyQuotaReachedMessage(suggestedLang, it.dailyQuotaLimit),
+                        canRetry = false
+                    )
+                    willTrigger -> TutorGenerationState.Loading(autoTriggerMode!!, suggestedLang)
+                    else -> TutorGenerationState.Idle
                 },
                 lastFailedRequest = null
             )
@@ -213,7 +267,7 @@ class TutorViewModel(
                 PdfPageImageScaler.prepareBitmapForGemini(pageBitmap)
             }
             replaceActivePageBitmap(prepared)
-            if (autoTriggerMode != null) {
+            if (willTrigger && autoTriggerMode != null) {
                 triggerHelpMode(autoTriggerMode)
             }
         }
@@ -245,9 +299,9 @@ class TutorViewModel(
 
     fun triggerHelpMode(mode: TutorHelpMode) {
         val state = _uiState.value
+        if (!state.aiTutorEnabled) return
         val devoir = state.activeDevoir ?: return
         val exercise = state.activeExercise ?: return
-        // Bascule sur le fil de la page courante lorsqu'on déclenche une nouvelle explication
         if (state.historyScope != TutorHistoryScope.CURRENT_CONTEXT) {
             selectHistoryScope(TutorHistoryScope.CURRENT_CONTEXT)
         }
@@ -266,6 +320,7 @@ class TutorViewModel(
 
     fun sendQuestion() {
         val state = _uiState.value
+        if (!state.aiTutorEnabled) return
         val devoir = state.activeDevoir ?: return
         val exercise = state.activeExercise ?: return
         val question = state.questionDraft.trim()
@@ -291,6 +346,7 @@ class TutorViewModel(
     }
 
     fun retryLastRequest() {
+        if (!_uiState.value.aiTutorEnabled) return
         val failed = _uiState.value.lastFailedRequest ?: return
         executeRequest(
             request = failed.copy(language = _uiState.value.selectedLanguage),
@@ -322,6 +378,34 @@ class TutorViewModel(
         request: PendingTutorRequest,
         saveUserPrompt: Boolean
     ) {
+        quotaPolicyStore?.refreshDailyTutorQuota()
+        val currentState = _uiState.value
+
+        if (!currentState.aiTutorEnabled) {
+            _uiState.update {
+                it.copy(
+                    isSheetOpen = false,
+                    generationState = TutorGenerationState.Idle
+                )
+            }
+            return
+        }
+
+        // Vérification et décompte du quota quotidien par appareil (20 requêtes/jour)
+        val quotaConsumed = quotaPolicyStore?.tryConsumeTutorQuota() ?: true
+        if (!quotaConsumed) {
+            _uiState.update {
+                it.copy(
+                    generationState = TutorGenerationState.Error(
+                        message = dailyQuotaReachedMessage(request.language, it.dailyQuotaLimit),
+                        canRetry = false
+                    ),
+                    lastFailedRequest = null
+                )
+            }
+            return
+        }
+
         activeGenerationJob?.cancel()
         activeGenerationJob = viewModelScope.launch {
             _uiState.update {
@@ -402,14 +486,16 @@ class TutorViewModel(
                         )
                     }
                 } else {
+                    quotaPolicyStore?.refundTutorQuota()
                     _uiState.update {
                         it.copy(
                             generationState = TutorGenerationState.Error(
-                                if (request.language == TutorLanguage.ARABIC) {
+                                message = if (request.language == TutorLanguage.ARABIC) {
                                     "أرجع المساعد إجابة فارغة. أعد المحاولة."
                                 } else {
                                     "Réponse vide reçue du tuteur IA. Appuie sur Réessayer."
-                                }
+                                },
+                                canRetry = true
                             ),
                             lastFailedRequest = request
                         )
@@ -418,6 +504,10 @@ class TutorViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
+                // Ne pénalise pas le quota quotidien si l'appareil est hors ligne
+                if (e is TutorErrorException.NoNetwork) {
+                    quotaPolicyStore?.refundTutorQuota()
+                }
                 Log.e(TAG, "Tutor AI request failed", e)
                 val message = e.message ?: if (request.language == TutorLanguage.ARABIC) {
                     "حدث خطأ غير متوقع. أعد المحاولة."
@@ -426,13 +516,23 @@ class TutorViewModel(
                 }
                 _uiState.update {
                     it.copy(
-                        generationState = TutorGenerationState.Error(message),
+                        generationState = TutorGenerationState.Error(
+                            message = message,
+                            canRetry = !it.isDailyQuotaReached
+                        ),
                         lastFailedRequest = request
                     )
                 }
             }
         }
     }
+
+    private fun dailyQuotaReachedMessage(language: TutorLanguage, limit: Int): String =
+        if (language == TutorLanguage.ARABIC) {
+            "لقد بلغت الحدّ اليومي ($limit طلباً) للمساعد الذكي على هذا الجهاز. سيتجدد الرصيد تلقائياً غداً، ويمكنك مواصلة مراجعة الفروض المحمّلة دون اتصال."
+        } else {
+            "Tu as atteint le quota quotidien de $limit requêtes au Tuteur IA sur cet appareil. Ton quota se réinitialisera automatiquement demain ; tes devoirs restent accessibles hors ligne."
+        }
 
     private fun suggestLanguage(devoir: DevoirItem): TutorLanguage =
         if (devoir.subject.equals("Arabe", ignoreCase = true)) {
@@ -463,11 +563,14 @@ class TutorViewModel(
         releaseActivePageBitmap()
     }
 
-    class Factory(private val repository: TutorAiRepository) : ViewModelProvider.Factory {
+    class Factory(
+        private val repository: TutorAiRepository,
+        private val quotaPolicyStore: TutorQuotaAndPolicyStore? = null
+    ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(TutorViewModel::class.java)) {
-                return TutorViewModel(repository) as T
+                return TutorViewModel(repository, quotaPolicyStore) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

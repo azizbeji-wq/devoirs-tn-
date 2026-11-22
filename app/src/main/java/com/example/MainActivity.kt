@@ -51,8 +51,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,6 +75,9 @@ import com.example.data.ai.TutorAiRepository
 import com.example.data.ai.TutorHelpMode
 import com.example.data.ai.configureAppCheck
 import com.example.data.download.PdfDownloadCoordinator
+import com.example.data.firebase.CloudSyncRepository
+import com.example.data.firebase.authStateFlow
+import com.example.data.firebase.signOutFromFirebase
 import com.example.data.local.AppLanguage
 import com.example.data.local.AppPreferencesRepository
 import com.example.data.local.AppPreferencesState
@@ -83,6 +89,7 @@ import com.example.data.notifications.ExamReminderScheduler
 import com.example.data.repository.DevoirRepository
 import com.example.data.repository.ProgressRepository
 import com.example.data.repository.SubjectRepository
+import com.example.ui.screens.AuthScreen
 import com.example.ui.screens.DevoirDetailScreen
 import com.example.ui.screens.DevoirsLibraryScreen
 import com.example.ui.screens.DownloadConfirmationDialogs
@@ -91,6 +98,8 @@ import com.example.ui.screens.MoyenneCalculatorScreen
 import com.example.ui.screens.MySpaceScreen
 import com.example.ui.screens.SubjectSelectionScreen
 import com.example.ui.theme.DevoirsTNTheme
+import com.example.ui.viewmodel.CloudSyncUiState
+import com.example.ui.viewmodel.CloudSyncViewModel
 import com.example.ui.viewmodel.DevoirsViewModel
 import com.example.ui.viewmodel.ExamModeViewModel
 import com.example.ui.viewmodel.FlashQcmViewModel
@@ -101,6 +110,9 @@ import com.example.ui.viewmodel.SubjectsUiState
 import com.example.ui.viewmodel.SubjectsViewModel
 import com.example.ui.viewmodel.TutorHistoryScope
 import com.example.ui.viewmodel.TutorViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import kotlinx.coroutines.launch
 
 /**
  * Activité principale de Devoirs TN.
@@ -223,42 +235,85 @@ class MainActivity : ComponentActivity() {
                 LocalLayoutDirection provides layoutDirection
             ) {
                 DevoirsTNTheme(darkTheme = useDarkTheme) {
-                    val viewModel: DevoirsViewModel = viewModel(
-                        factory = DevoirsViewModel.Factory(repository, bacConfig)
+                    val authUser by Firebase.auth.authStateFlow().collectAsStateWithLifecycle(
+                        initialValue = Firebase.auth.currentUser
                     )
-                    val tutorViewModel: TutorViewModel = viewModel(
-                        factory = TutorViewModel.Factory(tutorRepository)
-                    )
-                    val examModeViewModel: ExamModeViewModel = viewModel(
-                        factory = ExamModeViewModel.Factory(progressRepository)
-                    )
-                    val progressViewModel: ProgressTrackingViewModel = viewModel(
-                        factory = ProgressTrackingViewModel.Factory(progressRepository)
-                    )
-                    val flashQcmViewModel: FlashQcmViewModel = viewModel(
-                        factory = FlashQcmViewModel.Factory(progressRepository)
-                    )
-                    val subjectsViewModel: SubjectsViewModel = viewModel(
-                        factory = SubjectsViewModel.Factory(subjectRepository)
-                    )
-                    val storageViewModel: StorageViewModel = viewModel(
-                        factory = StorageViewModel.Factory(pdfDownloadCoordinator)
-                    )
-                    DevoirsTNApp(
-                        preferences = preferences,
-                        onSelectLanguage = appPreferences::setLanguage,
-                        onSelectThemeMode = appPreferences::setThemeMode,
-                        onUpdateWeeklyGoal = appPreferences::setWeeklyGoalTarget,
-                        onToggleAllowMobileData = appPreferences::setAllowMobileDataDownloads,
-                        onRecordCatalogueSync = appPreferences::recordCatalogueSync,
-                        viewModel = viewModel,
-                        subjectsViewModel = subjectsViewModel,
-                        tutorViewModel = tutorViewModel,
-                        examModeViewModel = examModeViewModel,
-                        progressViewModel = progressViewModel,
-                        flashQcmViewModel = flashQcmViewModel,
-                        storageViewModel = storageViewModel
-                    )
+                    val authScope = rememberCoroutineScope()
+                    val signedInUser = authUser
+
+                    if (signedInUser == null) {
+                        AuthScreen(
+                            preferences = preferences,
+                            onSelectLanguage = appPreferences::setLanguage,
+                            onAuthSuccess = { /* Firebase.auth.authStateFlow() met à jour l'état automatiquement */ }
+                        )
+                    } else {
+                        val uid = signedInUser.uid
+                        key(uid) {
+                            val cloudSyncRepository = remember(uid) {
+                                CloudSyncRepository(applicationContext)
+                            }
+                            val cloudSyncViewModel: CloudSyncViewModel = viewModel(
+                                key = "cloud_sync_$uid",
+                                factory = CloudSyncViewModel.Factory(
+                                    cloudSyncRepository = cloudSyncRepository,
+                                    currentUserId = uid,
+                                    displayName = signedInUser.displayName.orEmpty(),
+                                    email = signedInUser.email
+                                )
+                            )
+                            val viewModel: DevoirsViewModel = viewModel(
+                                key = "devoirs_$uid",
+                                factory = DevoirsViewModel.Factory(repository, bacConfig)
+                            )
+                            val tutorViewModel: TutorViewModel = viewModel(
+                                key = "tutor_$uid",
+                                factory = TutorViewModel.Factory(tutorRepository, appPreferences)
+                            )
+                            val examModeViewModel: ExamModeViewModel = viewModel(
+                                key = "exam_$uid",
+                                factory = ExamModeViewModel.Factory(progressRepository)
+                            )
+                            val progressViewModel: ProgressTrackingViewModel = viewModel(
+                                key = "progress_$uid",
+                                factory = ProgressTrackingViewModel.Factory(progressRepository)
+                            )
+                            val flashQcmViewModel: FlashQcmViewModel = viewModel(
+                                key = "qcm_$uid",
+                                factory = FlashQcmViewModel.Factory(progressRepository)
+                            )
+                            val subjectsViewModel: SubjectsViewModel = viewModel(
+                                key = "subjects_$uid",
+                                factory = SubjectsViewModel.Factory(subjectRepository)
+                            )
+                            val storageViewModel: StorageViewModel = viewModel(
+                                key = "storage_$uid",
+                                factory = StorageViewModel.Factory(pdfDownloadCoordinator)
+                            )
+                            DevoirsTNApp(
+                                preferences = preferences,
+                                onSelectLanguage = appPreferences::setLanguage,
+                                onSelectThemeMode = appPreferences::setThemeMode,
+                                onUpdateWeeklyGoal = appPreferences::setWeeklyGoalTarget,
+                                onToggleAllowMobileData = appPreferences::setAllowMobileDataDownloads,
+                                onToggleAiTutorEnabled = appPreferences::setAiTutorEnabled,
+                                onRecordCatalogueSync = appPreferences::recordCatalogueSync,
+                                onSignOut = {
+                                    authScope.launch {
+                                        signOutFromFirebase(baseContext)
+                                    }
+                                },
+                                cloudSyncViewModel = cloudSyncViewModel,
+                                viewModel = viewModel,
+                                subjectsViewModel = subjectsViewModel,
+                                tutorViewModel = tutorViewModel,
+                                examModeViewModel = examModeViewModel,
+                                progressViewModel = progressViewModel,
+                                flashQcmViewModel = flashQcmViewModel,
+                                storageViewModel = storageViewModel
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -312,7 +367,10 @@ fun DevoirsTNApp(
     onSelectThemeMode: (ThemeMode) -> Unit,
     onUpdateWeeklyGoal: (Int) -> Unit,
     onToggleAllowMobileData: (Boolean) -> Unit,
+    onToggleAiTutorEnabled: (Boolean) -> Unit,
     onRecordCatalogueSync: (Int, Long) -> Unit,
+    onSignOut: () -> Unit,
+    cloudSyncViewModel: CloudSyncViewModel,
     viewModel: DevoirsViewModel,
     subjectsViewModel: SubjectsViewModel,
     tutorViewModel: TutorViewModel,
@@ -322,6 +380,7 @@ fun DevoirsTNApp(
     storageViewModel: StorageViewModel
 ) {
     val context = LocalContext.current
+    val cloudSyncState by cloudSyncViewModel.uiState.collectAsStateWithLifecycle()
     val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
     val allDevoirs by viewModel.allDevoirs.collectAsStateWithLifecycle()
     val filteredDevoirs by viewModel.filteredDevoirs.collectAsStateWithLifecycle()
@@ -331,6 +390,7 @@ fun DevoirsTNApp(
     val catalogueSyncStatus by viewModel.catalogueSyncStatus.collectAsStateWithLifecycle()
     val subjectsUiState by subjectsViewModel.uiState.collectAsStateWithLifecycle()
     val selectedDevoir by viewModel.selectedDevoir.collectAsStateWithLifecycle()
+    val revealedExercises by viewModel.revealedExercises.collectAsStateWithLifecycle()
     val timerState by viewModel.timerState.collectAsStateWithLifecycle()
     val moyenneState by viewModel.moyenneState.collectAsStateWithLifecycle()
     val starredIdeaIds by viewModel.starredIdeaIds.collectAsStateWithLifecycle()
@@ -347,6 +407,60 @@ fun DevoirsTNApp(
     val pendingConfirmation by storageViewModel.pendingConfirmation.collectAsStateWithLifecycle()
 
     var openStorageSignal by remember { mutableIntStateOf(0) }
+    var lastPushedStudySnapshot by remember { mutableStateOf<List<Any>?>(null) }
+
+    val favoriteDevoirIds = remember(allDevoirs) {
+        allDevoirs.filter { it.isFavorite }.map { it.id }.sorted()
+    }
+    val completedDevoirIds = remember(allDevoirs) {
+        allDevoirs.filter { it.isCompleted }.map { it.id }.sorted()
+    }
+    val starredMethodIdsSorted = remember(starredIdeaIds) {
+        starredIdeaIds.sorted()
+    }
+
+    // Initialise /users/{uid} sans écraser un profil existant, puis synchronise chaque modification locale
+    LaunchedEffect(
+        cloudSyncViewModel.currentUserId,
+        allDevoirs.isNotEmpty(),
+        preferences.weeklyGoalTarget,
+        favoriteDevoirIds,
+        completedDevoirIds,
+        starredMethodIdsSorted
+    ) {
+        if (allDevoirs.isEmpty()) return@LaunchedEffect
+        val currentSnapshot = listOf(
+            preferences.weeklyGoalTarget,
+            favoriteDevoirIds,
+            completedDevoirIds,
+            starredMethodIdsSorted
+        )
+        if (lastPushedStudySnapshot == null) {
+            lastPushedStudySnapshot = currentSnapshot
+            cloudSyncViewModel.ensureProfileInitialized(
+                weeklyGoalTarget = preferences.weeklyGoalTarget,
+                favoriteDevoirIds = favoriteDevoirIds,
+                completedDevoirIds = completedDevoirIds,
+                starredMethodIds = starredMethodIdsSorted
+            )
+        } else if (lastPushedStudySnapshot != currentSnapshot) {
+            lastPushedStudySnapshot = currentSnapshot
+            cloudSyncViewModel.syncStudyProfile(
+                weeklyGoalTarget = preferences.weeklyGoalTarget,
+                favoriteDevoirIds = favoriteDevoirIds,
+                completedDevoirIds = completedDevoirIds,
+                starredMethodIds = starredMethodIdsSorted
+            )
+        }
+    }
+
+    // Synchronise la dernière tentative d'examen enregistrée vers /users/{uid}/examAttempts
+    LaunchedEffect(progressState.recentAttempts.firstOrNull()?.id) {
+        val latest = progressState.recentAttempts.firstOrNull()
+        if (latest != null && lastPushedStudySnapshot != null) {
+            cloudSyncViewModel.syncExamAttempt(latest)
+        }
+    }
 
     // Demande non bloquante de la permission POST_NOTIFICATIONS sur Android 13+ pour les notifications WorkManager
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
@@ -466,7 +580,11 @@ fun DevoirsTNApp(
                 onTutorQuestionChange = tutorViewModel::updateQuestionDraft,
                 onSendTutorQuestion = tutorViewModel::sendQuestion,
                 onRetryTutor = tutorViewModel::retryLastRequest,
-                onClearTutorHistory = tutorViewModel::clearHistory
+                onClearTutorHistory = tutorViewModel::clearHistory,
+                aiTutorEnabled = preferences.aiTutorEnabled,
+                revealedExercises = revealedExercises,
+                onToggleExerciseSolution = viewModel::toggleExerciseSolution,
+                onToggleAllSolutions = viewModel::toggleAllSolutions
             )
         } else {
             BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
@@ -521,12 +639,20 @@ fun DevoirsTNApp(
                                 onSelectThemeMode = onSelectThemeMode,
                                 onUpdateWeeklyGoal = onUpdateWeeklyGoal,
                                 onToggleAllowMobileData = onToggleAllowMobileData,
+                                onToggleAiTutorEnabled = onToggleAiTutorEnabled,
                                 onEnsureNotificationPermission = ensureNotificationPermissionRequested,
                                 onOpenStorageShortcut = {
                                     openStorageSignal += 1
                                     viewModel.selectTab(MainTab.SUIVI)
                                 },
                                 openStorageSignal = openStorageSignal,
+                                userDisplayName = cloudSyncViewModel.displayName,
+                                userEmail = cloudSyncViewModel.email,
+                                cloudSyncState = cloudSyncState,
+                                onSignOut = onSignOut,
+                                onSyncReminder = cloudSyncViewModel::syncReminder,
+                                onSyncCustomSubject = cloudSyncViewModel::syncCustomSubject,
+                                onDeleteCloudSubject = cloudSyncViewModel::deleteCloudSubject,
                                 modifier = Modifier.widthIn(max = 820.dp),
                                 allDevoirs = allDevoirs,
                                 filteredDevoirs = filteredDevoirs,
@@ -591,12 +717,20 @@ fun DevoirsTNApp(
                             onSelectThemeMode = onSelectThemeMode,
                             onUpdateWeeklyGoal = onUpdateWeeklyGoal,
                             onToggleAllowMobileData = onToggleAllowMobileData,
+                            onToggleAiTutorEnabled = onToggleAiTutorEnabled,
                             onEnsureNotificationPermission = ensureNotificationPermissionRequested,
                             onOpenStorageShortcut = {
                                 openStorageSignal += 1
                                 viewModel.selectTab(MainTab.SUIVI)
                             },
                             openStorageSignal = openStorageSignal,
+                            userDisplayName = cloudSyncViewModel.displayName,
+                            userEmail = cloudSyncViewModel.email,
+                            cloudSyncState = cloudSyncState,
+                            onSignOut = onSignOut,
+                            onSyncReminder = cloudSyncViewModel::syncReminder,
+                            onSyncCustomSubject = cloudSyncViewModel::syncCustomSubject,
+                            onDeleteCloudSubject = cloudSyncViewModel::deleteCloudSubject,
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(innerPadding),
@@ -649,9 +783,17 @@ private fun TabContentContainer(
     onSelectThemeMode: (ThemeMode) -> Unit,
     onUpdateWeeklyGoal: (Int) -> Unit,
     onToggleAllowMobileData: (Boolean) -> Unit,
+    onToggleAiTutorEnabled: (Boolean) -> Unit,
     onEnsureNotificationPermission: () -> Unit,
     onOpenStorageShortcut: () -> Unit,
     openStorageSignal: Int,
+    userDisplayName: String,
+    userEmail: String?,
+    cloudSyncState: CloudSyncUiState,
+    onSignOut: () -> Unit,
+    onSyncReminder: (String, String, String, Long) -> Unit,
+    onSyncCustomSubject: (String, String) -> Unit,
+    onDeleteCloudSubject: (String) -> Unit,
     allDevoirs: List<com.example.data.model.DevoirItem>,
     filteredDevoirs: List<com.example.data.model.DevoirItem>,
     searchSnippetsByDevoirId: Map<String, String>,
@@ -689,8 +831,12 @@ private fun TabContentContainer(
                 onSelectSubject = viewModel::selectSubject,
                 onAddCustomSubject = { name, subtitle ->
                     subjectsViewModel.addCustomSubject(name, subtitle)
+                    onSyncCustomSubject(name, subtitle)
                 },
-                onDeleteSubject = subjectsViewModel::deleteSubject,
+                onDeleteSubject = { subjectId ->
+                    subjectsViewModel.deleteSubject(subjectId)
+                    onDeleteCloudSubject(subjectId)
+                },
                 onResetSelection = viewModel::resetFilters,
                 onOpenDevoir = viewModel::openDevoir,
                 onToggleFavorite = viewModel::toggleFavorite,
@@ -776,7 +922,10 @@ private fun TabContentContainer(
                 onOpenDevoir = viewModel::openDevoir,
                 onToggleFavorite = viewModel::toggleFavorite,
                 onSelectChartSubject = progressViewModel::selectChartSubject,
-                onAddReminder = progressViewModel::addExamReminder,
+                onAddReminder = { title, subject, examType, examDateMillis ->
+                    progressViewModel.addExamReminder(title, subject, examType, examDateMillis)
+                    onSyncReminder(title, subject, examType, examDateMillis)
+                },
                 onDeleteReminder = progressViewModel::deleteReminder,
                 onDismissReminderFeedback = progressViewModel::clearReminderFeedback,
                 onStartQcmChapter = flashQcmViewModel::startChapterQuiz,
@@ -810,7 +959,12 @@ private fun TabContentContainer(
                 onDeletePack = storageViewModel::deletePackDownloads,
                 onDeleteDevoirDownload = storageViewModel::deleteDevoirDownload,
                 onDeleteAllDownloads = storageViewModel::deleteAllDownloads,
-                openStorageSignal = openStorageSignal
+                onToggleAiTutorEnabled = onToggleAiTutorEnabled,
+                openStorageSignal = openStorageSignal,
+                userDisplayName = userDisplayName,
+                userEmail = userEmail,
+                cloudSyncState = cloudSyncState,
+                onSignOut = onSignOut
             )
         }
     }

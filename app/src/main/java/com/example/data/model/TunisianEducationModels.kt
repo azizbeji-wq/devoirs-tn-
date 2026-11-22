@@ -82,9 +82,9 @@ data class DevoirExercise(
 )
 
 /**
- * Représentation métier d'un devoir PDF hébergé en ligne.
- * Les fichiers PDF téléchargés sont stockés dans le dossier privé de l'application
- * (`localSujetPath`, `localCorrigePath`) et vérifiés par taille / SHA-256.
+ * Représentation métier unifiée d'un devoir :
+ * - Source principale : devoir PDF hébergé en ligne (`sujetUrl`, `corrigeUrl`, stockage privé, vérification SHA-256).
+ * - Source secondaire de repli : ancien sujet JSON consultable directement en texte (`exercises`, sans PDF).
  */
 data class DevoirItem(
     val id: String,
@@ -111,24 +111,45 @@ data class DevoirItem(
     val downloadedBytes: Long = 0L,
     val downloadedVersion: Int = 0,
     val isFavorite: Boolean = false,
-    val isCompleted: Boolean = false
+    val isCompleted: Boolean = false,
+    val exercises: List<DevoirExercise> = emptyList()
 ) {
+    /** Indique si ce devoir est adossé à un fichier PDF distant (source principale). */
+    val hasPdfSource: Boolean
+        get() = sujetUrl.isNotBlank()
+
+    /** Indique si ce devoir provient des anciens JSON et se consulte directement en texte hors ligne. */
+    val isTextOnly: Boolean
+        get() = !hasPdfSource && exercises.isNotEmpty()
+
     /** Indique si un corrigé PDF en ligne est associé à ce devoir. */
     val hasCorrigePdf: Boolean
         get() = !corrigeUrl.isNullOrBlank()
 
-    /** Indique si le sujet (et son corrigé s'il existe) est disponible localement hors ligne. */
+    /** Indique si au moins un exercice en mode texte comporte un corrigé rédigé. */
+    val hasCorrigeText: Boolean
+        get() = exercises.any { it.solution.isNotBlank() }
+
+    /** Indique si le devoir dispose d'un corrigé (PDF ou texte) — utilisé par les cartes et badges. */
+    val hasCorrige: Boolean
+        get() = hasCorrigePdf || hasCorrigeText
+
+    /** Indique si le devoir est consultable hors ligne (mode texte natif ou PDF téléchargés). */
     val isAvailableOffline: Boolean
-        get() = !localSujetPath.isNullOrBlank() &&
-            (!hasCorrigePdf || !localCorrigePath.isNullOrBlank())
+        get() = isTextOnly || (
+            hasPdfSource &&
+                !localSujetPath.isNullOrBlank() &&
+                (!hasCorrigePdf || !localCorrigePath.isNullOrBlank())
+            )
 
     /** Indique si une mise à jour en ligne existe par rapport à la version téléchargée localement. */
     val hasNewerRemoteVersion: Boolean
-        get() = isAvailableOffline && downloadedVersion in 1 until version
+        get() = hasPdfSource && isAvailableOffline && downloadedVersion in 1 until version
 
     /** Taille totale estimée en octets (utilisée pour la progression et l'avertissement > 20 Mo). */
     val estimatedTotalBytes: Long
         get() {
+            if (!hasPdfSource) return 0L
             val fromMetadata = sujetSizeBytes + corrigeSizeBytes
             return if (fromMetadata > 0L) fromMetadata else (sizeMb * 1024.0 * 1024.0).toLong()
         }

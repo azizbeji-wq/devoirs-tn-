@@ -273,7 +273,7 @@ class DevoirJsonParserTest {
         override suspend fun getById(id: String): DevoirEntity? = store[id]
         override suspend fun getDevoirCount(): Int = store.size
         override suspend fun getExistingVersions(): List<DevoirVersionTuple> =
-            store.values.map { DevoirVersionTuple(it.id, it.version) }
+            store.values.map { DevoirVersionTuple(it.id, it.version, it.sujetUrl) }
 
         override suspend fun insertAll(devoirs: List<DevoirEntity>) {
             devoirs.forEach { store.putIfAbsent(it.id, it) }
@@ -304,7 +304,8 @@ class DevoirJsonParserTest {
             sujetSizeBytes: Long,
             corrigeSizeBytes: Long,
             sujetSha256: String?,
-            corrigeSha256: String?
+            corrigeSha256: String?,
+            exercisesSerialized: String
         ) {
             val existing = store[id] ?: return
             store[id] = existing.copy(
@@ -325,7 +326,8 @@ class DevoirJsonParserTest {
                 sujetSizeBytes = sujetSizeBytes,
                 corrigeSizeBytes = corrigeSizeBytes,
                 sujetSha256 = sujetSha256,
-                corrigeSha256 = corrigeSha256
+                corrigeSha256 = corrigeSha256,
+                exercisesSerialized = exercisesSerialized
             )
             flow.value = store.values.toList()
         }

@@ -307,7 +307,7 @@ class DevoirsAppRobolectricTest {
             typeId: String, trimesterId: String, durationMinutes: Int, difficulty: String,
             chapterTagsSerialized: String, source: String, version: Int, sizeMb: Double,
             sujetUrl: String, corrigeUrl: String?, sujetSizeBytes: Long, corrigeSizeBytes: Long,
-            sujetSha256: String?, corrigeSha256: String?
+            sujetSha256: String?, corrigeSha256: String?, exercisesSerialized: String
         ) = Unit
         override suspend fun markDownloaded(
             devoirId: String, localSujetPath: String?, localCorrigePath: String?,

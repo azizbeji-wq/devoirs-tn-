@@ -370,10 +370,10 @@
     <string name="theme_mode_light">Light</string>
     <string name="theme_mode_dark">Dark</string>
     <string name="privacy_card_title">Privacy Policy</string>
-    <string name="privacy_card_subtitle">Your grades, favorites and reminders stay strictly on your device.</string>
-    <string name="privacy_open_btn">Read policy</string>
+    <string name="privacy_card_subtitle">Your grades, favorites and reminders stay on your device. Parental AI control included.</string>
+    <string name="privacy_open_btn">Read Policy</string>
     <string name="privacy_dialog_title">Privacy Policy — Devoirs TN</string>
-    <string name="privacy_dialog_body">1. 100% Local Storage: your favorites, completed exams, Bac calculator grades, quiz scores, exam reminders, and progress history are stored exclusively on your device (Room database and local preferences).\n\n2. No Account &amp; No Tracking: the app requires no sign-up, collects no personally identifiable data, and includes zero advertising trackers.\n\n3. Optional AI Tutor: when you intentionally open the AI Tutor on an exercise, only the exercise statement, solution, and your question are securely sent to Gemini via Firebase AI Logic (protected by App Check) to generate the explanation. All other features work offline.\n\n4. Full Control: you may clear AI tutor history, reminders, or all app data at any time from Android settings.</string>
+    <string name="privacy_dialog_body">1. Google Account &amp; Cloud Sync (Firebase Firestore): you sign in with Google via Android Credential Manager to back up your favorites, completed exams, starred methods, weekly goal, exam attempts, reminders, and custom subjects in your private Firestore space (/users/{uid}). No one else can access your data.\n\n2. Offline Local Storage: downloaded PDFs, Bac calculator grades, and local preferences stay usable offline on your device, with zero advertising trackers.\n\n3. AI Tutor (Gemini via Firebase): when you use the AI Tutor or \"Explain this page\", downscaled page images and your questions are sent encrypted to Gemini via Firebase AI Logic (protected by App Check) solely to generate educational explanations. A daily per-device quota applies.\n\n4. Parental Control &amp; Sign Out: a parent can disable the AI Tutor or sign out at any time in My Space → Settings.</string>
     <string name="app_version_footer">Devoirs TN · Tunisian Official Curriculum · Open Source (MIT)</string>
 
     <!-- Accessibility Content Descriptions -->
@@ -572,4 +572,48 @@
     <string name="tutor_history_all_devoir">Exam history</string>
     <string name="tutor_history_all_count">Whole exam (%1$d)</string>
     <string name="tutor_view_saved_history_btn">Saved explanations history (%1$d)</string>
+
+    <!-- Text/PDF unification, SHA-256, daily AI quota & parental toggle -->
+    <string name="download_err_sha256_mismatch">SHA-256 check failed: the downloaded PDF was deleted for safety because its hash does not match the catalogue.</string>
+    <string name="status_text_offline">Readable as text</string>
+    <string name="text_mode_badge">Text · Offline</string>
+    <string name="text_mode_section_title">Text-viewable exam</string>
+    <string name="text_mode_section_subtitle">Built in offline — no PDF download required</string>
+    <string name="text_exercise_label">Exercise %1$d</string>
+    <string name="text_show_solution">Show solution</string>
+    <string name="text_hide_solution">Hide solution</string>
+    <string name="text_show_all_solutions">Show all solutions</string>
+    <string name="text_hide_all_solutions">Hide solutions</string>
+    <string name="text_no_solution_label">No solution included for this exercise</string>
+    <string name="tutor_quota_remaining">%1$d / %2$d requests remaining today</string>
+    <string name="tutor_quota_reached_title">Daily quota reached</string>
+    <string name="tutor_quota_reached_body">You have used all %1$d daily AI Tutor requests on this device. Your quota resets automatically tomorrow.</string>
+    <string name="settings_ai_tutor_title">AI Tutor (Parental Control)</string>
+    <string name="settings_ai_tutor_subtitle">Page images and questions are sent to Gemini via Firebase with no identity attached. A parent can disable the AI Tutor here.</string>
+    <string name="settings_ai_tutor_enabled_status">Enabled · %1$d / %2$d requests left today</string>
+    <string name="settings_ai_tutor_disabled_status">Disabled · 100% offline study mode</string>
+    <string name="cd_ai_tutor_switch_icon">AI Tutor parental control switch</string>
+    <string name="catalogue_unreachable_banner_title">Remote catalogue unreachable</string>
+
+    <!-- Google Sign-In & Cloud Firestore Sync -->
+    <string name="auth_welcome_title">Welcome to Devoirs TN</string>
+    <string name="auth_welcome_subtitle">Sign in with Google to back up your progress, favorites, DC/DS reminders, and study goals across your devices.</string>
+    <string name="auth_feature_sync_title">Real-time Cloud Backup</string>
+    <string name="auth_feature_sync_desc">Favorites, completed exams, weekly study goals, and reminders stay synced with Firestore.</string>
+    <string name="auth_feature_study_title">PDF Exams, Bac Calculator &amp; AI Tutor</string>
+    <string name="auth_feature_study_desc">Access Tunisian practice exams, official Bac formula simulator, and progressive AI hints.</string>
+    <string name="auth_feature_privacy_title">Private &amp; Protected</string>
+    <string name="auth_feature_privacy_desc">Your study records are strictly scoped to your account and enforced by Firebase Security Rules.</string>
+    <string name="auth_google_btn">Sign in with Google</string>
+    <string name="auth_signing_in">Signing in…</string>
+    <string name="auth_error_generic">Could not complete Google Sign-In. Check your Internet connection and try again.</string>
+    <string name="auth_error_icon_cd">Sign-in error</string>
+    <string name="auth_footer_note">Secure sign-in with Google · Ad-free</string>
+    <string name="account_student_fallback">Devoirs TN Student</string>
+    <string name="account_sign_out_btn">Sign out</string>
+    <string name="cloud_sync_loading">Syncing with Firestore…</string>
+    <string name="cloud_sync_active">Cloud Firestore sync active</string>
+    <string name="cloud_sync_error">Offline mode — sync will resume automatically</string>
+    <string name="cd_account_icon">Signed-in student account</string>
+    <string name="cd_cloud_sync_icon">Cloud Firestore sync status</string>
 </resources>

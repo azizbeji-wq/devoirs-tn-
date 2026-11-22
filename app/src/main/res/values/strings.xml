@@ -370,10 +370,10 @@
     <string name="theme_mode_light">Clair</string>
     <string name="theme_mode_dark">Sombre</string>
     <string name="privacy_card_title">Politique de confidentialité</string>
-    <string name="privacy_card_subtitle">Tes notes, favoris et rappels restent sur ton appareil. Consulte nos engagements.</string>
+    <string name="privacy_card_subtitle">Tes notes, favoris et rappels restent sur ton appareil. Contrôle parental IA disponible.</string>
     <string name="privacy_open_btn">Lire la politique</string>
     <string name="privacy_dialog_title">Politique de confidentialité — Devoirs TN</string>
-    <string name="privacy_dialog_body">1. Stockage 100 % local : tes favoris, devoirs terminés, notes du calculateur du Bac, résultats de QCM, rappels d\'examens et historique de progression sont enregistrés uniquement sur ton appareil (base Room et préférences locales).\n\n2. Aucun compte ni pistage : l\'application ne demande aucune inscription, ne collecte aucune donnée personnelle nominative et n\'intègre aucun traceur publicitaire.\n\n3. Tuteur IA optionnel : lorsque tu ouvres volontairement le Tuteur IA sur un exercice, seuls l\'énoncé, le corrigé et ta question sont transmis de manière sécurisée au service Gemini via Firebase AI Logic (protégé par App Check) afin de générer l\'explication. Toutes les autres fonctionnalités restent utilisables hors ligne.\n\n4. Contrôle total : tu peux effacer à tout moment l\'historique du tuteur IA, tes rappels ou les données de l\'application depuis les paramètres Android.</string>
+    <string name="privacy_dialog_body">1. Compte Google et synchronisation Cloud (Firebase Firestore) : tu te connectes avec ton compte Google via Android Credential Manager afin de sauvegarder tes favoris, devoirs terminés, méthodes enregistrées, objectif hebdomadaire, tentatives d\'examens, rappels et matières personnalisées dans ton espace privé Firestore (/users/{uid}). Personne d\'autre ne peut consulter tes données.\n\n2. Stockage local hors ligne : tes PDF téléchargés, notes du calculateur du Bac et réglages locaux restent disponibles hors ligne sur ton appareil. L\'application n\'intègre aucun traceur publicitaire.\n\n3. Tuteur IA (Gemini via Firebase) : lorsque tu utilises le Tuteur IA ou « Explique cette page », les images des pages consultées (redimensionnées) et tes questions sont transmises de manière chiffrée à Gemini via Firebase AI Logic (protégé par App Check) uniquement pour générer l\'explication pédagogique. Un quota quotidien par appareil s\'applique.\n\n4. Contrôle parental et déconnexion : un parent peut désactiver le Tuteur IA ou se déconnecter à tout moment depuis l\'onglet Mon Espace → Paramètres.</string>
     <string name="app_version_footer">Devoirs TN · Programme officiel tunisien · Open Source (MIT)</string>
 
     <!-- Descriptions d'accessibilité (TalkBack) -->
@@ -572,4 +572,48 @@
     <string name="tutor_history_all_devoir">Historique du devoir</string>
     <string name="tutor_history_all_count">Tout le devoir (%1$d)</string>
     <string name="tutor_view_saved_history_btn">Historique des explications (%1$d)</string>
+
+    <!-- Unification texte/PDF, SHA-256, quota quotidien IA & contrôle parental -->
+    <string name="download_err_sha256_mismatch">Vérification SHA-256 échouée : le fichier PDF a été supprimé par sécurité car son empreinte ne correspond pas au catalogue.</string>
+    <string name="status_text_offline">Consultable en texte</string>
+    <string name="text_mode_badge">Texte · Hors ligne</string>
+    <string name="text_mode_section_title">Sujet consultable en texte</string>
+    <string name="text_mode_section_subtitle">Intégré hors ligne — aucun téléchargement PDF requis</string>
+    <string name="text_exercise_label">Exercice %1$d</string>
+    <string name="text_show_solution">Afficher le corrigé</string>
+    <string name="text_hide_solution">Masquer le corrigé</string>
+    <string name="text_show_all_solutions">Afficher les corrigés</string>
+    <string name="text_hide_all_solutions">Masquer les corrigés</string>
+    <string name="text_no_solution_label">Corrigé non inclus pour cet exercice</string>
+    <string name="tutor_quota_remaining">%1$d / %2$d requêtes restantes aujourd\'hui</string>
+    <string name="tutor_quota_reached_title">Quota quotidien atteint</string>
+    <string name="tutor_quota_reached_body">Tu as utilisé tes %1$d requêtes quotidiennes au Tuteur IA sur cet appareil. Le quota sera réinitialisé automatiquement demain.</string>
+    <string name="settings_ai_tutor_title">Tuteur IA (Contrôle parental)</string>
+    <string name="settings_ai_tutor_subtitle">Les images de pages et questions sont envoyées à Gemini via Firebase sans identité associée. Un parent peut désactiver le Tuteur IA ici.</string>
+    <string name="settings_ai_tutor_enabled_status">Activé · %1$d / %2$d requêtes restantes aujourd\'hui</string>
+    <string name="settings_ai_tutor_disabled_status">Désactivé · mode révision 100 % hors ligne</string>
+    <string name="cd_ai_tutor_switch_icon">Interrupteur d\'activation du Tuteur IA</string>
+    <string name="catalogue_unreachable_banner_title">Catalogue distant injoignable</string>
+
+    <!-- Authentification Google & Synchronisation Cloud Firestore -->
+    <string name="auth_welcome_title">Bienvenue sur Devoirs TN</string>
+    <string name="auth_welcome_subtitle">Connecte-toi avec Google pour sauvegarder ta progression, tes favoris, tes rappels DC/DS et tes révisions sur tous tes appareils.</string>
+    <string name="auth_feature_sync_title">Progression sauvegardée dans le Cloud</string>
+    <string name="auth_feature_sync_desc">Favoris, devoirs terminés, objectifs hebdomadaires et rappels synchronisés en temps réel via Firestore.</string>
+    <string name="auth_feature_study_title">Devoirs PDF, Bac &amp; Tuteur IA</string>
+    <string name="auth_feature_study_desc">Accède aux sujets d\'entraînement tunisiens, au calculateur du Bac et à l\'aide progressive par IA.</string>
+    <string name="auth_feature_privacy_title">Espace privé et sécurisé</string>
+    <string name="auth_feature_privacy_desc">Tes données scolaires sont strictement isolées sur ton compte et protégées par les règles Firebase.</string>
+    <string name="auth_google_btn">Se connecter avec Google</string>
+    <string name="auth_signing_in">Connexion en cours…</string>
+    <string name="auth_error_generic">Impossible de finaliser la connexion Google. Vérifie ta connexion Internet puis réessaie.</string>
+    <string name="auth_error_icon_cd">Erreur de connexion</string>
+    <string name="auth_footer_note">Connexion sécurisée via Google · Sans publicité</string>
+    <string name="account_student_fallback">Élève Devoirs TN</string>
+    <string name="account_sign_out_btn">Se déconnecter</string>
+    <string name="cloud_sync_loading">Synchronisation Firestore en cours…</string>
+    <string name="cloud_sync_active">Sauvegarde Cloud Firestore active</string>
+    <string name="cloud_sync_error">Synchronisation hors ligne — reprise automatique dès que possible</string>
+    <string name="cd_account_icon">Compte élève connecté</string>
+    <string name="cd_cloud_sync_icon">État de la synchronisation Cloud Firestore</string>
 </resources>

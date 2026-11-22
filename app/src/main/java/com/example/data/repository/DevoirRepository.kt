@@ -30,7 +30,8 @@ data class CatalogueSyncStatus(
     val catalogueVersion: Int = 0,
     val origin: CatalogueOrigin = CatalogueOrigin.LOCAL_CACHE,
     val syncedAtMillis: Long = 0L,
-    val isOfflineFallback: Boolean = false
+    val isOfflineFallback: Boolean = false,
+    val errorMessage: String? = null
 )
 
 class DevoirRepository(
@@ -154,26 +155,29 @@ class DevoirRepository(
     }
 
     /**
-     * Récupère `catalogue.json` en ligne (ou le dernier cache local si le réseau est absent)
-     * et synchronise Room via le champ `version` sans jamais effacer `isFavorite`,
-     * `isCompleted` ni les PDF déjà téléchargés.
+     * Récupère `catalogue.json` en ligne (ou le dernier cache local si le réseau est absent),
+     * unifié avec les anciens sujets texte sans PDF, et synchronise Room via `version` sans
+     * jamais effacer `isFavorite`, `isCompleted` ni les PDF déjà téléchargés.
      */
     suspend fun syncCatalogue(): CatalogueFetchResult = withContext(Dispatchers.IO) {
         val result = fetchCatalogue()
         if (result.devoirs.isEmpty()) return@withContext result
 
-        val existingVersions = devoirDao.getExistingVersions()
-            .associate { it.id to it.version }
+        val existingById = devoirDao.getExistingVersions()
+            .associateBy { it.id }
 
         for (devoir in result.devoirs) {
-            val currentVersion = existingVersions[devoir.id]
+            val existing = existingById[devoir.id]
             val entity = devoir.toEntity()
+            val upgradedFromTextToPdf = existing != null &&
+                existing.sujetUrl.isBlank() &&
+                entity.sujetUrl.isNotBlank()
             when {
-                currentVersion == null -> {
+                existing == null -> {
                     devoirDao.insertIgnore(entity)
                 }
 
-                devoir.version > currentVersion -> {
+                devoir.version > existing.version || upgradedFromTextToPdf -> {
                     devoirDao.updateContentPreservingProgress(
                         id = entity.id,
                         title = entity.title,
@@ -193,7 +197,8 @@ class DevoirRepository(
                         sujetSizeBytes = entity.sujetSizeBytes,
                         corrigeSizeBytes = entity.corrigeSizeBytes,
                         sujetSha256 = entity.sujetSha256,
-                        corrigeSha256 = entity.corrigeSha256
+                        corrigeSha256 = entity.corrigeSha256,
+                        exercisesSerialized = entity.exercisesSerialized
                     )
                 }
             }

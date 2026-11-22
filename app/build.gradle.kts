@@ -1,4 +1,5 @@
 import com.google.gms.googleservices.GoogleServicesPlugin.MissingGoogleServicesStrategy
+import java.util.Properties
 
 plugins {
   alias(libs.plugins.android.application)
@@ -7,6 +8,21 @@ plugins {
   alias(libs.plugins.secrets)
   alias(libs.plugins.google.services)
 }
+
+// Lecture optionnelle de CATALOGUE_URL depuis .env (sans jamais exiger ni exposer de clé secrète)
+val dotEnvProperties = Properties().apply {
+  val envFile = rootProject.file(".env")
+  if (envFile.exists()) {
+    envFile.inputStream().use { load(it) }
+  }
+}
+val resolvedCatalogueUrl = (dotEnvProperties.getProperty("CATALOGUE_URL")
+  ?: System.getenv("CATALOGUE_URL")
+  ?: "https://cdn.devoirstn.example/catalogue.json")
+  .trim()
+  .removeSurrounding("\"")
+  .replace("\\", "\\\\")
+  .replace("\"", "\\\"")
 
 android {
   namespace = "com.example"
@@ -18,6 +34,8 @@ android {
     targetSdk = 36
     versionCode = 1
     versionName = "1.0"
+
+    buildConfigField("String", "CATALOGUE_URL", "\"$resolvedCatalogueUrl\"")
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
@@ -76,6 +94,7 @@ secrets {
   propertiesFileName = ".env"
   defaultPropertiesFileName = ".env.example"
   ignoreList.add("FIREBASE_APPCHECK_DEBUG_TOKEN")
+  ignoreList.add("CATALOGUE_URL")
 }
 
 googleServices { missingGoogleServicesStrategy = MissingGoogleServicesStrategy.WARN }
@@ -106,7 +125,12 @@ dependencies {
   implementation(libs.androidx.work.runtime.ktx)
   implementation(libs.moshi.kotlin)
 
-  // Tuteur IA Gemini via Firebase AI Logic & App Check + OCR local ML Kit (Latin)
+  // Firebase Firestore, Authentication, Google Sign-In (Credential Manager), AI Logic & App Check + OCR ML Kit
+  implementation(libs.firebase.firestore)
+  implementation(libs.firebase.auth)
+  implementation(libs.androidx.credentials)
+  implementation(libs.androidx.credentials.play.services)
+  implementation(libs.googleid)
   implementation(libs.firebase.ai)
   implementation(libs.firebase.appcheck.recaptcha)
   implementation(libs.firebase.appcheck.debug)

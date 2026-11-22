@@ -91,12 +91,13 @@ class PdfDownloadCoordinator(
                 map
             }
 
-    /** Planifie le téléchargement (ou la reprise) d'un devoir unique. */
+    /** Planifie le téléchargement (ou la reprise) d'un devoir PDF unique. */
     fun enqueueDevoirDownload(
         devoir: DevoirItem,
         allowMobileData: Boolean,
         packId: String? = null
     ) {
+        if (!devoir.hasPdfSource) return
         val networkType = if (allowMobileData) NetworkType.CONNECTED else NetworkType.UNMETERED
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(networkType)
@@ -255,6 +256,7 @@ class PdfDownloadCoordinator(
          */
         fun buildPacks(devoirs: List<DevoirItem>): List<DownloadPack> {
             return devoirs
+                .filter { it.hasPdfSource }
                 .groupBy { it.level to it.trimester }
                 .map { (key, group) ->
                     val (level, trimester) = key

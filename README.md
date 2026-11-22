@@ -2,47 +2,127 @@
 
 **Devoirs TN** est une application Android moderne (Kotlin, Jetpack Compose, Material 3, Room, MVVM) conçue pour accompagner les élèves tunisiens du **Collège (7ème, 8ème, 9ème année)** et du **Lycée (1ère, 2ème, 3ème année et Baccalauréat)** tout au long de l'année scolaire.
 
-Elle fonctionne **100 % hors ligne** pour la bibliothèque, le calculateur du Bac, les QCM Flash et le suivi de progression, et intègre en option un **Tuteur IA** alimenté par **Gemini via Firebase AI Logic** pour expliquer les corrigés étape par étape.
+Elle unifie un **catalogue PDF distant** (`catalogue.json` + téléchargement hors ligne avec vérification **SHA-256**) et des **sujets historiques consultables en texte** (`assets/devoirs/*.json`) dans une base Room unique sans doublons, sans jamais perdre les favoris ni la progression de l'élève.
 
 ---
 
 ## Fonctionnalités principales
 
-- **Bibliothèque de devoirs corrigés (DC, DS & Bac)** :
-  - Sujets structurés en JSON (`app/src/main/assets/devoirs/`) couvrant les matières clés du programme officiel tunisien (Mathématiques, Physique-Chimie, SVT, Informatique, Français, Anglais, Arabe, Philosophie, Économie & Gestion).
-  - **Recherche plein texte** dans les titres, les chapitres et les **énoncés d'exercices**, insensible aux accents et à la casse, avec **mise en évidence visuelle** des termes trouvés et aperçu contextuel.
-  - Filtres combinables par niveau, section tunisienne, type d'épreuve (DC/DS/Examen), trimestre, matière et favoris.
+- **Catalogue unifié PDF & Texte (DC, DS & Bac)** :
+  - **Source principale PDF** (`catalogue.json`) hébergée en ligne avec cache disque local, repli hors ligne automatique et téléchargement en arrière-plan (WorkManager + reprise `.part` + vérification d'intégrité **SHA-256** et en-tête `%PDF-`).
+  - **Migration transparente des anciens sujets JSON** (`app/src/main/assets/devoirs/*.json`) en sujets **« Consultables en texte »** lorsqu'ils ne disposent pas encore de PDF, dédupliqués par `id` (le catalogue PDF est prioritaire).
+  - **Lecteur PDF natif** (`PdfRenderer`, sans dépendance tierce) avec zoom pincement/double-tap, chronomètre flottant et verrouillage du corrigé pendant l'épreuve.
+  - **Recherche plein texte** (Room FTS4 + OCR ML Kit sur PDF téléchargés + énoncés texte), insensible aux accents et à la casse, avec surlignage visuel.
+  - **Badge « Corrigé inclus » fiable** : affiché uniquement lorsqu'une URL de corrigé PDF (`corrigeUrl`) ou un corrigé texte existe réellement.
 - **Mode Examen en conditions réelles** :
-  - Chronomètre calé sur la durée officielle du sujet, verrouillage des corrigés pendant l'épreuve, auto-évaluation exercice par exercice et sauvegarde automatique dans l'historique.
+  - Chronomètre calé sur la durée officielle du sujet, verrouillage des corrigés pendant l'épreuve, auto-évaluation exercice par exercice et historique sauvegardé dans Room.
 - **Tuteur IA pédagogique (Français & Arabe RTL)** :
-  - Bouton *« Explique-moi cette correction »* adapté au niveau du devoir.
-  - Aide progressive (*Indice 1 → Indice 2 → Solution complète*) sans divulguer la réponse trop tôt.
-  - Chat contextuel par exercice sauvegardé dans Room, gestion robuste du mode hors ligne et des erreurs.
+  - Alimenté par **Gemini via Firebase AI Logic** (sans clé API dans le code), protégé par **Firebase App Check**.
+  - Bouton *« Explique cette page »* dans le lecteur PDF (envoi d'une image redimensionnée de la page) et aide progressive (*Indice 1 → Indice 2 → Solution complète*).
+  - **Quota quotidien par appareil** (20 requêtes/jour par défaut) affiché en direct à l'élève, avec réinitialisation automatique le lendemain.
+  - **Contrôle parental** : interrupteur dédié dans *Mon Espace → Paramètres* permettant à un parent de désactiver complètement le Tuteur IA.
 - **Calculateur du Baccalauréat Tunisien** :
-  - Saisie des notes de contrôle (DC) et de synthèse (DS) par trimestre `(DC + 2×DS) / 3`, moyenne annuelle `(T1 + 2×T2 + 2×T3) / 5`, moyenne d'examen, moyenne générale configurable (`25 % / 75 %`), **Formule Globale (FG)** d'orientation avec coefficients modifiables, **simulateur inversé** (*« Quelle note à l'examen pour atteindre X ? »*), mention et session.
-  - Paramètres centralisés dans `app/src/main/assets/bac_config.json`.
-- **Mon Espace Révision** :
-  - Courbe d'évolution des notes sur 20 par matière (dessinée nativement sur Canvas Compose), détection des chapitres à renforcer, **QCM Flash** (5 questions par chapitre), **rappels locaux DC/DS** (notifications J-7, J-3, J-1 via WorkManager).
-- **Multilingue, RTL, Thème & Accessibilité** :
-  - Interface traduite en **Français (FR)**, **Arabe (العربية avec mise en page RTL complète)** et **Anglais (EN)** avec sélecteur instantané dans l'application.
-  - Mode **Clair**, **Sombre** et **Suivre le système** à contraste élevé (WCAG AA).
-  - Cibles tactiles ≥ 48 dp, descriptions TalkBack (`contentDescription`) et respect du redimensionnement système des polices (`sp`).
-  - **Politique de confidentialité** transparente intégrée dans l'onglet *Mon Espace → Paramètres*.
+  - Moyennes trimestrielles `(DC + 2×DS) / 3`, moyenne annuelle `(T1 + 2×T2 + 2×T3) / 5`, moyenne d'examen, moyenne générale configurable (`25 % / 75 %`), **Formule Globale (FG)** et simulateur inversé.
+  - Barèmes centralisés dans `app/src/main/assets/bac_config.json`.
+- **Mon Espace Révision & Stockage** :
+  - Courbe d'évolution des notes sur 20 par matière (Compose Canvas), objectif hebdomadaire modifiable, **QCM Flash**, **rappels DC/DS** (WorkManager), gestionnaire de **Stockage hors ligne** (packs par trimestre, Wi-Fi uniquement par défaut, alerte > 20 Mo en données mobiles).
+- **Multilingue, RTL, Thème & Confidentialité** :
+  - Interface traduite en **Français (FR)**, **Arabe (العربية RTL)** et **Anglais (EN)**, mode **Clair / Sombre / Système**, cibles tactiles ≥ 48 dp et politique de confidentialité transparente intégrée dans l'application.
 
 ---
 
-## Captures d'écran
+## Configuration Firebase
 
-Déposez vos captures dans le dossier `docs/screenshots/` en suivant cette convention de nommage :
+Le Tuteur IA utilise **Firebase AI Logic** (Gemini) sécurisé par **Firebase App Check** : **aucune clé API Gemini n'est stockée dans le code source ni dans l'APK**.
 
-| Écran | Emplacement attendu |
-| :--- | :--- |
-| Accueil & Matières (Clair / Sombre) | `docs/screenshots/01_matieres.png` |
-| Bibliothèque & Recherche surlignée | `docs/screenshots/02_bibliotheque_recherche.png` |
-| Détail devoir, Mode Examen & Tuteur IA | `docs/screenshots/03_detail_tuteur_ia.png` |
-| Calculateur du Bac Tunisien & Simulateur | `docs/screenshots/04_calculateur_bac.png` |
-| Mon Espace (Courbe, QCM Flash, Paramètres FR/AR/EN) | `docs/screenshots/05_espace_parametres.png` |
-| Interface arabe RTL & Mode Sombre | `docs/screenshots/06_arabe_rtl_sombre.png` |
+### 1. Créer le projet Firebase et ajouter `google-services.json`
+1. Créez un projet dans la [Console Firebase](https://console.firebase.google.com/).
+2. Enregistrez une application Android avec le même `applicationId` que celui défini dans `app/build.gradle.kts`.
+3. Téléchargez le fichier `google-services.json` et placez-le dans **`app/google-services.json`**.
+4. Le plugin Google Services (`com.google.gms.google-services`) injecte automatiquement la configuration au moment de la compilation Gradle.
+
+### 2. Activer Firebase AI Logic (Gemini)
+1. Dans la Console Firebase, ouvrez **AI → Firebase AI Logic** (Gemini Developer API ou Vertex AI backend).
+2. Activez le backend **Google AI (`GenerativeBackend.googleAI()`)** pour votre projet.
+3. L'application instancie le modèle `gemini-2.5-flash` via `Firebase.ai(backend = GenerativeBackend.googleAI())` dans `TutorAiRepository.kt` (aucune clé `GEMINI_API_KEY` requise).
+
+### 3. Configurer Firebase App Check
+1. Dans la Console Firebase, ouvrez **Build → App Check**.
+2. Enregistrez votre application Android avec le fournisseur **Play Integrity** (pour la production / Play Store).
+3. Pour les tests en développement (`BuildConfig.DEBUG`), `configureAppCheck()` active automatiquement `DebugAppCheckProviderFactory` :
+   - Récupérez le jeton de débogage affiché dans Logcat au démarrage (ou fournissez-le via l'intent de test) et enregistrez-le dans **App Check → Manage debug tokens**.
+4. Activez l'application (*Enforce*) d'App Check sur **Firebase AI Logic** afin d'empêcher tout abus de quota en dehors de votre APK signé.
+
+> **Confidentialité & contrôle parental :** Les images de pages PDF redimensionnées et les questions posées au Tuteur IA sont transmises à Gemini via Firebase AI Logic sans aucune identité utilisateur associée. Un parent peut désactiver totalement le Tuteur IA depuis *Mon Espace → Paramètres*.
+
+---
+
+## Héberger les PDF
+
+Les fichiers PDF ne sont **pas embarqués dans l'APK** afin de garder l'application légère. Ils sont décrits par un manifeste `catalogue.json` téléchargé au démarrage (avec cache local et repli hors ligne automatique).
+
+### 1. Choisir un hébergement HTTPS statique
+Tout hébergement statique HTTPS prenant en charge les requêtes `Range` (reprise de téléchargement `.part`) convient :
+- **Cloudflare R2** (avec domaine public HTTPS / CDN) — sans frais de bande passante sortante,
+- **Firebase Hosting** ou **Cloud Storage for Firebase**,
+- **GitHub Releases** ou **GitHub Pages** (pour un dépôt public de sujets libres),
+- Serveur **Nginx / S3 + CloudFront** en HTTPS.
+
+### 2. Calculer les empreintes SHA-256 des PDF
+L'application vérifie automatiquement l'empreinte SHA-256 de chaque PDF après téléchargement si `sujetSha256` ou `corrigeSha256` est renseigné (champs optionnels et rétrocompatibles). En cas de non-correspondance, le fichier corrompu est immédiatement supprimé et une erreur explicite est affichée.
+
+Sous Linux / macOS :
+```bash
+sha256sum maths_bac_ds1_sujet.pdf maths_bac_ds1_corrige.pdf
+```
+Sous Windows (PowerShell) :
+```powershell
+Get-FileHash .\maths_bac_ds1_sujet.pdf -Algorithm SHA256
+```
+
+### 3. Publier `catalogue.json`
+Déposez vos PDF et votre fichier `catalogue.json` sur votre serveur HTTPS en incrémentant `catalogueVersion` et le champ `version` des devoirs modifiés :
+
+```json
+{
+  "schemaVersion": 3,
+  "catalogueVersion": 4,
+  "devoirs": [
+    {
+      "id": "college_9eme_maths_t1_ds1",
+      "titre": "DS N°1 — Théorème de Thalès et calcul algébrique",
+      "matiere": "Mathématiques",
+      "niveau": "COLLEGE_9",
+      "section": "TRONC_COMMUN",
+      "type": "SYNTHESE",
+      "trimestre": "T1",
+      "duree": 120,
+      "difficulte": "Standard",
+      "chapitres": ["Thalès", "Calcul littéral"],
+      "source": "Sujet d'entraînement",
+      "version": 4,
+      "tailleMo": 3.4,
+      "sujetUrl": "https://cdn.votre-domaine.tn/pdfs/9eme_t1_maths_ds1_sujet.pdf",
+      "corrigeUrl": "https://cdn.votre-domaine.tn/pdfs/9eme_t1_maths_ds1_corrige.pdf",
+      "sujetSizeBytes": 2105400,
+      "corrigeSizeBytes": 1458200,
+      "sujetSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "corrigeSha256": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
+    }
+  ]
+}
+```
+- Si un sujet ne possède pas encore de corrigé, mettez `"corrigeUrl": null` : la carte n'affichera pas « Corrigé inclus ».
+- Si un ancien devoir texte (`assets/devoirs/*.json`) possède le même `id` qu'une entrée PDF dans `catalogue.json`, la version PDF remplace automatiquement la version texte tout en conservant `isFavorite` et `isCompleted`.
+
+### 4. Configurer `CATALOGUE_URL` dans `.env`
+Créez un fichier `.env` à la racine du projet (non versionné, basé sur `.env.example`) et définissez l'URL HTTPS de votre manifeste :
+
+```dotenv
+CATALOGUE_URL=https://cdn.votre-domaine.tn/catalogue.json
+```
+
+`app/build.gradle.kts` injecte automatiquement cette valeur dans `BuildConfig.CATALOGUE_URL`. Si l'URL est absente, invalide ou injoignable, l'application **ne plante jamais** : elle affiche un message explicite dans *Mon Espace → Stockage* et continue de fonctionner avec le dernier cache local ou le catalogue embarqué.
 
 ---
 
@@ -51,7 +131,6 @@ Déposez vos captures dans le dossier `docs/screenshots/` en suivant cette conve
 ### Prérequis
 - **Android Studio** (Meerkat / Ladybug ou supérieur) avec JDK 11+
 - **Android SDK** (`compileSdk = 36`, `minSdk = 24`)
-- Aucune clé API manuelle n'est requise en local pour les fonctionnalités hors ligne ; le Tuteur IA utilise **Firebase AI Logic** avec attestation **App Check** (voir `.env.example`).
 
 ### Compilation & exécution
 1. Cloner le dépôt :
@@ -59,12 +138,12 @@ Déposez vos captures dans le dossier `docs/screenshots/` en suivant cette conve
    git clone https://github.com/<votre-utilisateur>/devoirs-tn.git
    cd devoirs-tn
    ```
-2. (Optionnel) Copier `.env.example` vers `.env` si vous ajoutez des intégrations tierces ultérieures.
-3. Ouvrir le projet dans Android Studio ou compiler via Gradle :
+2. Configurer Firebase (`app/google-services.json`) et, si besoin, `.env` avec `CATALOGUE_URL=...`.
+3. Compiler l'application :
    ```bash
    gradle :app:assembleDebug
    ```
-4. Lancer la suite complète de tests unitaires et Robolectric (JVM, sans émulateur) :
+4. Lancer les tests unitaires JVM :
    ```bash
    gradle :app:testDebugUnitTest
    ```
@@ -79,22 +158,26 @@ L'application suit une architecture **MVVM + Clean Layers** modulaire :
 app/src/main/
 ├── assets/
 │   ├── bac_config.json          # Coefficients officiels, pondérations et seuils du Bac
-│   └── devoirs/                 # Sujets JSON versionnés par matière / niveau
+│   ├── catalogue.json           # Catalogue PDF principal (URLs HTTPS, tailles, SHA-256 optionnels)
+│   └── devoirs/                 # Anciens sujets JSON migrés en « consultables en texte » sans doublons
 ├── java/com/example/
 │   ├── data/
-│   │   ├── local/               # Room (DAO, Entités, Migrations), DevoirAssetLoader, AppPreferencesRepository
-│   │   ├── model/               # Modèles métier (DevoirItem, CycleLevel, TunisianSection, etc.)
+│   │   ├── ai/                  # TutorAiRepository (Firebase AI Logic), AppCheckConfig, PdfTextExtractor (OCR)
+│   │   ├── download/            # PdfStorageManager, PdfIntegrityVerifier (SHA-256), PdfDownloadWorker (WorkManager)
+│   │   ├── local/               # Room v9 (Migrations, DAO, FTS4), DevoirCatalogueUnifier, RemoteCatalogueService, AppPreferencesRepository
+│   │   ├── model/               # Modèles métier (DevoirItem PDF/Texte, CycleLevel, TunisianSection)
 │   │   ├── notifications/       # WorkManager (ExamReminderWorker, ExamReminderScheduler)
-│   │   └── repository/          # DevoirRepository, ProgressRepository, AiTutorRepository (Firebase AI Logic)
+│   │   └── repository/          # DevoirRepository, ProgressRepository, SubjectRepository
 │   ├── domain/
 │   │   ├── bac/                 # BacCalculator (logique pure sans dépendance Android)
 │   │   ├── progress/            # ProgressAnalytics (séries, courbes, chapitres faibles)
-│   │   └── search/              # DevoirSearchEngine (recherche plein texte & plages de surlignage)
+│   │   └── search/              # DevoirSearchEngine (recherche plein texte PDF + texte + surlignage)
 │   ├── ui/
-│   │   ├── components/          # Composants M3 réutilisables, Localisation, Paramètres & Confidentialité
-│   │   ├── screens/             # Écrans Compose (Matières, Bibliothèque, Détail, Bac, Idées, Espace)
+│   │   ├── components/          # Composants M3, AiTutorSheet (quota quotidien), SettingsPrivacySection (contrôle parental)
+│   │   ├── pdf/                 # PdfDocumentController (PdfRenderer + cache LRU)
+│   │   ├── screens/             # Matières, Bibliothèque, Détail (PDF & Texte), Lecteur PDF, Bac, Méthodes, Espace & Stockage
 │   │   ├── theme/               # Palette tunisienne clair/sombre, Typographie, Formes
-│   │   └── viewmodel/           # DevoirsViewModel, AiTutorViewModel, ProgressViewModel
+│   │   └── viewmodel/           # DevoirsViewModel, TutorViewModel, StorageViewModel, ExamModeViewModel
 │   └── MainActivity.kt          # Point d'entrée, App Check, locale dynamique FR/AR/EN & RTL, Edge-to-Edge
 └── res/
     ├── values/strings.xml       # Français (défaut)
@@ -102,34 +185,7 @@ app/src/main/
     └── values-en/strings.xml    # Anglais
 ```
 
----
-
-## Ajouter du contenu pédagogique
-
-Tous les devoirs sont stockés au format JSON documenté et chargés automatiquement dans Room grâce au champ `contentVersion` (sans jamais écraser les favoris ni la progression de l'élève).
-
-Consultez le guide complet **[`README_CONTENU.md`](README_CONTENU.md)** pour :
-- le schéma JSON détaillé d'un devoir,
-- les règles de nommage et de versionnage (`contentVersion`),
-- les bonnes pratiques de rédaction conformes aux programmes tunisiens,
-- la validation automatique par les tests unitaires (`DevoirJsonParserTest`).
-
----
-
-## Contribuer
-
-Les contributions (nouveaux devoirs vérifiés, corrections de barèmes, améliorations d'accessibilité ou de traductions FR/AR/EN) sont les bienvenues !
-
-1. Créez un *fork* du dépôt puis une branche dédiée (`git checkout -b feat/nouveau-sujet-bac`).
-2. Respectez les conventions du projet :
-   - Aucun texte d'interface en dur dans les Composables (ajoutez chaque chaîne dans `values`, `values-ar` et `values-en`).
-   - Commentez le code en français et conservez des cibles tactiles ≥ 48 dp.
-   - Ajoutez ou mettez à jour les tests unitaires correspondants.
-3. Vérifiez que la compilation et tous les tests passent :
-   ```bash
-   gradle :app:testDebugUnitTest
-   ```
-4. Ouvrez une *Pull Request* en décrivant clairement vos modifications.
+Consultez également [`README_CONTENU.md`](README_CONTENU.md) pour le détail des schémas de contenu pédagogique.
 
 ---
 

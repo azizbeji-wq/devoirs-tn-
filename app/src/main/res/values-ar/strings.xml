@@ -378,10 +378,10 @@
     <string name="theme_mode_light">فاتح</string>
     <string name="theme_mode_dark">داكن</string>
     <string name="privacy_card_title">سياسة الخصوصية</string>
-    <string name="privacy_card_subtitle">أعدادك ومفضلتك وتذكيراتك محفوظة محلياً على جهازك فقط.</string>
+    <string name="privacy_card_subtitle">بياناتك محلية. تُرسل صور الصفحات والأسئلة إلى Gemini عبر Firebase دون أي هوية ويمكن للولي تعطيل المرافق الذكي.</string>
     <string name="privacy_open_btn">قراءة السياسة</string>
     <string name="privacy_dialog_title">سياسة الخصوصية — فروض تونس</string>
-    <string name="privacy_dialog_body">1. تخزين محلي بالكامل : يتم حفظ الفروض المفضلة والمنجزة وأعداد حاسبة البكالوريا ونتائج الاختبارات والتذكيرات وسجل التقدّم محلياً على جهازك فقط (قاعدة بيانات Room والتفضيلات المحلية).\n\n2. بدون حساب وبدون تتبّع : لا يتطلب التطبيق إنشاء حساب، ولا يجمع أي بيانات شخصية، ولا يحتوي على أي متعقّبات إعلانية.\n\n3. المرافق الذكي الاختياري : عند فتح المرافق الذكي على تمرين ما، يُرسل نص التمرين والإصلاح وسؤالك فقط بشكل آمن إلى خدمة Gemini عبر Firebase AI Logic (محمية بـ App Check) لتوليد الشرح. تبقى بقية الميزات تعمل دون اتصال بالإنترنت.\n\n4. تحكّم كامل : يمكنك مسح سجل المرافق الذكي أو التذكيرات أو بيانات التطبيق في أي وقت من إعدادات أندرويد.</string>
+    <string name="privacy_dialog_body">1. حساب Google والمزامنة السحابية (Firebase Firestore) : يمكنك تسجيل الدخول بحساب Google عبر Android Credential Manager لحفظ المفضلة والفروض المنجزة والهدف الأسبوعي ومحاولات الامتحانات والتذكيرات والمواد المخصّصة في مساحتك الخاصة على Firestore (/users/{uid}). لا يمكن لأي شخص آخر الاطلاع على بياناتك.\n\n2. التخزين المحلي دون اتصال : تبقى ملفات PDF المحمّلة وأعداد حاسبة البكالوريا وإعداداتك متاحة دون إنترنت على جهازك، دون أي متعقّبات إعلانية.\n\n3. المرافق الذكي عبر Gemini و Firebase : عند استخدام المرافق الذكي (زر «اشرح هذه الصفحة» أو طرح سؤال)، تُرسل صور الصفحات المصغّرة وأسئلتك بشكل مشفّر إلى Gemini عبر Firebase AI Logic (محمي بـ App Check) لتوليد الشرح فقط، مع حصة يومية محددة لكل جهاز.\n\n4. الرقابة الأبوية وتسجيل الخروج : يمكن للولي تعطيل المرافق الذكي أو تسجيل الخروج في أي وقت من تبويب مساحتي ← الإعدادات.</string>
     <string name="app_version_footer">فروض تونس · البرنامج الرسمي التونسي · مفتوح المصدر (MIT)</string>
 
     <!-- أوصاف إمكانية الوصول -->
@@ -580,4 +580,48 @@
     <string name="tutor_history_all_devoir">سجل شروحات الفرض</string>
     <string name="tutor_history_all_count">كل الفرض (%1$d)</string>
     <string name="tutor_view_saved_history_btn">سجل الشروحات المحفوظة (%1$d)</string>
+
+    <!-- توحيد النصوص وPDF والتحقق SHA-256 والرصيد اليومي والتحكم الأبوي -->
+    <string name="download_err_sha256_mismatch">فشل التحقق من بصمة SHA-256 : تم حذف ملف PDF احتياطياً لعدم تطابقه مع الفهرس.</string>
+    <string name="status_text_offline">متاح بصيغة نصّية</string>
+    <string name="text_mode_badge">نصّ · دون إنترنت</string>
+    <string name="text_mode_section_title">فرض متاح للقراءة النصّية</string>
+    <string name="text_mode_section_subtitle">مُدمج دون إنترنت — لا يتطلب تحميل ملف PDF</string>
+    <string name="text_exercise_label">التمرين %1$d</string>
+    <string name="text_show_solution">إظهار الإصلاح</string>
+    <string name="text_hide_solution">إخفاء الإصلاح</string>
+    <string name="text_show_all_solutions">إظهار كل الإصلاحات</string>
+    <string name="text_hide_all_solutions">إخفاء الإصلاحات</string>
+    <string name="text_no_solution_label">الإصلاح غير متوفر لهذا التمرين</string>
+    <string name="tutor_quota_remaining">%1$d / %2$d طلباً متبقياً اليوم</string>
+    <string name="tutor_quota_reached_title">تم بلوغ الحدّ اليومي</string>
+    <string name="tutor_quota_reached_body">لقد استعملت كامل رصيدك اليومي (%1$d طلباً) للمرافق الذكي على هذا الجهاز. سيتجدد الرصيد تلقائياً غداً.</string>
+    <string name="settings_ai_tutor_title">المرافق الذكي (تحكّم أبوي)</string>
+    <string name="settings_ai_tutor_subtitle">تُرسل صور الصفحات والأسئلة إلى Gemini عبر Firebase دون ربطها بهوية. يمكن للولي تعطيل المرافق من هنا.</string>
+    <string name="settings_ai_tutor_enabled_status">مُفعّل · %1$d / %2$d طلباً متبقياً اليوم</string>
+    <string name="settings_ai_tutor_disabled_status">مُعطّل · مراجعة 100 % دون اتصال</string>
+    <string name="cd_ai_tutor_switch_icon">مفتاح تفعيل أو تعطيل المرافق الذكي</string>
+    <string name="catalogue_unreachable_banner_title">تعذّر الاتصال بالفهرس البعيد</string>
+
+    <!-- تسجيل الدخول بحساب Google والمزامنة السحابية Firestore -->
+    <string name="auth_welcome_title">مرحباً بك في فروض تونس</string>
+    <string name="auth_welcome_subtitle">سجّل الدخول بحساب Google لحفظ تقدّمك والمفضّلة وتذكيرات الفروض ومزامنتها على جميع أجهزتك.</string>
+    <string name="auth_feature_sync_title">مزامنة سحابية فورية للتقدّم</string>
+    <string name="auth_feature_sync_desc">تُحفظ الفروض المفضّلة والمنجزة والهدف الأسبوعي والتذكيرات تلقائياً عبر Firestore.</string>
+    <string name="auth_feature_study_title">فروض PDF، حاسبة البكالوريا والمرافق الذكي</string>
+    <string name="auth_feature_study_desc">مواضيع تدريبية تونسية، حاسبة المعدّل السنوي والـ FG، ومساعدة تعليمية تدريجية.</string>
+    <string name="auth_feature_privacy_title">مساحة خاصة ومحمية</string>
+    <string name="auth_feature_privacy_desc">بياناتك الدراسية معزولة بالكامل في حسابك الشخصي ومحمية بقواعد أمان Firebase.</string>
+    <string name="auth_google_btn">تسجيل الدخول عبر Google</string>
+    <string name="auth_signing_in">جارٍ تسجيل الدخول…</string>
+    <string name="auth_error_generic">تعذّر إتمام تسجيل الدخول بحساب Google. تحقّق من اتصالك بالإنترنت ثم أعد المحاولة.</string>
+    <string name="auth_error_icon_cd">خطأ في تسجيل الدخول</string>
+    <string name="auth_footer_note">تسجيل دخول آمن عبر Google · بدون إعلانات</string>
+    <string name="account_student_fallback">تلميذ فروض تونس</string>
+    <string name="account_sign_out_btn">تسجيل الخروج</string>
+    <string name="cloud_sync_loading">جارٍ المزامنة مع Firestore…</string>
+    <string name="cloud_sync_active">المزامنة السحابية Firestore نشطة</string>
+    <string name="cloud_sync_error">وضع دون اتصال — ستُستأنف المزامنة تلقائياً</string>
+    <string name="cd_account_icon">حساب التلميذ المتصل</string>
+    <string name="cd_cloud_sync_icon">حالة المزامنة السحابية Firestore</string>
 </resources>

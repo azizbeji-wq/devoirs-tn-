@@ -97,6 +97,8 @@ fun AiTutorBottomSheet(
 
     val isBusy = uiState.generationState is TutorGenerationState.Loading ||
         uiState.generationState is TutorGenerationState.Streaming
+    val isQuotaBlocked = uiState.isDailyQuotaReached
+    val canSendRequests = !isBusy && !isQuotaBlocked
     val isArabicInput = uiState.selectedLanguage.isRtl
 
     val hint1Done = messages.any { it.mode == TutorHelpMode.HINT_1.id && it.role == "assistant" }
@@ -230,6 +232,83 @@ fun AiTutorBottomSheet(
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Indicateur de quota quotidien par appareil (ex. 20 requêtes/jour)
+                    val quotaAccent = when {
+                        uiState.isDailyQuotaReached -> adaptiveCrimson()
+                        uiState.dailyQuotaRemaining <= 4 -> adaptiveOchre()
+                        else -> adaptiveEmerald()
+                    }
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = quotaAccent.copy(alpha = 0.12f),
+                        border = BorderStroke(1.dp, quotaAccent.copy(alpha = 0.32f)),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("tutor_quota_badge")
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (uiState.isDailyQuotaReached) {
+                                    Icons.Filled.ErrorOutline
+                                } else {
+                                    Icons.Filled.AutoAwesome
+                                },
+                                contentDescription = null,
+                                tint = quotaAccent,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = stringResource(
+                                    R.string.tutor_quota_remaining,
+                                    uiState.dailyQuotaRemaining,
+                                    uiState.dailyQuotaLimit
+                                ),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = quotaAccent
+                            )
+                        }
+                    }
+
+                    if (uiState.isDailyQuotaReached) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        val crimson = adaptiveCrimson()
+                        Surface(
+                            shape = RoundedCornerShape(10.dp),
+                            color = crimson.copy(alpha = 0.10f),
+                            border = BorderStroke(1.dp, crimson.copy(alpha = 0.40f)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("tutor_quota_reached_banner")
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(10.dp),
+                                verticalArrangement = Arrangement.spacedBy(2.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.tutor_quota_reached_title),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = crimson
+                                )
+                                Text(
+                                    text = stringResource(
+                                        R.string.tutor_quota_reached_body,
+                                        uiState.dailyQuotaLimit
+                                    ),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    }
+
                     // Sélecteur de portée d'historique Room (Page courante / Tout le devoir)
                     if (uiState.isPdfPageMode || devoirExplanationCount > 0) {
                         Spacer(modifier = Modifier.height(8.dp))
@@ -287,7 +366,7 @@ fun AiTutorBottomSheet(
                                 label = stringResource(R.string.tutor_hint_1),
                                 icon = if (hint1Done) Icons.Filled.CheckCircle else Icons.Filled.Lightbulb,
                                 accent = ochre,
-                                enabled = !isBusy,
+                                enabled = canSendRequests,
                                 testTag = "tutor_hint1_btn",
                                 onClick = { onTriggerHelpMode(TutorHelpMode.HINT_1) }
                             )
@@ -297,7 +376,7 @@ fun AiTutorBottomSheet(
                                 label = stringResource(R.string.tutor_hint_2),
                                 icon = if (hint2Done) Icons.Filled.CheckCircle else Icons.Filled.Lightbulb,
                                 accent = MaterialTheme.colorScheme.primary,
-                                enabled = !isBusy,
+                                enabled = canSendRequests,
                                 testTag = "tutor_hint2_btn",
                                 onClick = { onTriggerHelpMode(TutorHelpMode.HINT_2) }
                             )
@@ -307,7 +386,7 @@ fun AiTutorBottomSheet(
                                 label = stringResource(R.string.tutor_full_solution),
                                 icon = Icons.Filled.School,
                                 accent = emerald,
-                                enabled = !isBusy,
+                                enabled = canSendRequests,
                                 testTag = "tutor_solution_btn",
                                 onClick = { onTriggerHelpMode(TutorHelpMode.SOLUTION) }
                             )
@@ -317,7 +396,7 @@ fun AiTutorBottomSheet(
                                 label = stringResource(R.string.tutor_explain_chip),
                                 icon = Icons.Filled.Psychology,
                                 accent = MaterialTheme.colorScheme.tertiary,
-                                enabled = !isBusy,
+                                enabled = canSendRequests,
                                 testTag = "tutor_explain_btn",
                                 onClick = { onTriggerHelpMode(TutorHelpMode.EXPLAIN) }
                             )
@@ -378,6 +457,7 @@ fun AiTutorBottomSheet(
                             TutorErrorCard(
                                 errorMessage = gen.message,
                                 isArabic = isArabicInput,
+                                canRetry = gen.canRetry && !uiState.isDailyQuotaReached,
                                 onRetry = onRetry
                             )
                         }
@@ -418,13 +498,13 @@ fun AiTutorBottomSheet(
                                 )
                             },
                             maxLines = 3,
-                            enabled = !isBusy,
+                            enabled = canSendRequests,
                             shape = RoundedCornerShape(16.dp)
                         )
 
                         FilledIconButton(
                             onClick = onSendQuestion,
-                            enabled = !isBusy && uiState.questionDraft.isNotBlank(),
+                            enabled = canSendRequests && uiState.questionDraft.isNotBlank(),
                             modifier = Modifier
                                 .size(50.dp)
                                 .testTag("tutor_send_btn")
@@ -657,6 +737,7 @@ private fun StreamingAssistantBubble(
 private fun TutorErrorCard(
     errorMessage: String,
     isArabic: Boolean,
+    canRetry: Boolean = true,
     onRetry: () -> Unit
 ) {
     val crimson = adaptiveCrimson()
@@ -692,21 +773,23 @@ private fun TutorErrorCard(
                     )
                 }
 
-                FilledTonalButton(
-                    onClick = onRetry,
-                    modifier = Modifier.testTag("tutor_retry_btn"),
-                    colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = crimson.copy(alpha = 0.18f),
-                        contentColor = crimson
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Refresh,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(stringResource(R.string.tutor_retry))
+                if (canRetry) {
+                    FilledTonalButton(
+                        onClick = onRetry,
+                        modifier = Modifier.testTag("tutor_retry_btn"),
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = crimson.copy(alpha = 0.18f),
+                            contentColor = crimson
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Refresh,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(stringResource(R.string.tutor_retry))
+                    }
                 }
             }
         }

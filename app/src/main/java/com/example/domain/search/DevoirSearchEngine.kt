@@ -121,12 +121,23 @@ object DevoirSearchEngine {
                 append(normalizeForSearch(tag))
                 append(' ')
             }
+            devoir.exercises.forEach { exercise ->
+                append(normalizeForSearch(exercise.title))
+                append(' ')
+                append(normalizeForSearch(exercise.statement))
+                append(' ')
+            }
             if (!extractedPdfText.isNullOrBlank()) {
                 append(normalizeForSearch(extractedPdfText))
                 append(' ')
             }
-            if (devoir.hasCorrigePdf) {
-                append("corrige solution pdf ")
+            if (devoir.hasCorrige) {
+                append("corrige solution ")
+            }
+            if (devoir.hasPdfSource) {
+                append("pdf ")
+            } else if (devoir.isTextOnly) {
+                append("texte ")
             }
         }
         return normalizedTokens.all { token -> searchableBlob.contains(token) }

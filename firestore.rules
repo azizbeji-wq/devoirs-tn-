@@ -1,0 +1,263 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default-deny catch-all rule
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string
+        && id.size() >= 1
+        && id.size() <= 128
+        && id.matches('^[a-zA-Z0-9_-]+$');
+    }
+
+    function isBoundedString(val, minLen, maxLen) {
+      return val is string && val.size() >= minLen && val.size() <= maxLen;
+    }
+
+    function isValidStringList(val, maxSize) {
+      return val is list && val.size() <= maxSize;
+    }
+
+    function isValidPastOrNowTimestamp(val) {
+      return val is timestamp && val <= request.time;
+    }
+
+    function isValidUserProfile(data, userId) {
+      return data.keys().hasOnly([
+          'userId',
+          'displayName',
+          'weeklyGoalTarget',
+          'favoriteDevoirIds',
+          'completedDevoirIds',
+          'starredMethodIds',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasAll([
+          'userId',
+          'displayName',
+          'weeklyGoalTarget',
+          'favoriteDevoirIds',
+          'completedDevoirIds',
+          'starredMethodIds',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.userId is string
+        && data.userId == userId
+        && isBoundedString(data.displayName, 0, 120)
+        && data.weeklyGoalTarget is int
+        && data.weeklyGoalTarget >= 1
+        && data.weeklyGoalTarget <= 20
+        && isValidStringList(data.favoriteDevoirIds, 200)
+        && isValidStringList(data.completedDevoirIds, 200)
+        && isValidStringList(data.starredMethodIds, 100)
+        && isValidPastOrNowTimestamp(data.createdAt)
+        && isValidPastOrNowTimestamp(data.updatedAt);
+    }
+
+    function isValidExamAttempt(data, userId) {
+      return data.keys().hasOnly([
+          'userId',
+          'devoirId',
+          'devoirTitle',
+          'subject',
+          'totalScore',
+          'maxScore',
+          'actualDurationSeconds',
+          'attemptedAtMillis',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasAll([
+          'userId',
+          'devoirId',
+          'devoirTitle',
+          'subject',
+          'totalScore',
+          'maxScore',
+          'actualDurationSeconds',
+          'attemptedAtMillis',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.userId is string
+        && data.userId == userId
+        && isBoundedString(data.devoirId, 1, 128)
+        && isBoundedString(data.devoirTitle, 1, 200)
+        && isBoundedString(data.subject, 1, 80)
+        && data.totalScore is number
+        && data.totalScore >= 0
+        && data.totalScore <= 100
+        && data.maxScore is number
+        && data.maxScore > 0
+        && data.maxScore <= 100
+        && data.actualDurationSeconds is int
+        && data.actualDurationSeconds >= 0
+        && data.actualDurationSeconds <= 86400
+        && data.attemptedAtMillis is int
+        && data.attemptedAtMillis > 0
+        && isValidPastOrNowTimestamp(data.createdAt)
+        && isValidPastOrNowTimestamp(data.updatedAt);
+    }
+
+    function isValidReminder(data, userId) {
+      return data.keys().hasOnly([
+          'userId',
+          'title',
+          'subject',
+          'examType',
+          'examDateMillis',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasAll([
+          'userId',
+          'title',
+          'subject',
+          'examType',
+          'examDateMillis',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.userId is string
+        && data.userId == userId
+        && isBoundedString(data.title, 1, 160)
+        && isBoundedString(data.subject, 1, 80)
+        && isBoundedString(data.examType, 1, 40)
+        && data.examDateMillis is int
+        && data.examDateMillis > 0
+        && isValidPastOrNowTimestamp(data.createdAt)
+        && isValidPastOrNowTimestamp(data.updatedAt);
+    }
+
+    function isValidSubject(data, userId) {
+      return data.keys().hasOnly([
+          'userId',
+          'name',
+          'subtitle',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasAll([
+          'userId',
+          'name',
+          'subtitle',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.userId is string
+        && data.userId == userId
+        && isBoundedString(data.name, 1, 80)
+        && isBoundedString(data.subtitle, 0, 160)
+        && isValidPastOrNowTimestamp(data.createdAt)
+        && isValidPastOrNowTimestamp(data.updatedAt);
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId)
+        && isValidId(userId)
+        && isValidUserProfile(incoming(), userId);
+      allow update: if isOwner(userId)
+        && isValidId(userId)
+        && isValidUserProfile(incoming(), userId)
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'displayName',
+          'weeklyGoalTarget',
+          'favoriteDevoirIds',
+          'completedDevoirIds',
+          'starredMethodIds',
+          'updatedAt'
+        ]);
+      allow delete: if isOwner(userId);
+
+      match /examAttempts/{attemptId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && isValidId(attemptId)
+          && isValidExamAttempt(incoming(), userId);
+        allow update: if isOwner(userId)
+          && isValidId(attemptId)
+          && isValidExamAttempt(incoming(), userId)
+          && incoming().userId == existing().userId
+          && incoming().createdAt == existing().createdAt
+          && incoming().diff(existing()).affectedKeys().hasOnly([
+            'devoirTitle',
+            'subject',
+            'totalScore',
+            'maxScore',
+            'actualDurationSeconds',
+            'attemptedAtMillis',
+            'updatedAt'
+          ]);
+        allow delete: if isOwner(userId);
+      }
+
+      match /reminders/{reminderId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && isValidId(reminderId)
+          && isValidReminder(incoming(), userId);
+        allow update: if isOwner(userId)
+          && isValidId(reminderId)
+          && isValidReminder(incoming(), userId)
+          && incoming().userId == existing().userId
+          && incoming().createdAt == existing().createdAt
+          && incoming().diff(existing()).affectedKeys().hasOnly([
+            'title',
+            'subject',
+            'examType',
+            'examDateMillis',
+            'updatedAt'
+          ]);
+        allow delete: if isOwner(userId);
+      }
+
+      match /subjects/{subjectId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && isValidId(subjectId)
+          && isValidSubject(incoming(), userId);
+        allow update: if isOwner(userId)
+          && isValidId(subjectId)
+          && isValidSubject(incoming(), userId)
+          && incoming().userId == existing().userId
+          && incoming().createdAt == existing().createdAt
+          && incoming().diff(existing()).affectedKeys().hasOnly([
+            'name',
+            'subtitle',
+            'updatedAt'
+          ]);
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}

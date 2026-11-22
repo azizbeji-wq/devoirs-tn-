@@ -10,15 +10,18 @@ import java.security.MessageDigest
 /** Résultat d'une vérification d'intégrité sur un fichier PDF téléchargé. */
 sealed interface PdfIntegrityResult {
     data class Valid(val sizeBytes: Long, val sha256: String) : PdfIntegrityResult
-    data class Invalid(val reason: String) : PdfIntegrityResult
+    data class Invalid(
+        val reason: String,
+        val isSha256Mismatch: Boolean = false
+    ) : PdfIntegrityResult
 }
 
 /**
  * Vérificateur pur JVM/Android d'intégrité des PDF téléchargés :
  * 1. Fichier existant et non vide,
  * 2. En-tête magique `%PDF-`,
- * 3. Empreinte SHA-256 (si renseignée dans le catalogue),
- * 4. Taille exacte en octets (si renseignée dans le catalogue ou par l'en-tête HTTP Content-Length).
+ * 3. Taille exacte en octets (si renseignée dans le catalogue ou par l'en-tête HTTP Content-Length),
+ * 4. Empreinte SHA-256 (champs optionnels et rétrocompatibles `sujetSha256` / `corrigeSha256`).
  */
 object PdfIntegrityVerifier {
 
@@ -53,12 +56,13 @@ object PdfIntegrityVerifier {
             )
         }
 
-        // Calcul et vérification SHA-256
+        // Calcul et vérification SHA-256 (optionnelle et rétrocompatible si non renseignée)
         val actualSha = computeSha256(file)
         val normalizedExpectedSha = expectedSha256?.trim()?.lowercase()?.takeIf { it.isNotEmpty() }
         if (normalizedExpectedSha != null && actualSha != normalizedExpectedSha) {
             return PdfIntegrityResult.Invalid(
-                "Empreinte SHA-256 invalide (fichier altéré ou corrompu)."
+                reason = "Échec de vérification SHA-256 : le fichier téléchargé a été supprimé par sécurité car son empreinte ne correspond pas au catalogue.",
+                isSha256Mismatch = true
             )
         }
 

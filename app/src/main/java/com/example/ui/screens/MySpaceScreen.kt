@@ -96,6 +96,7 @@ import com.example.ui.components.localizedSubjectName
 import com.example.ui.components.subjectAccentColor
 import com.example.ui.viewmodel.ActiveQcmSessionState
 import com.example.ui.viewmodel.ChapterQcmStats
+import com.example.ui.viewmodel.CloudSyncUiState
 import com.example.ui.viewmodel.ProgressDashboardUiState
 import com.example.ui.viewmodel.SubjectProgressStat
 import java.text.SimpleDateFormat
@@ -189,7 +190,12 @@ fun MySpaceScreen(
     onDeletePack: (DownloadPack) -> Unit = {},
     onDeleteDevoirDownload: (String) -> Unit = {},
     onDeleteAllDownloads: () -> Unit = {},
-    openStorageSignal: Int = 0
+    onToggleAiTutorEnabled: (Boolean) -> Unit = {},
+    openStorageSignal: Int = 0,
+    userDisplayName: String? = null,
+    userEmail: String? = null,
+    cloudSyncState: CloudSyncUiState = CloudSyncUiState.Loading,
+    onSignOut: (() -> Unit)? = null
 ) {
     val favoriteDevoirs = allDevoirs.filter { it.isFavorite }
     val completedDevoirs = allDevoirs.filter { it.isCompleted }
@@ -650,6 +656,11 @@ fun MySpaceScreen(
                         preferences = preferences,
                         onSelectLanguage = onSelectLanguage,
                         onSelectThemeMode = onSelectThemeMode,
+                        onToggleAiTutorEnabled = onToggleAiTutorEnabled,
+                        userDisplayName = userDisplayName,
+                        userEmail = userEmail,
+                        cloudSyncState = cloudSyncState,
+                        onSignOut = onSignOut,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }

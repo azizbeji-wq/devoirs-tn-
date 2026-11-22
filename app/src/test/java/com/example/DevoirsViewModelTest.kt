@@ -249,7 +249,7 @@ class DevoirsViewModelTest {
         override suspend fun getById(id: String): DevoirEntity? = items.value.firstOrNull { it.id == id }
         override suspend fun getDevoirCount(): Int = items.value.size
         override suspend fun getExistingVersions(): List<DevoirVersionTuple> =
-            items.value.map { DevoirVersionTuple(it.id, it.version) }
+            items.value.map { DevoirVersionTuple(it.id, it.version, it.sujetUrl) }
 
         override suspend fun insertAll(devoirs: List<DevoirEntity>) {
             items.update { current ->
@@ -283,7 +283,8 @@ class DevoirsViewModelTest {
             sujetSizeBytes: Long,
             corrigeSizeBytes: Long,
             sujetSha256: String?,
-            corrigeSha256: String?
+            corrigeSha256: String?,
+            exercisesSerialized: String
         ) {
             items.update { list ->
                 list.map { existing ->
@@ -306,7 +307,8 @@ class DevoirsViewModelTest {
                             sujetSizeBytes = sujetSizeBytes,
                             corrigeSizeBytes = corrigeSizeBytes,
                             sujetSha256 = sujetSha256,
-                            corrigeSha256 = corrigeSha256
+                            corrigeSha256 = corrigeSha256,
+                            exercisesSerialized = exercisesSerialized
                         )
                     } else existing
                 }

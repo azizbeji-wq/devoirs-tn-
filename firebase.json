@@ -1,0 +1,15 @@
+{
+  "firestore": {
+    "database": "ai-studio-android-devoirst-0e39a30b-9683-4946-b2c9-f99d7a4a1ce8",
+    "rules": "firestore.rules"
+  },
+  "emulators": {
+    "firestore": {
+      "host": "127.0.0.1",
+      "port": 8085
+    },
+    "ui": {
+      "enabled": false
+    }
+  }
+}

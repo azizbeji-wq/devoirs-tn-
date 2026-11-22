@@ -303,9 +303,15 @@ class PdfDownloadWorker(
                 }
 
                 is PdfIntegrityResult.Invalid -> {
-                    // Supprime le fichier corrompu pour permettre une reprise propre
-                    partFile.delete()
-                    throw IntegrityCheckException(check.reason)
+                    // Supprime immédiatement les fichiers corrompus ou dont le hash SHA-256 ne correspond pas
+                    if (partFile.exists()) partFile.delete()
+                    if (finalFile.exists()) finalFile.delete()
+                    val errorMsg = if (check.isSha256Mismatch) {
+                        applicationContext.getString(R.string.download_err_sha256_mismatch)
+                    } else {
+                        check.reason
+                    }
+                    throw IntegrityCheckException(errorMsg)
                 }
             }
         } finally {

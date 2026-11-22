@@ -275,19 +275,29 @@ class DevoirsViewModel(
         initialValue = emptyList()
     )
 
-    /** Extraits PDF pertinents par `devoirId` lorsque la recherche correspond au contenu OCR. */
+    /** Extraits pertinents par `devoirId` (OCR PDF ou énoncés des sujets texte) pour la recherche. */
     val searchSnippetsByDevoirId: StateFlow<Map<String, String>> = combine(
         _filterState,
+        allDevoirs,
         indexedPdfContentMap
-    ) { filter, contentMap ->
+    ) { filter, devoirs, contentMap ->
         val query = filter.searchQuery.trim()
-        if (query.isEmpty() || contentMap.isEmpty()) {
+        if (query.isEmpty()) {
             emptyMap()
         } else {
-            contentMap.mapNotNull { (id, text) ->
+            val result = LinkedHashMap<String, String>()
+            contentMap.forEach { (id, text) ->
                 com.example.domain.search.DevoirSearchEngine.extractMatchingSnippet(text, query)
-                    ?.let { snippet -> id to snippet }
-            }.toMap()
+                    ?.let { snippet -> result[id] = snippet }
+            }
+            devoirs.forEach { devoir ->
+                if (devoir.id !in result && devoir.exercises.isNotEmpty()) {
+                    val combinedText = devoir.exercises.joinToString(" ") { "${it.title} ${it.statement}" }
+                    com.example.domain.search.DevoirSearchEngine.extractMatchingSnippet(combinedText, query)
+                        ?.let { snippet -> result[devoir.id] = snippet }
+                }
+            }
+            result
         }
     }.stateIn(
         scope = viewModelScope,
@@ -340,7 +350,8 @@ class DevoirsViewModel(
                 catalogueVersion = result.catalogueVersion,
                 origin = result.origin,
                 syncedAtMillis = result.syncedAtMillis,
-                isOfflineFallback = result.origin != CatalogueOrigin.REMOTE
+                isOfflineFallback = result.origin != CatalogueOrigin.REMOTE,
+                errorMessage = result.errorMessage
             )
             if (result.catalogueVersion > 0) {
                 onSynced?.invoke(result.catalogueVersion, result.syncedAtMillis)

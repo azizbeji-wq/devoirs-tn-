@@ -8,7 +8,8 @@ import kotlinx.coroutines.flow.Flow
 
 data class DevoirVersionTuple(
     val id: String,
-    val version: Int
+    val version: Int,
+    val sujetUrl: String = ""
 )
 
 @Dao
@@ -22,7 +23,7 @@ interface DevoirDao {
     @Query("SELECT COUNT(*) FROM devoirs")
     suspend fun getDevoirCount(): Int
 
-    @Query("SELECT id, version FROM devoirs")
+    @Query("SELECT id, version, sujetUrl FROM devoirs")
     suspend fun getExistingVersions(): List<DevoirVersionTuple>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -32,9 +33,9 @@ interface DevoirDao {
     suspend fun insertIgnore(devoir: DevoirEntity)
 
     /**
-     * Met à jour les métadonnées et URL distantes lorsqu'une nouvelle `version`
-     * arrive depuis `catalogue.json`, tout en préservant `isFavorite`, `isCompleted`
-     * et les fichiers locaux déjà téléchargés.
+     * Met à jour les métadonnées, URL distantes et éventuels exercices texte lorsqu'une nouvelle
+     * `version` arrive (ou lors du passage texte -> PDF), tout en préservant `isFavorite`,
+     * `isCompleted` et les fichiers locaux déjà téléchargés.
      */
     @Query(
         """
@@ -56,7 +57,8 @@ interface DevoirDao {
             sujetSizeBytes = :sujetSizeBytes,
             corrigeSizeBytes = :corrigeSizeBytes,
             sujetSha256 = :sujetSha256,
-            corrigeSha256 = :corrigeSha256
+            corrigeSha256 = :corrigeSha256,
+            exercisesSerialized = :exercisesSerialized
         WHERE id = :id
         """
     )
@@ -79,7 +81,8 @@ interface DevoirDao {
         sujetSizeBytes: Long,
         corrigeSizeBytes: Long,
         sujetSha256: String?,
-        corrigeSha256: String?
+        corrigeSha256: String?,
+        exercisesSerialized: String = ""
     )
 
     /** Enregistre les chemins privés et la taille réelle d'un devoir téléchargé et vérifié. */

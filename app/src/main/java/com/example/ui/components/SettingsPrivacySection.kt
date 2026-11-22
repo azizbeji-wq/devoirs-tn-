@@ -13,12 +13,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BrightnessAuto
+import androidx.compose.material.icons.filled.CloudDone
+import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PrivacyTip
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -28,6 +34,7 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
@@ -46,6 +53,7 @@ import com.example.R
 import com.example.data.local.AppLanguage
 import com.example.data.local.AppPreferencesState
 import com.example.data.local.ThemeMode
+import com.example.ui.viewmodel.CloudSyncUiState
 
 /**
  * Panneau de préférences intégré à l'application :
@@ -58,6 +66,11 @@ fun SettingsPrivacySection(
     preferences: AppPreferencesState,
     onSelectLanguage: (AppLanguage) -> Unit,
     onSelectThemeMode: (ThemeMode) -> Unit,
+    onToggleAiTutorEnabled: (Boolean) -> Unit = {},
+    userDisplayName: String? = null,
+    userEmail: String? = null,
+    cloudSyncState: CloudSyncUiState = CloudSyncUiState.Loading,
+    onSignOut: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     var showPrivacyDialog by rememberSaveable { mutableStateOf(false) }
@@ -73,6 +86,106 @@ fun SettingsPrivacySection(
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onBackground
         )
+
+        // Carte 0 : Compte Google & Synchronisation Cloud Firestore
+        if (onSignOut != null) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("settings_account_sync_card"),
+                shape = MaterialTheme.shapes.large,
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 1.dp,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.AccountCircle,
+                            contentDescription = stringResource(R.string.cd_account_icon),
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(28.dp)
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = userDisplayName?.takeIf { it.isNotBlank() }
+                                    ?: stringResource(R.string.account_student_fallback),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            if (!userEmail.isNullOrBlank()) {
+                                Text(
+                                    text = userEmail,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
+
+                    val (syncIcon, syncTint, syncLabel) = when (cloudSyncState) {
+                        CloudSyncUiState.Loading -> Triple(
+                            Icons.Filled.Sync,
+                            MaterialTheme.colorScheme.primary,
+                            stringResource(R.string.cloud_sync_loading)
+                        )
+                        is CloudSyncUiState.Synced -> Triple(
+                            Icons.Filled.CloudDone,
+                            adaptiveEmerald(),
+                            stringResource(R.string.cloud_sync_active)
+                        )
+                        is CloudSyncUiState.Error -> Triple(
+                            Icons.Filled.CloudOff,
+                            MaterialTheme.colorScheme.error,
+                            stringResource(R.string.cloud_sync_error)
+                        )
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = syncIcon,
+                            contentDescription = stringResource(R.string.cd_cloud_sync_icon),
+                            tint = syncTint,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text = syncLabel,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = syncTint
+                        )
+                    }
+
+                    OutlinedButton(
+                        onClick = onSignOut,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .minimumInteractiveComponentSize()
+                            .testTag("sign_out_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Logout,
+                            contentDescription = stringResource(R.string.account_sign_out_btn),
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(stringResource(R.string.account_sign_out_btn))
+                    }
+                }
+            }
+        }
 
         // Carte 1 : Sélection de la langue (FR / AR / EN)
         Surface(
@@ -206,7 +319,75 @@ fun SettingsPrivacySection(
             }
         }
 
-        // Carte 3 : Politique de confidentialité courte intégrée
+        // Carte 3 : Contrôle parental — Activer / désactiver le Tuteur IA Gemini
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("settings_ai_tutor_card"),
+            shape = MaterialTheme.shapes.large,
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 1.dp,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.AutoAwesome,
+                        contentDescription = stringResource(R.string.cd_ai_tutor_switch_icon),
+                        tint = if (preferences.aiTutorEnabled) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.settings_ai_tutor_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = if (preferences.aiTutorEnabled) {
+                                stringResource(
+                                    R.string.settings_ai_tutor_enabled_status,
+                                    preferences.tutorDailyRemaining,
+                                    preferences.tutorDailyQuotaLimit
+                                )
+                            } else {
+                                stringResource(R.string.settings_ai_tutor_disabled_status)
+                            },
+                            style = MaterialTheme.typography.labelMedium,
+                            color = if (preferences.aiTutorEnabled) {
+                                adaptiveEmerald()
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                        )
+                    }
+                    Switch(
+                        checked = preferences.aiTutorEnabled,
+                        onCheckedChange = onToggleAiTutorEnabled,
+                        modifier = Modifier.testTag("settings_ai_tutor_switch")
+                    )
+                }
+
+                Text(
+                    text = stringResource(R.string.settings_ai_tutor_subtitle),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        // Carte 4 : Politique de confidentialité courte intégrée
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.large,

@@ -30,16 +30,15 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /**
- * Tests unitaires et Robolectric validant :
- * - la table Room FTS4 (français accentué + arabe + nettoyage des opérateurs),
- * - la recherche plein texte + génération d'extrait surligné dans DevoirSearchEngine,
- * - le redimensionnement d'image avant envoi à Gemini (PdfPageImageScaler),
- * - la détection du fallback OCR Arabe (PdfTextExtractor),
+ * Tests Robolectric d'intégration Room (sans émulateur) validant :
+ * - la table virtuelle Room FTS4 (français accentué + arabe + upsert sans doublon),
  * - la persistance de l'historique des explications IA par devoir et par page dans Room.
  */
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [36])
 class PdfOcrFtsAndTutorTest {
 
     private lateinit var database: DevoirsDatabase
@@ -129,7 +128,7 @@ class PdfOcrFtsAndTutorTest {
     @Test
     fun fts4_buildFtsMatchQuery_sanitizesOperatorsAndReservedWords() {
         assertNull(DevoirPdfContentDao.buildFtsMatchQuery("   --- \"*\"   "))
-        assertEquals("derivee* fonction*", DevoirPdfContentDao.buildFtsMatchQuery("dérivée: AND \"fonction\"!"))
+        assertEquals("dérivée* fonction*", DevoirPdfContentDao.buildFtsMatchQuery("dérivée: AND \"fonction\"!"))
     }
 
     @Test

@@ -3,15 +3,20 @@ package com.example.data.local
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.data.model.CycleLevel
+import com.example.data.model.DevoirExercise
 import com.example.data.model.DevoirItem
 import com.example.data.model.DevoirType
 import com.example.data.model.Trimester
 import com.example.data.model.TunisianSection
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 
 /**
- * Entité Room stockant les métadonnées d'un devoir PDF hébergé en ligne,
- * ses empreintes d'intégrité (taille / SHA-256), ses chemins privés téléchargés hors ligne
- * ainsi que la progression locale de l'élève (`isFavorite`, `isCompleted`).
+ * Entité Room unifiée stockant un devoir :
+ * - soit un devoir PDF hébergé en ligne (`sujetUrl`, `corrigeUrl`, SHA-256, chemins locaux),
+ * - soit un ancien sujet JSON consultable directement en texte (`exercisesSerialized`).
+ * Les colonnes `isFavorite`, `isCompleted` et les téléchargements locaux sont toujours préservés.
  */
 @Entity(tableName = "devoirs")
 data class DevoirEntity(
@@ -39,7 +44,8 @@ data class DevoirEntity(
     val downloadedBytes: Long = 0L,
     val downloadedVersion: Int = 0,
     val isFavorite: Boolean = false,
-    val isCompleted: Boolean = false
+    val isCompleted: Boolean = false,
+    val exercisesSerialized: String = ""
 )
 
 @Entity(tableName = "starred_ideas")
@@ -48,14 +54,35 @@ data class StarredIdeaEntity(
     val starredAt: Long = System.currentTimeMillis()
 )
 
-/** Utilitaire d'encodage/décodage des tags de chapitres stockés dans Room. */
+/** Utilitaire d'encodage/décodage des tags de chapitres et des exercices texte stockés dans Room. */
 object ExerciseCodec {
     private const val TAG_SEP = "|||"
+
+    private val moshi: Moshi by lazy {
+        Moshi.Builder()
+            .addLast(KotlinJsonAdapterFactory())
+            .build()
+    }
+
+    private val exercisesAdapter by lazy {
+        val listType = Types.newParameterizedType(List::class.java, DevoirExercise::class.java)
+        moshi.adapter<List<DevoirExercise>>(listType)
+    }
 
     fun encodeTags(tags: List<String>): String = tags.joinToString(TAG_SEP)
 
     fun decodeTags(raw: String): List<String> =
         if (raw.isBlank()) emptyList() else raw.split(TAG_SEP)
+
+    fun encodeExercises(exercises: List<DevoirExercise>): String {
+        if (exercises.isEmpty()) return ""
+        return runCatching { exercisesAdapter.toJson(exercises) }.getOrDefault("")
+    }
+
+    fun decodeExercises(raw: String): List<DevoirExercise> {
+        if (raw.isBlank()) return emptyList()
+        return runCatching { exercisesAdapter.fromJson(raw).orEmpty() }.getOrDefault(emptyList())
+    }
 }
 
 fun DevoirEntity.toDomain(): DevoirItem = DevoirItem(
@@ -83,7 +110,8 @@ fun DevoirEntity.toDomain(): DevoirItem = DevoirItem(
     downloadedBytes = downloadedBytes,
     downloadedVersion = downloadedVersion,
     isFavorite = isFavorite,
-    isCompleted = isCompleted
+    isCompleted = isCompleted,
+    exercises = ExerciseCodec.decodeExercises(exercisesSerialized)
 )
 
 fun DevoirItem.toEntity(): DevoirEntity = DevoirEntity(
@@ -111,5 +139,6 @@ fun DevoirItem.toEntity(): DevoirEntity = DevoirEntity(
     downloadedBytes = downloadedBytes,
     downloadedVersion = downloadedVersion,
     isFavorite = isFavorite,
-    isCompleted = isCompleted
+    isCompleted = isCompleted,
+    exercisesSerialized = ExerciseCodec.encodeExercises(exercises)
 )

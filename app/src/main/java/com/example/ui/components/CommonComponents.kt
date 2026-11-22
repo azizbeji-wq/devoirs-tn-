@@ -500,10 +500,14 @@ fun DevoirCard(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = stringResource(
-                                R.string.pdf_size_label,
-                                "%.2f".format(devoir.sizeMb)
-                            ),
+                            text = if (devoir.isTextOnly) {
+                                stringResource(R.string.text_mode_badge)
+                            } else {
+                                stringResource(
+                                    R.string.pdf_size_label,
+                                    "%.2f".format(devoir.sizeMb)
+                                )
+                            },
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
@@ -514,17 +518,19 @@ fun DevoirCard(
 
                 Spacer(modifier = Modifier.width(8.dp))
 
+                // N'affiche « Corrigé inclus » que si un corrigé PDF (corrigeUrl) ou un corrigé texte existe réellement
                 Surface(
                     shape = CircleShape,
-                    color = if (devoir.hasCorrigePdf) {
+                    color = if (devoir.hasCorrige) {
                         emerald.copy(alpha = 0.14f)
                     } else {
                         MaterialTheme.colorScheme.surfaceVariant
-                    }
+                    },
+                    modifier = Modifier.testTag("corrige_badge_${devoir.id}")
                 ) {
                     Text(
                         text = stringResource(
-                            if (devoir.hasCorrigePdf) {
+                            if (devoir.hasCorrige) {
                                 R.string.card_solution_included
                             } else {
                                 R.string.pdf_subject_only_badge
@@ -532,7 +538,7 @@ fun DevoirCard(
                         ),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (devoir.hasCorrigePdf) {
+                        color = if (devoir.hasCorrige) {
                             emerald
                         } else {
                             MaterialTheme.colorScheme.onSurfaceVariant
@@ -545,13 +551,15 @@ fun DevoirCard(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Indicateur clair « Disponible hors ligne » / « À télécharger » + action téléchargement / reprise / annulation
+            // Indicateur clair « Consultable en texte » / « Disponible hors ligne » / « À télécharger » + actions PDF
             val activeStatus = downloadProgress?.status ?: DownloadTaskStatus.IDLE
-            val isDownloading = activeStatus == DownloadTaskStatus.DOWNLOADING
-            val isQueued = activeStatus == DownloadTaskStatus.QUEUED
-            val isPausedResumable = activeStatus == DownloadTaskStatus.PAUSED_RESUMABLE ||
-                (!devoir.isAvailableOffline && hasResumablePart && !isDownloading && !isQueued)
-            val isFailed = activeStatus == DownloadTaskStatus.FAILED
+            val isDownloading = devoir.hasPdfSource && activeStatus == DownloadTaskStatus.DOWNLOADING
+            val isQueued = devoir.hasPdfSource && activeStatus == DownloadTaskStatus.QUEUED
+            val isPausedResumable = devoir.hasPdfSource && (
+                activeStatus == DownloadTaskStatus.PAUSED_RESUMABLE ||
+                    (!devoir.isAvailableOffline && hasResumablePart && !isDownloading && !isQueued)
+                )
+            val isFailed = devoir.hasPdfSource && activeStatus == DownloadTaskStatus.FAILED
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -559,18 +567,19 @@ fun DevoirCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 val statusColor = when {
-                    devoir.isAvailableOffline -> emerald
+                    devoir.isTextOnly || devoir.isAvailableOffline -> emerald
                     isDownloading || isQueued -> MaterialTheme.colorScheme.primary
                     isFailed -> crimson
                     else -> MaterialTheme.colorScheme.onSurfaceVariant
                 }
                 val statusBg = when {
-                    devoir.isAvailableOffline -> emerald.copy(alpha = 0.12f)
+                    devoir.isTextOnly || devoir.isAvailableOffline -> emerald.copy(alpha = 0.12f)
                     isDownloading || isQueued -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
                     isFailed -> crimson.copy(alpha = 0.12f)
                     else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
                 }
                 val statusIcon = when {
+                    devoir.isTextOnly -> Icons.Filled.Description
                     devoir.isAvailableOffline -> Icons.Filled.CloudDone
                     isQueued -> Icons.Filled.Wifi
                     isFailed -> Icons.Filled.ErrorOutline
@@ -578,6 +587,7 @@ fun DevoirCard(
                     else -> Icons.Filled.CloudDownload
                 }
                 val statusText = when {
+                    devoir.isTextOnly -> stringResource(R.string.status_text_offline)
                     devoir.isAvailableOffline -> stringResource(R.string.status_available_offline)
                     isDownloading -> stringResource(
                         R.string.status_downloading_pct,
@@ -642,7 +652,7 @@ fun DevoirCard(
                             )
                         }
                     }
-                } else if (!devoir.isAvailableOffline && onDownloadClick != null) {
+                } else if (devoir.hasPdfSource && !devoir.isAvailableOffline && onDownloadClick != null) {
                     Surface(
                         onClick = onDownloadClick,
                         shape = RoundedCornerShape(8.dp),
@@ -675,6 +685,18 @@ fun DevoirCard(
                         }
                     }
                 }
+            }
+
+            if (isFailed && !downloadProgress?.errorMessage.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = downloadProgress?.errorMessage.orEmpty(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = crimson,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.testTag("card_download_error_${devoir.id}")
+                )
             }
 
             if (isDownloading) {

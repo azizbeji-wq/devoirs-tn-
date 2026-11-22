@@ -111,7 +111,8 @@ fun StorageManagementSection(
 
     val packs = remember(allDevoirs) { PdfDownloadCoordinator.buildPacks(allDevoirs) }
     val downloadedDevoirs = remember(allDevoirs) {
-        allDevoirs.filter { it.isAvailableOffline }.sortedByDescending { it.downloadedBytes }
+        allDevoirs.filter { it.hasPdfSource && it.isAvailableOffline }
+            .sortedByDescending { it.downloadedBytes }
     }
 
     var showDeleteAllDialog by rememberSaveable { mutableStateOf(false) }
@@ -261,6 +262,46 @@ fun StorageManagementSection(
                                 contentDescription = stringResource(R.string.cd_refresh_catalogue),
                                 tint = MaterialTheme.colorScheme.primary
                             )
+                        }
+                    }
+                }
+
+                // Message explicite si l'URL du catalogue configurée dans BuildConfig est injoignable
+                if (catalogueSyncStatus.isOfflineFallback && !catalogueSyncStatus.errorMessage.isNullOrBlank()) {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("catalogue_unreachable_banner"),
+                        shape = RoundedCornerShape(10.dp),
+                        color = ochre.copy(alpha = 0.12f),
+                        border = BorderStroke(1.dp, ochre.copy(alpha = 0.35f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.Top,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Warning,
+                                contentDescription = null,
+                                tint = ochre,
+                                modifier = Modifier
+                                    .padding(top = 1.dp)
+                                    .size(18.dp)
+                            )
+                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                Text(
+                                    text = stringResource(R.string.catalogue_unreachable_banner_title),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = ochre
+                                )
+                                Text(
+                                    text = catalogueSyncStatus.errorMessage,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
                 }

@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -41,6 +42,8 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Verified
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.CheckCircle
@@ -152,12 +155,18 @@ fun DevoirDetailScreen(
     onRetryTutor: () -> Unit,
     onClearTutorHistory: () -> Unit,
     modifier: Modifier = Modifier,
-    searchQuery: String = ""
+    searchQuery: String = "",
+    aiTutorEnabled: Boolean = true,
+    revealedExercises: Set<Int> = emptySet(),
+    onToggleExerciseSolution: (Int) -> Unit = {},
+    onToggleAllSolutions: (List<Int>) -> Unit = {}
 ) {
     var activePdfKindName by rememberSaveable(devoir.id) { mutableStateOf<String?>(null) }
     val activePdfKind = activePdfKindName?.let { runCatching { PdfDocumentKind.valueOf(it) }.getOrNull() }
 
     var showCorrigeConfirmDialog by rememberSaveable(devoir.id) { mutableStateOf(false) }
+    var pendingTextExerciseNumber by rememberSaveable(devoir.id) { mutableStateOf<Int?>(null) }
+    var pendingRevealAllTextSolutions by rememberSaveable(devoir.id) { mutableStateOf(false) }
     var corrigeConfirmed by rememberSaveable(devoir.id) { mutableStateOf(false) }
 
     val isExamLocked = examModeState.isSolutionsLocked
@@ -168,7 +177,7 @@ fun DevoirDetailScreen(
     val corrigeBadgeLabel = stringResource(R.string.pdf_badge_corrige)
 
     // Si un PDF local téléchargé est ouvert, afficher le lecteur PDF natif + chronomètre flottant + Tuteur IA page courante
-    if (activePdfKind != null) {
+    if (devoir.hasPdfSource && activePdfKind != null) {
         val localPath = when (activePdfKind) {
             PdfDocumentKind.SUJET -> devoir.localSujetPath.orEmpty()
             PdfDocumentKind.CORRIGE -> devoir.localCorrigePath ?: devoir.localSujetPath.orEmpty()
@@ -186,14 +195,18 @@ fun DevoirDetailScreen(
                 onFinishExamMode()
             },
             onBack = { activePdfKindName = null },
-            onExplainCurrentPage = { pageNumber, kind, bitmap ->
-                val kindLabel = if (kind == PdfDocumentKind.CORRIGE) corrigeBadgeLabel else subjectBadgeLabel
-                onExplainPdfPage(pageNumber, kindLabel, bitmap)
+            onExplainCurrentPage = if (aiTutorEnabled) {
+                { pageNumber, kind, bitmap ->
+                    val kindLabel = if (kind == PdfDocumentKind.CORRIGE) corrigeBadgeLabel else subjectBadgeLabel
+                    onExplainPdfPage(pageNumber, kindLabel, bitmap)
+                }
+            } else {
+                null
             },
             modifier = modifier
         )
 
-        if (tutorUiState.isSheetOpen) {
+        if (aiTutorEnabled && tutorUiState.isSheetOpen) {
             AiTutorBottomSheet(
                 uiState = tutorUiState,
                 messages = tutorMessages,
@@ -217,27 +230,38 @@ fun DevoirDetailScreen(
     val emerald = adaptiveEmerald()
     val crimson = adaptiveCrimson()
     val ochre = adaptiveOchre()
-    val formattedSize = remember(devoir.sizeMb, devoir.downloadedBytes) {
-        if (devoir.isAvailableOffline && devoir.downloadedBytes > 0L) {
-            PdfStorageManager.formatBytes(devoir.downloadedBytes)
-        } else {
-            String.format(Locale.getDefault(), "%.1f Mo", devoir.sizeMb)
+    val formattedSize = remember(devoir.isTextOnly, devoir.sizeMb, devoir.downloadedBytes, devoir.exercises.size) {
+        when {
+            devoir.isTextOnly -> "${devoir.exercises.size} ex."
+            devoir.isAvailableOffline && devoir.downloadedBytes > 0L ->
+                PdfStorageManager.formatBytes(devoir.downloadedBytes)
+            else -> String.format(Locale.getDefault(), "%.1f Mo", devoir.sizeMb)
         }
     }
 
-    val devoirSummaryForTutor = remember(devoir.id, devoir.title, devoir.chapterTags) {
+    val devoirSummaryForTutor = remember(devoir.id, devoir.title, devoir.chapterTags, devoir.hasCorrige, devoir.isTextOnly) {
         DevoirExercise(
             number = 1,
             title = devoir.title,
             points = "20 pts",
-            statement = "Devoir PDF (${devoir.type.badge}) — Chapitres : ${devoir.chapterTags.joinToString(", ")}.",
-            solution = if (devoir.hasCorrigePdf) {
-                "Corrigé détaillé disponible en PDF."
+            statement = if (devoir.isTextOnly) {
+                "Devoir texte (${devoir.type.badge}) — Chapitres : ${devoir.chapterTags.joinToString(", ")}."
             } else {
-                "Sujet d'entraînement seul (corrigé non fourni)."
+                "Devoir PDF (${devoir.type.badge}) — Chapitres : ${devoir.chapterTags.joinToString(", ")}."
+            },
+            solution = when {
+                devoir.hasCorrigePdf -> "Corrigé détaillé disponible en PDF."
+                devoir.hasCorrigeText -> "Corrigé détaillé intégré exercice par exercice."
+                else -> "Sujet d'entraînement seul (corrigé non fourni)."
             }
         )
     }
+
+    val exercisesWithSolutionNumbers = remember(devoir.exercises) {
+        devoir.exercises.filter { it.solution.isNotBlank() }.map { it.number }
+    }
+    val allTextSolutionsRevealed = exercisesWithSolutionNumbers.isNotEmpty() &&
+        exercisesWithSolutionNumbers.all { it in revealedExercises }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -309,7 +333,49 @@ fun DevoirDetailScreen(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (devoir.isAvailableOffline) {
+                    if (devoir.isTextOnly) {
+                        if (devoir.hasCorrigeText) {
+                            OutlinedButton(
+                                onClick = {
+                                    if (isCorrigeLocked) return@OutlinedButton
+                                    if (allTextSolutionsRevealed || isSelfEvaluation || corrigeConfirmed) {
+                                        onToggleAllSolutions(exercisesWithSolutionNumbers)
+                                    } else {
+                                        pendingTextExerciseNumber = null
+                                        pendingRevealAllTextSolutions = true
+                                        showCorrigeConfirmDialog = true
+                                    }
+                                },
+                                enabled = !isCorrigeLocked,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .minimumInteractiveComponentSize()
+                                    .testTag("bottom_toggle_text_solutions_btn")
+                            ) {
+                                Icon(
+                                    imageVector = when {
+                                        isCorrigeLocked -> Icons.Filled.Lock
+                                        allTextSolutionsRevealed -> Icons.Filled.VisibilityOff
+                                        else -> Icons.Filled.Visibility
+                                    },
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = stringResource(
+                                        if (allTextSolutionsRevealed) {
+                                            R.string.text_hide_all_solutions
+                                        } else {
+                                            R.string.text_show_all_solutions
+                                        }
+                                    ),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    } else if (devoir.isAvailableOffline) {
                         OutlinedButton(
                             onClick = { activePdfKindName = PdfDocumentKind.SUJET.name },
                             modifier = Modifier
@@ -421,7 +487,7 @@ fun DevoirDetailScreen(
                             )
                             Surface(
                                 shape = RoundedCornerShape(6.dp),
-                                color = if (devoir.isAvailableOffline) {
+                                color = if (devoir.isTextOnly || devoir.isAvailableOffline) {
                                     emerald.copy(alpha = 0.14f)
                                 } else {
                                     MaterialTheme.colorScheme.surfaceVariant
@@ -429,15 +495,15 @@ fun DevoirDetailScreen(
                             ) {
                                 Text(
                                     text = stringResource(
-                                        if (devoir.isAvailableOffline) {
-                                            R.string.status_available_offline
-                                        } else {
-                                            R.string.status_to_download
+                                        when {
+                                            devoir.isTextOnly -> R.string.status_text_offline
+                                            devoir.isAvailableOffline -> R.string.status_available_offline
+                                            else -> R.string.status_to_download
                                         }
                                     ),
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = if (devoir.isAvailableOffline) {
+                                    color = if (devoir.isTextOnly || devoir.isAvailableOffline) {
                                         emerald
                                     } else {
                                         MaterialTheme.colorScheme.onSurfaceVariant
@@ -504,33 +570,83 @@ fun DevoirDetailScreen(
                 }
             }
 
-            // 2. Carte Documents PDF : téléchargement / progression / annulation / reprise + Voir le sujet & Voir le corrigé
-            item(key = "pdf_documents_section") {
-                PdfDocumentsActionCard(
-                    devoir = devoir,
-                    downloadProgress = downloadProgress,
-                    hasResumablePart = hasResumablePart,
-                    isExamLocked = isExamLocked,
-                    isTimerLocked = isTimerLocked,
-                    subjectAccent = subjectAccent,
-                    emerald = emerald,
-                    crimson = crimson,
-                    ochre = ochre,
-                    onDownload = onDownloadDevoir,
-                    onCancelDownload = onCancelDownload,
-                    onDeleteDownload = onDeleteDownload,
-                    onOpenSujet = { activePdfKindName = PdfDocumentKind.SUJET.name },
-                    onRequestOpenCorrige = {
-                        if (!devoir.hasCorrigePdf || !devoir.isAvailableOffline || isCorrigeLocked) {
-                            return@PdfDocumentsActionCard
+            // 2. Carte Documents PDF OU bandeau Sujet consultable en texte
+            if (devoir.hasPdfSource) {
+                item(key = "pdf_documents_section") {
+                    PdfDocumentsActionCard(
+                        devoir = devoir,
+                        downloadProgress = downloadProgress,
+                        hasResumablePart = hasResumablePart,
+                        isExamLocked = isExamLocked,
+                        isTimerLocked = isTimerLocked,
+                        subjectAccent = subjectAccent,
+                        emerald = emerald,
+                        crimson = crimson,
+                        ochre = ochre,
+                        onDownload = onDownloadDevoir,
+                        onCancelDownload = onCancelDownload,
+                        onDeleteDownload = onDeleteDownload,
+                        onOpenSujet = { activePdfKindName = PdfDocumentKind.SUJET.name },
+                        onRequestOpenCorrige = {
+                            if (!devoir.hasCorrigePdf || !devoir.isAvailableOffline || isCorrigeLocked) {
+                                return@PdfDocumentsActionCard
+                            }
+                            if (isSelfEvaluation || corrigeConfirmed) {
+                                activePdfKindName = PdfDocumentKind.CORRIGE.name
+                            } else {
+                                pendingTextExerciseNumber = null
+                                pendingRevealAllTextSolutions = false
+                                showCorrigeConfirmDialog = true
+                            }
                         }
-                        if (isSelfEvaluation || corrigeConfirmed) {
-                            activePdfKindName = PdfDocumentKind.CORRIGE.name
-                        } else {
-                            showCorrigeConfirmDialog = true
+                    )
+                }
+            } else {
+                item(key = "text_mode_info_section") {
+                    Surface(
+                        shape = MaterialTheme.shapes.large,
+                        color = MaterialTheme.colorScheme.surface,
+                        tonalElevation = 1.dp,
+                        border = BorderStroke(1.dp, emerald.copy(alpha = 0.35f)),
+                        modifier = Modifier.testTag("text_mode_info_card")
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(emerald.copy(alpha = 0.14f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Description,
+                                    contentDescription = stringResource(R.string.cd_pdf_subject_icon),
+                                    tint = emerald,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = stringResource(R.string.text_mode_section_title),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = stringResource(R.string.text_mode_section_subtitle),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
-                )
+                }
             }
 
             // 3. Mode Examen en conditions réelles
@@ -598,8 +714,38 @@ fun DevoirDetailScreen(
                 }
             }
 
-            // 5. Tuteur IA
-            if (!isExamLocked) {
+            // 5. Exercices intégrés pour les devoirs migrés consultables en texte
+            if (devoir.isTextOnly && devoir.exercises.isNotEmpty()) {
+                items(devoir.exercises, key = { "text_ex_${devoir.id}_${it.number}" }) { exercise ->
+                    val isSolutionRevealed = !isCorrigeLocked && (isSelfEvaluation || exercise.number in revealedExercises)
+                    TextExerciseDetailCard(
+                        exercise = exercise,
+                        searchQuery = searchQuery,
+                        subjectAccent = subjectAccent,
+                        emerald = emerald,
+                        crimson = crimson,
+                        isCorrigeLocked = isCorrigeLocked,
+                        isExamLocked = isExamLocked,
+                        isSolutionRevealed = isSolutionRevealed,
+                        aiTutorEnabled = aiTutorEnabled,
+                        onToggleSolution = {
+                            if (isCorrigeLocked || exercise.solution.isBlank()) return@TextExerciseDetailCard
+                            if (isSolutionRevealed || isSelfEvaluation || corrigeConfirmed) {
+                                onToggleExerciseSolution(exercise.number)
+                            } else {
+                                pendingRevealAllTextSolutions = false
+                                pendingTextExerciseNumber = exercise.number
+                                showCorrigeConfirmDialog = true
+                            }
+                        },
+                        onExplainWithAi = { onExplainExerciseWithAi(exercise) },
+                        onOpenTutorChat = { onOpenTutorChat(exercise) }
+                    )
+                }
+            }
+
+            // 6. Tuteur IA global (uniquement si activé dans les paramètres parentaux et hors verrouillage examen)
+            if (!isExamLocked && aiTutorEnabled) {
                 item(key = "tutor_help_section") {
                     Surface(
                         shape = MaterialTheme.shapes.medium,
@@ -694,7 +840,11 @@ fun DevoirDetailScreen(
 
     if (showCorrigeConfirmDialog) {
         AlertDialog(
-            onDismissRequest = { showCorrigeConfirmDialog = false },
+            onDismissRequest = {
+                showCorrigeConfirmDialog = false
+                pendingTextExerciseNumber = null
+                pendingRevealAllTextSolutions = false
+            },
             icon = {
                 Icon(
                     imageVector = Icons.Filled.Verified,
@@ -709,7 +859,16 @@ fun DevoirDetailScreen(
                     onClick = {
                         showCorrigeConfirmDialog = false
                         corrigeConfirmed = true
-                        activePdfKindName = PdfDocumentKind.CORRIGE.name
+                        if (devoir.isTextOnly) {
+                            when {
+                                pendingRevealAllTextSolutions -> onToggleAllSolutions(exercisesWithSolutionNumbers)
+                                pendingTextExerciseNumber != null -> onToggleExerciseSolution(pendingTextExerciseNumber!!)
+                            }
+                            pendingTextExerciseNumber = null
+                            pendingRevealAllTextSolutions = false
+                        } else {
+                            activePdfKindName = PdfDocumentKind.CORRIGE.name
+                        }
                     },
                     modifier = Modifier.testTag("confirm_open_corrige_btn")
                 ) {
@@ -718,7 +877,11 @@ fun DevoirDetailScreen(
             },
             dismissButton = {
                 TextButton(
-                    onClick = { showCorrigeConfirmDialog = false },
+                    onClick = {
+                        showCorrigeConfirmDialog = false
+                        pendingTextExerciseNumber = null
+                        pendingRevealAllTextSolutions = false
+                    },
                     modifier = Modifier.testTag("cancel_open_corrige_btn")
                 ) {
                     Text(stringResource(R.string.action_cancel))
@@ -727,7 +890,7 @@ fun DevoirDetailScreen(
         )
     }
 
-    if (tutorUiState.isSheetOpen) {
+    if (aiTutorEnabled && tutorUiState.isSheetOpen) {
         AiTutorBottomSheet(
             uiState = tutorUiState,
             messages = tutorMessages,
@@ -741,6 +904,231 @@ fun DevoirDetailScreen(
             onRetry = onRetryTutor,
             onClearHistory = onClearTutorHistory
         )
+    }
+}
+
+/**
+ * Carte d'exercice pour les devoirs consultables en texte (migrés depuis les anciens JSON sans PDF).
+ */
+@Composable
+private fun TextExerciseDetailCard(
+    exercise: DevoirExercise,
+    searchQuery: String,
+    subjectAccent: Color,
+    emerald: Color,
+    crimson: Color,
+    isCorrigeLocked: Boolean,
+    isExamLocked: Boolean,
+    isSolutionRevealed: Boolean,
+    aiTutorEnabled: Boolean,
+    onToggleSolution: () -> Unit,
+    onExplainWithAi: () -> Unit,
+    onOpenTutorChat: () -> Unit
+) {
+    val hasSolution = exercise.solution.isNotBlank()
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("text_exercise_card_${exercise.number}"),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 1.dp,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = subjectAccent.copy(alpha = 0.14f)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.text_exercise_label, exercise.number),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = subjectAccent,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                    Text(
+                        text = buildHighlightedText(exercise.title, searchQuery),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                if (exercise.points.isNotBlank()) {
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant
+                    ) {
+                        Text(
+                            text = exercise.points,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+            }
+
+            Text(
+                text = buildHighlightedText(exercise.statement, searchQuery),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            if (hasSolution) {
+                OutlinedButton(
+                    onClick = onToggleSolution,
+                    enabled = !isCorrigeLocked,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .minimumInteractiveComponentSize()
+                        .testTag("toggle_text_solution_${exercise.number}"),
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = if (!isCorrigeLocked) emerald.copy(alpha = 0.65f) else MaterialTheme.colorScheme.outlineVariant
+                    ),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = emerald,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                ) {
+                    Icon(
+                        imageVector = when {
+                            isCorrigeLocked -> Icons.Filled.Lock
+                            isSolutionRevealed -> Icons.Filled.VisibilityOff
+                            else -> Icons.Filled.Visibility
+                        },
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = when {
+                            isCorrigeLocked -> stringResource(
+                                if (isExamLocked) R.string.pdf_corrige_locked_exam else R.string.pdf_corrige_locked_timer
+                            )
+                            isSolutionRevealed -> stringResource(R.string.text_hide_solution)
+                            else -> stringResource(R.string.text_show_solution)
+                        },
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
+                if (isSolutionRevealed) {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("text_solution_box_${exercise.number}"),
+                        shape = MaterialTheme.shapes.medium,
+                        color = emerald.copy(alpha = 0.08f),
+                        border = BorderStroke(1.dp, emerald.copy(alpha = 0.32f))
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Verified,
+                                    contentDescription = stringResource(R.string.cd_pdf_corrige_icon),
+                                    tint = emerald,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Text(
+                                    text = stringResource(R.string.pdf_badge_corrige),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = emerald
+                                )
+                            }
+                            Text(
+                                text = exercise.solution,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+            } else {
+                Text(
+                    text = stringResource(R.string.text_no_solution_label),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            if (!isExamLocked && aiTutorEnabled) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    FilledTonalButton(
+                        onClick = onExplainWithAi,
+                        modifier = Modifier
+                            .weight(1.2f)
+                            .minimumInteractiveComponentSize()
+                            .testTag("explain_text_ex_${exercise.number}"),
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.AutoAwesome,
+                            contentDescription = null,
+                            modifier = Modifier.size(15.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = stringResource(R.string.tutor_explain_button),
+                            style = MaterialTheme.typography.labelMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    OutlinedButton(
+                        onClick = onOpenTutorChat,
+                        modifier = Modifier
+                            .weight(1f)
+                            .minimumInteractiveComponentSize()
+                            .testTag("chat_text_ex_${exercise.number}"),
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Forum,
+                            contentDescription = null,
+                            modifier = Modifier.size(15.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = stringResource(R.string.tutor_hints_chat_button),
+                            style = MaterialTheme.typography.labelMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 

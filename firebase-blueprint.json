@@ -1,0 +1,238 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Synchronized student profile, weekly study goal, favorites, completed exams, and starred study methods.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Authentication UID of the student owner."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Student display name from Google Sign-In."
+        },
+        "weeklyGoalTarget": {
+          "type": "integer",
+          "description": "Weekly study target between 1 and 20 exams."
+        },
+        "favoriteDevoirIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of bookmarked devoir IDs."
+        },
+        "completedDevoirIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of completed devoir IDs."
+        },
+        "starredMethodIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of starred study method IDs."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the profile was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the profile was last updated."
+        }
+      },
+      "required": [
+        "userId",
+        "displayName",
+        "weeklyGoalTarget",
+        "favoriteDevoirIds",
+        "completedDevoirIds",
+        "starredMethodIds",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CloudExamAttempt": {
+      "title": "CloudExamAttempt",
+      "description": "Completed real-conditions exam self-evaluation attempt synced to the student's cloud history.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Owner Firebase Auth UID."
+        },
+        "devoirId": {
+          "type": "string",
+          "description": "Catalog identifier of the exam."
+        },
+        "devoirTitle": {
+          "type": "string",
+          "description": "Title of the exam."
+        },
+        "subject": {
+          "type": "string",
+          "description": "Subject name."
+        },
+        "totalScore": {
+          "type": "number",
+          "description": "Score obtained by the student."
+        },
+        "maxScore": {
+          "type": "number",
+          "description": "Maximum possible score for the exam."
+        },
+        "actualDurationSeconds": {
+          "type": "integer",
+          "description": "Elapsed exam time in seconds."
+        },
+        "attemptedAtMillis": {
+          "type": "integer",
+          "description": "Client epoch milliseconds when the exam attempt finished."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": [
+        "userId",
+        "devoirId",
+        "devoirTitle",
+        "subject",
+        "totalScore",
+        "maxScore",
+        "actualDurationSeconds",
+        "attemptedAtMillis",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CloudExamReminder": {
+      "title": "CloudExamReminder",
+      "description": "Student exam reminder (DC/DS/Bac) synced across devices.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Owner Firebase Auth UID."
+        },
+        "title": {
+          "type": "string",
+          "description": "Reminder title."
+        },
+        "subject": {
+          "type": "string",
+          "description": "Subject name."
+        },
+        "examType": {
+          "type": "string",
+          "description": "Exam type label (DC, DS, Bac)."
+        },
+        "examDateMillis": {
+          "type": "integer",
+          "description": "Scheduled exam timestamp in epoch milliseconds."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": [
+        "userId",
+        "title",
+        "subject",
+        "examType",
+        "examDateMillis",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CloudSubject": {
+      "title": "CloudSubject",
+      "description": "Custom student-created school subject synced to Firestore.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Owner Firebase Auth UID."
+        },
+        "name": {
+          "type": "string",
+          "description": "Custom subject name."
+        },
+        "subtitle": {
+          "type": "string",
+          "description": "Short subtitle or description."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": [
+        "userId",
+        "name",
+        "subtitle",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "google.com"
+    ]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "Root per-user study profile document storing weekly target, favorites, completed devoirs, and starred methods."
+    },
+    "/users/{userId}/examAttempts/{attemptId}": {
+      "schema": {
+        "$ref": "#/entities/CloudExamAttempt"
+      },
+      "description": "Per-user real-conditions exam evaluation history."
+    },
+    "/users/{userId}/reminders/{reminderId}": {
+      "schema": {
+        "$ref": "#/entities/CloudExamReminder"
+      },
+      "description": "Per-user scheduled DC/DS exam reminders."
+    },
+    "/users/{userId}/subjects/{subjectId}": {
+      "schema": {
+        "$ref": "#/entities/CloudSubject"
+      },
+      "description": "Per-user custom subjects."
+    }
+  }
+}
