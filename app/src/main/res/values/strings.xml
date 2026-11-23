@@ -612,7 +612,7 @@
     <string name="settings_ai_tutor_title">Tuteur IA (Contrôle parental)</string>
     <string name="settings_ai_tutor_subtitle">Les images de pages et questions sont envoyées à Gemini via Firebase sans identité associée. Un parent peut désactiver le Tuteur IA ici.</string>
     <string name="settings_ai_tutor_enabled_status">Activé · %1$d / %2$d requêtes restantes aujourd\'hui</string>
-    <string name="settings_ai_tutor_disabled_status">Désactivé · mode révision 100 % hors ligne</string>
+    <string name="settings_ai_tutor_disabled_status" formatted="false">Désactivé · mode révision 100 % hors ligne</string>
     <string name="cd_ai_tutor_switch_icon">Interrupteur d\'activation du Tuteur IA</string>
     <string name="catalogue_unreachable_banner_title">Catalogue distant injoignable</string>
 

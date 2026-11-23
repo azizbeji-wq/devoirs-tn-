@@ -620,7 +620,7 @@
     <string name="settings_ai_tutor_title">المرافق الذكي (تحكّم أبوي)</string>
     <string name="settings_ai_tutor_subtitle">تُرسل صور الصفحات والأسئلة إلى Gemini عبر Firebase دون ربطها بهوية. يمكن للولي تعطيل المرافق من هنا.</string>
     <string name="settings_ai_tutor_enabled_status">مُفعّل · %1$d / %2$d طلباً متبقياً اليوم</string>
-    <string name="settings_ai_tutor_disabled_status">مُعطّل · مراجعة 100 % دون اتصال</string>
+    <string name="settings_ai_tutor_disabled_status" formatted="false">مُعطّل · مراجعة 100 % دون اتصال</string>
     <string name="cd_ai_tutor_switch_icon">مفتاح تفعيل أو تعطيل المرافق الذكي</string>
     <string name="catalogue_unreachable_banner_title">تعذّر الاتصال بالفهرس البعيد</string>
 

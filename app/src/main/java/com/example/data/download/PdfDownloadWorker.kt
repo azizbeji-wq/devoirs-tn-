@@ -352,7 +352,9 @@ class PdfDownloadWorker(
             .setOnlyAlertOnce(true)
             .setProgress(100, progress, false)
             .build()
-        runCatching { NotificationManagerCompat.from(applicationContext).notify(notifId, notif) }
+        if (ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            runCatching { NotificationManagerCompat.from(applicationContext).notify(notifId, notif) }
+        }
     }
 
     private fun postCompletedNotification(notifId: Int, title: String) {
@@ -363,7 +365,9 @@ class PdfDownloadWorker(
             .setContentText(title)
             .setAutoCancel(true)
             .build()
-        runCatching { NotificationManagerCompat.from(applicationContext).notify(notifId, notif) }
+        if (ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            runCatching { NotificationManagerCompat.from(applicationContext).notify(notifId, notif) }
+        }
     }
 
     private fun postErrorNotification(notifId: Int, title: String, reason: String) {
@@ -374,7 +378,9 @@ class PdfDownloadWorker(
             .setContentText("$title — $reason")
             .setAutoCancel(true)
             .build()
-        runCatching { NotificationManagerCompat.from(applicationContext).notify(notifId, notif) }
+        if (ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            runCatching { NotificationManagerCompat.from(applicationContext).notify(notifId, notif) }
+        }
     }
 
     private fun cancelNotification(notifId: Int) {

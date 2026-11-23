@@ -612,7 +612,7 @@
     <string name="settings_ai_tutor_title">AI Tutor (Parental Control)</string>
     <string name="settings_ai_tutor_subtitle">Page images and questions are sent to Gemini via Firebase with no identity attached. A parent can disable the AI Tutor here.</string>
     <string name="settings_ai_tutor_enabled_status">Enabled · %1$d / %2$d requests left today</string>
-    <string name="settings_ai_tutor_disabled_status">Disabled · 100% offline study mode</string>
+    <string name="settings_ai_tutor_disabled_status" formatted="false">Disabled · 100% offline study mode</string>
     <string name="cd_ai_tutor_switch_icon">AI Tutor parental control switch</string>
     <string name="catalogue_unreachable_banner_title">Remote catalogue unreachable</string>
 
