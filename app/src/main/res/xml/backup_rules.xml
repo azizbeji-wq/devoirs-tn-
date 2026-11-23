@@ -1,13 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample backup rules file; uncomment and customize as necessary.
-   See https://developer.android.com/guide/topics/data/autobackup
-   for details.
-   Note: This file is ignored for devices older than API 31
-   See https://developer.android.com/about/versions/12/backup-restore
--->
+<?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <!-- Inclure toutes les préférences et bases de données par défaut -->
+    <include domain="sharedpref" path="."/>
+    <include domain="database" path="."/>
+    <include domain="file" path="."/>
+
+    <!-- Exclure les fichiers volumineux qui peuvent être retéléchargés -->
+    <exclude domain="file" path="pdfs"/>
+    <exclude domain="file" path="catalogue"/>
+
+    <!-- Exclure les identifiants spécifiques à l'appareil (Firebase / App Check) -->
+    <exclude domain="sharedpref" path="com.google.firebase.appcheck.store.xml"/>
+    <exclude domain="sharedpref" path="com.google.android.gms.appid.xml"/>
+    <exclude domain="file" path="pdfs/" />
+    <exclude domain="file" path="catalogue/" />
+    <exclude domain="sharedpref" path="com.google.firebase.appcheck.store.xml" />
+    <exclude domain="sharedpref" path="com.google.android.gms.appid.xml" />
 </full-backup-content>
