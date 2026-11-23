@@ -250,7 +250,7 @@ class UnificationIntegrityAndQuotaTest {
 
     @Test
     fun catalogueUrlValidationAndErrorFormatting_neverCrashOnInvalidOrUnreachableUrl() {
-        assertTrue(RemoteCatalogueService.isValidCatalogueUrl("https://cdn.devoirstn.example/catalogue.json"))
+        assertFalse(RemoteCatalogueService.isValidCatalogueUrl("https://cdn.devoirstn.example/catalogue.json"))
         assertTrue(RemoteCatalogueService.isValidCatalogueUrl("http://10.0.2.2:8080/catalogue.json"))
         assertFalse(RemoteCatalogueService.isValidCatalogueUrl(""))
         assertFalse(RemoteCatalogueService.isValidCatalogueUrl("not-a-url"))

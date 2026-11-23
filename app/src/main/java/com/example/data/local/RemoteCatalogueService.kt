@@ -69,9 +69,15 @@ class RemoteCatalogueService(
 
         // 1. Validation de l'URL et tentative de récupération distante
         if (!isValidCatalogueUrl(trimmedUrl)) {
+            val isPlaceholder = runCatching { isReservedPlaceholderHost(URL(trimmedUrl).host) }.getOrDefault(false)
+            val msg = if (isPlaceholder) {
+                "URL non configurée ou d'exemple (vérifie CATALOGUE_URL dans .env)."
+            } else {
+                "URL du catalogue absente ou mal formée (vérifie CATALOGUE_URL dans .env)."
+            }
             remoteError = buildUnreachableUrlMessage(
                 url = trimmedUrl,
-                reason = "URL du catalogue absente ou mal formée (vérifie CATALOGUE_URL dans .env)."
+                reason = msg
             )
             Log.w(TAG, remoteError)
         } else {
@@ -190,13 +196,19 @@ class RemoteCatalogueService(
         val DEFAULT_CATALOGUE_URL: String
             get() = BuildConfig.CATALOGUE_URL
 
+        internal fun isReservedPlaceholderHost(host: String): Boolean {
+            val h = host.lowercase()
+            return h.endsWith(".example") || h.endsWith(".invalid") || h.endsWith(".test") || h == "localhost" || h == "example.com"
+        }
+
         internal fun isValidCatalogueUrl(url: String): Boolean {
             if (url.isBlank()) return false
             val lower = url.lowercase()
             if (!lower.startsWith("https://") && !lower.startsWith("http://")) return false
             return runCatching {
                 val parsed = URL(url)
-                parsed.host.isNotBlank()
+                val host = parsed.host
+                host.isNotBlank() && !isReservedPlaceholderHost(host)
             }.getOrDefault(false)
         }
 
