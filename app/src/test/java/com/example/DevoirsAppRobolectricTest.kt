@@ -161,7 +161,7 @@ class DevoirsAppRobolectricTest {
         """.trimIndent()
 
         // 1er démarrage : réseau disponible -> charge le catalogue distant v9 et l'écrit en cache disque
-        val onlineService = RemoteCatalogueService(ctx, remoteFetcher = { remoteJson })
+        val onlineService = RemoteCatalogueService(ctx, catalogueUrl = "https://cdn.devoirstn.com/catalogue.json", remoteFetcher = { remoteJson }, legacyTextLoader = { emptyList() })
         val onlineResult = onlineService.fetchCatalogueWithFallback()
         assertEquals(CatalogueOrigin.REMOTE, onlineResult.origin)
         assertEquals(9, onlineResult.catalogueVersion)
@@ -169,7 +169,7 @@ class DevoirsAppRobolectricTest {
         assertEquals("remote_cached_1", onlineResult.devoirs.first().id)
 
         // 2e démarrage : réseau absent -> bascule transparente sur le cache local v9
-        val offlineService = RemoteCatalogueService(ctx, remoteFetcher = { throw IOException("Pas de réseau") })
+        val offlineService = RemoteCatalogueService(ctx, catalogueUrl = "https://cdn.devoirstn.com/catalogue.json", remoteFetcher = { throw IOException("Pas de réseau") }, legacyTextLoader = { emptyList() })
         val offlineResult = offlineService.fetchCatalogueWithFallback()
         assertEquals(CatalogueOrigin.LOCAL_CACHE, offlineResult.origin)
         assertEquals(9, offlineResult.catalogueVersion)

@@ -260,9 +260,10 @@ class DevoirsViewModelTest {
                     id = "bac_maths",
                     title = "Bac Mathématiques",
                     shortTitle = "Maths",
+                    description = "Description Maths",
                     subjects = listOf(
-                        BacSubjectConfig(id = "maths", name = "Mathématiques", annualCoeff = 4.0, examCoeff = 4.0),
-                        BacSubjectConfig(id = "phys", name = "Physique", annualCoeff = 4.0, examCoeff = 4.0)
+                        BacSubjectConfig(id = "maths", name = "Mathématiques", annualCoeff = 4.0, examCoeff = 4.0, fgCoeff = 4.0),
+                        BacSubjectConfig(id = "phys", name = "Physique", annualCoeff = 4.0, examCoeff = 4.0, fgCoeff = 4.0)
                     )
                 )
             )
