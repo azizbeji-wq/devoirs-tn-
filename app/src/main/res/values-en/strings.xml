@@ -628,6 +628,7 @@
     <string name="auth_google_btn">Sign in with Google</string>
     <string name="auth_signing_in">Signing in…</string>
     <string name="auth_error_generic">Could not complete Google Sign-In. Check your Internet connection and try again.</string>
+    <string name="auth_error_developer">Incomplete Google Sign-In setup (Missing SHA-1 in Firebase). Please check the instructions.</string>
     <string name="auth_error_icon_cd">Sign-in error</string>
     <string name="auth_footer_note">Secure sign-in with Google · Ad-free</string>
     <string name="account_student_fallback">Devoirs TN Student</string>

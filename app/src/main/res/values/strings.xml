@@ -628,6 +628,7 @@
     <string name="auth_google_btn">Se connecter avec Google</string>
     <string name="auth_signing_in">Connexion en cours…</string>
     <string name="auth_error_generic">Impossible de finaliser la connexion Google. Vérifie ta connexion Internet puis réessaie.</string>
+    <string name="auth_error_developer">Configuration Google Sign-In incomplète (SHA-1 manquant dans Firebase). Consultez le mode d\'emploi.</string>
     <string name="auth_error_icon_cd">Erreur de connexion</string>
     <string name="auth_footer_note">Connexion sécurisée via Google · Sans publicité</string>
     <string name="account_student_fallback">Élève Devoirs TN</string>

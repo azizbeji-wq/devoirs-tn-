@@ -41,6 +41,35 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:841884061741:android:85837920c5a67b6c8628a4",
+        "android_client_info": {
+          "package_name": "scoula.study.exam"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "841884061741-e7gsoclp2hlbm45orf2g3iklsk8ecupi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZ4dXwGm1Td6upVVFr-xcTyT1txiGzNBg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "841884061741-e7gsoclp2hlbm45orf2g3iklsk8ecupi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

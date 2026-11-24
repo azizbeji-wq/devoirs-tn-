@@ -147,11 +147,21 @@ suspend fun onGoogleSignInClicked(
         Log.e("Auth", "Invalid Google ID token received", e)
         onAuthError(context.getString(R.string.auth_error_generic))
     } catch (e: GetCredentialException) {
-        Log.e("Auth", "Credential Manager sign-in failed: ${e.message}", e)
-        onAuthError(e.errorMessage?.toString() ?: context.getString(R.string.auth_error_generic))
+        val msg = e.message ?: e.errorMessage?.toString() ?: ""
+        Log.e("Auth", "Credential Manager sign-in failed: $msg", e)
+        if (msg.contains("10:") || msg.contains("DEVELOPER_ERROR")) {
+            onAuthError(context.getString(R.string.auth_error_developer))
+        } else {
+            onAuthError(msg.takeIf { it.isNotBlank() } ?: context.getString(R.string.auth_error_generic))
+        }
     } catch (e: Exception) {
-        Log.e("Auth", "Firebase sign-in with Google failed: ${e.message}", e)
-        onAuthError(e.localizedMessage ?: context.getString(R.string.auth_error_generic))
+        val msg = e.message ?: ""
+        Log.e("Auth", "Firebase sign-in with Google failed: $msg", e)
+        if (msg.contains("10:") || msg.contains("DEVELOPER_ERROR")) {
+            onAuthError(context.getString(R.string.auth_error_developer))
+        } else {
+            onAuthError(e.localizedMessage ?: context.getString(R.string.auth_error_generic))
+        }
     }
 }
 

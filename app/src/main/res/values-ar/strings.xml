@@ -636,6 +636,7 @@
     <string name="auth_google_btn">تسجيل الدخول عبر Google</string>
     <string name="auth_signing_in">جارٍ تسجيل الدخول…</string>
     <string name="auth_error_generic">تعذّر إتمام تسجيل الدخول بحساب Google. تحقّق من اتصالك بالإنترنت ثم أعد المحاولة.</string>
+    <string name="auth_error_developer">إعداد تسجيل الدخول بحساب Google غير مكتمل (بصمة SHA-1 مفقودة في Firebase). يرجى مراجعة التعليمات.</string>
     <string name="auth_error_icon_cd">خطأ في تسجيل الدخول</string>
     <string name="auth_footer_note">تسجيل دخول آمن عبر Google · بدون إعلانات</string>
     <string name="account_student_fallback">تلميذ فروض تونس</string>
