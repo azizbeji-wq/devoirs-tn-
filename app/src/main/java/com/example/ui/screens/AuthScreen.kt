@@ -29,6 +29,10 @@ import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Shield
+import com.example.ui.designsystem.AppRadius
+import com.example.ui.designsystem.AppSpacing
+import com.example.ui.designsystem.AppCard
+import com.example.ui.designsystem.PrimaryButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
@@ -192,16 +196,9 @@ fun AuthScreen(
                 }
 
                 // Points forts de la synchronisation cloud
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.large,
-                    color = MaterialTheme.colorScheme.surface,
-                    tonalElevation = 1.dp,
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-                ) {
+                AppCard {
                     Column(
-                        modifier = Modifier.padding(18.dp),
-                        verticalArrangement = Arrangement.spacedBy(14.dp)
+                        verticalArrangement = Arrangement.spacedBy(AppSpacing.Medium)
                     ) {
                         AuthFeatureRow(
                             icon = Icons.Filled.CloudDone,

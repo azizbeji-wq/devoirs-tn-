@@ -891,7 +891,7 @@ private fun WeeklyGoalCard(
                 text = if (isAchieved) {
                     stringResource(R.string.weekly_goal_achieved)
                 } else {
-                    stringResource(R.string.weekly_goal_remaining, remaining)
+                    androidx.compose.ui.res.pluralStringResource(R.plurals.weekly_goal_remaining_plurals, remaining, remaining)
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = if (isAchieved) emerald else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -949,7 +949,7 @@ private fun EditWeeklyGoalDialog(
                     }
 
                     Text(
-                        text = stringResource(R.string.weekly_goal_unit, draftGoal),
+                        text = androidx.compose.ui.res.pluralStringResource(R.plurals.weekly_goal_unit_plurals, draftGoal, draftGoal),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,

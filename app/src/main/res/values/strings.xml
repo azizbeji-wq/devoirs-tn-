@@ -422,11 +422,20 @@
     <string name="weekly_goal_title">Objectif de la semaine</string>
     <string name="weekly_goal_progress">%1$d / %2$d devoirs</string>
     <string name="weekly_goal_achieved">Objectif atteint ! Bravo pour ta régularité !</string>
-    <string name="weekly_goal_remaining">Plus que %1$d devoir(s) pour atteindre ton objectif</string>
+    <plurals name="weekly_goal_remaining_plurals">
+        <item quantity="one">Plus que %1$d devoir pour atteindre ton objectif</item>
+        <item quantity="other">Plus que %1$d devoirs pour atteindre ton objectif</item>
+    </plurals>
     <string name="weekly_goal_dialog_title">Modifier l\'objectif de la semaine</string>
     <string name="weekly_goal_dialog_subtitle">Choisis un rythme réaliste de devoirs à compléter chaque semaine.</string>
-    <string name="weekly_goal_unit">%1$d devoirs / semaine</string>
-    <string name="weekly_goal_preset_chip">%1$d devoirs</string>
+    <plurals name="weekly_goal_unit_plurals">
+        <item quantity="one">%1$d devoir / semaine</item>
+        <item quantity="other">%1$d devoirs / semaine</item>
+    </plurals>
+    <plurals name="weekly_goal_preset_chip_plurals">
+        <item quantity="one">%1$d devoir</item>
+        <item quantity="other">%1$d devoirs</item>
+    </plurals>
     <string name="grade_legend_score">Note obtenue (/20)</string>
     <string name="grade_legend_pass_line">Moyenne (10/20)</string>
 

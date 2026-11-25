@@ -430,11 +430,32 @@
     <string name="weekly_goal_title">هدف الأسبوع</string>
     <string name="weekly_goal_progress">%1$d / %2$d فروض</string>
     <string name="weekly_goal_achieved">تم تحقيق الهدف! أحسنت على انتظامك!</string>
-    <string name="weekly_goal_remaining">بقي %1$d فرض(فروض) لبلوغ هدفك الأسبوعي</string>
+    <plurals name="weekly_goal_remaining_plurals">
+        <item quantity="zero">لا يوجد أي فرض متبقي لبلوغ هدفك الأسبوعي</item>
+        <item quantity="one">بقي فرض واحد لبلوغ هدفك الأسبوعي</item>
+        <item quantity="two">بقي فرضان لبلوغ هدفك الأسبوعي</item>
+        <item quantity="few">بقي %1$d فروض لبلوغ هدفك الأسبوعي</item>
+        <item quantity="many">بقي %1$d فرضًا لبلوغ هدفك الأسبوعي</item>
+        <item quantity="other">بقي %1$d فرض لبلوغ هدفك الأسبوعي</item>
+    </plurals>
     <string name="weekly_goal_dialog_title">تعديل هدف الأسبوع</string>
     <string name="weekly_goal_dialog_subtitle">اختر عدداً مناسباً من الفروض لإنجازها كل أسبوع.</string>
-    <string name="weekly_goal_unit">%1$d فروض / أسبوع</string>
-    <string name="weekly_goal_preset_chip">%1$d فروض</string>
+    <plurals name="weekly_goal_unit_plurals">
+        <item quantity="zero">لا فروض / أسبوع</item>
+        <item quantity="one">فرض واحد / أسبوع</item>
+        <item quantity="two">فرضان / أسبوع</item>
+        <item quantity="few">%1$d فروض / أسبوع</item>
+        <item quantity="many">%1$d فرضًا / أسبوع</item>
+        <item quantity="other">%1$d فرض / أسبوع</item>
+    </plurals>
+    <plurals name="weekly_goal_preset_chip_plurals">
+        <item quantity="zero">لا فروض</item>
+        <item quantity="one">فرض واحد</item>
+        <item quantity="two">فرضان</item>
+        <item quantity="few">%1$d فروض</item>
+        <item quantity="many">%1$d فرضًا</item>
+        <item quantity="other">%1$d فرض</item>
+    </plurals>
     <string name="grade_legend_score">العدد المحصّل (/20)</string>
     <string name="grade_legend_pass_line">عتبة النجاح (10/20)</string>
 

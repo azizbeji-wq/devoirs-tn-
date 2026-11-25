@@ -422,11 +422,20 @@
     <string name="weekly_goal_title">Weekly goal</string>
     <string name="weekly_goal_progress">%1$d / %2$d papers</string>
     <string name="weekly_goal_achieved">Goal reached! Great consistency!</string>
-    <string name="weekly_goal_remaining">%1$d more paper(s) to reach your weekly goal</string>
+    <plurals name="weekly_goal_remaining_plurals">
+        <item quantity="one">%1$d more paper to reach your weekly goal</item>
+        <item quantity="other">%1$d more papers to reach your weekly goal</item>
+    </plurals>
     <string name="weekly_goal_dialog_title">Edit weekly goal</string>
     <string name="weekly_goal_dialog_subtitle">Pick a realistic number of practice papers to complete each week.</string>
-    <string name="weekly_goal_unit">%1$d papers / week</string>
-    <string name="weekly_goal_preset_chip">%1$d papers</string>
+    <plurals name="weekly_goal_unit_plurals">
+        <item quantity="one">%1$d paper / week</item>
+        <item quantity="other">%1$d papers / week</item>
+    </plurals>
+    <plurals name="weekly_goal_preset_chip_plurals">
+        <item quantity="one">%1$d paper</item>
+        <item quantity="other">%1$d papers</item>
+    </plurals>
     <string name="grade_legend_score">Grade (/20)</string>
     <string name="grade_legend_pass_line">Pass line (10/20)</string>
 
